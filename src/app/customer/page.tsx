@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { useBrand } from "@/components/BrandProvider";
@@ -133,6 +133,9 @@ export default function CustomerPage() {
   const [showIosInstallModal, setShowIosInstallModal] = useState(false);
   const [pushSuccessToast, setPushSuccessToast] = useState<string | null>(null);
 
+  // Ref to track last known points for real-time cashier credit detection
+  const prevPointsRef = useRef<number | null>(null);
+
   // Google Authentication State
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -170,6 +173,13 @@ export default function CustomerPage() {
       const res = await fetch("/api/customer/dashboard", { headers });
       const data = await res.json();
       if (res.ok && data.success) {
+        if (prevPointsRef.current !== null && data.customer.pointsBalance > prevPointsRef.current) {
+          const diff = data.customer.pointsBalance - prevPointsRef.current;
+          confetti({ particleCount: 45, spread: 65 });
+          setPushSuccessToast(`🎉 رائع! تمت إضافة +${diff} نقطة جديدة لرصيدك في Cove!`);
+          setTimeout(() => setPushSuccessToast(null), 5000);
+        }
+        prevPointsRef.current = data.customer.pointsBalance;
         setCustomer(data.customer);
         setTransactions(data.transactions || []);
         if (typeof window !== "undefined") {
@@ -239,10 +249,24 @@ export default function CustomerPage() {
     loadRewards();
     loadNotifications();
 
-    // Auto-poll for live notifications every 20 seconds
+    // Fast polling every 3 seconds for instant real-time sync with cashier POS
     const interval = setInterval(() => {
+      loadDashboard();
       loadNotifications();
-    }, 20000);
+    }, 3000);
+
+    // Instant refresh when user unlocks phone or switches back to tab
+    const handleVisibilityChange = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        loadDashboard();
+        loadNotifications();
+        loadRewards();
+      }
+    };
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      window.addEventListener("focus", handleVisibilityChange);
+    }
 
     // Check if redirected with OAuth error parameter
     if (typeof window !== "undefined") {
@@ -289,7 +313,13 @@ export default function CustomerPage() {
       setPushPermission("unsupported");
     }
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (typeof document !== "undefined") {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        window.removeEventListener("focus", handleVisibilityChange);
+      }
+    };
   }, []);
 
   const isIosDevice = (): boolean => {

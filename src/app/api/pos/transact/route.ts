@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
+import webpush from "web-push";
 import { getSession } from "@/lib/auth";
 import { dbService } from "@/lib/db";
 import { CustomerTier } from "@/lib/types";
+
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@covecoffee.com";
+
+if (vapidPublicKey && vapidPrivateKey) {
+  try {
+    webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+  } catch (e) {
+    console.warn("VAPID init warning:", e);
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -76,6 +89,36 @@ export async function POST(req: Request) {
       message: `You earned ${pointsEarned} points on your bill of ${bill.toFixed(3)} ${config.currency} at ${session.branchName || "Cove"}. New balance: ${newBalance} pts.`,
       type: "POINTS_EARNED",
     });
+
+    // Dispatch instant Web Push to customer's phone
+    if (vapidPublicKey && vapidPrivateKey) {
+      try {
+        const subs = await dbService.getPushSubscriptionsForUser(customer._id);
+        const payloadString = JSON.stringify({
+          title: `نقاط جديدة من كوف! +${pointsEarned} نقطة`,
+          body: `تمت إضافة +${pointsEarned} نقطة لحسابك. رصيدك الآن: ${newBalance} نقطة.`,
+          icon: "/icon-192.png",
+          badge: "/icon-192.png",
+          url: "/customer",
+        });
+        await Promise.allSettled(
+          subs.map((sub) =>
+            webpush.sendNotification(
+              {
+                endpoint: sub.endpoint,
+                keys: {
+                  p256dh: sub.keys.p256dh,
+                  auth: sub.keys.auth,
+                },
+              },
+              payloadString
+            )
+          )
+        );
+      } catch (err) {
+        console.warn("Push dispatch error:", err);
+      }
+    }
 
     return NextResponse.json({
       success: true,
