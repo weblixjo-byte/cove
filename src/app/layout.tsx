@@ -68,9 +68,13 @@ export default function RootLayout({
         <meta name="application-name" content="Cove Coffee House" />
         <meta name="theme-color" content="#3F1215" />
 
-        {/* Typography Preconnect */}
+        {/* Typography */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body className="min-h-screen bg-[#FAF5F2] text-[#2B0B0D] antialiased selection:bg-[#3F1215] selection:text-[#FEECE2]">
         <BrandProvider>{children}</BrandProvider>
