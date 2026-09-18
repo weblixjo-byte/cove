@@ -18,8 +18,8 @@ export async function POST(req: Request) {
     }
 
     const bill = Number(billAmount);
-    if (isNaN(bill) || bill <= 0) {
-      return NextResponse.json({ error: "Valid positive bill amount is required" }, { status: 400 });
+    if (typeof billAmount === "undefined" || !Number.isFinite(bill) || bill <= 0 || bill > 10000) {
+      return NextResponse.json({ error: "Valid positive bill amount between 0.01 and 10,000 is required" }, { status: 400 });
     }
 
     const customer = await dbService.findUserById(customerId);

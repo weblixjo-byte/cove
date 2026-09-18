@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server";
 import { dbService } from "@/lib/db";
 import { signToken, TOKEN_COOKIE_NAME } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const rateLimit = checkRateLimit(`auth_staff_${ip}`, { limit: 8, windowMs: 60 * 1000 });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many authentication attempts. Please wait 1 minute before trying again." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { role, username, staffPin, email, password } = body;
 
@@ -76,12 +86,11 @@ export async function POST(req: Request) {
         );
       }
 
-      const isSecureDefaultPass = password === "CoveCoffee#2026" || password === "admin2026";
-      const isLegacyDefaultPass = password === "admin123";
+      const isDefaultSecurePass = password === "CoveCoffee#2026";
       const matchesStoredHash =
         admin.passwordHash ? await bcrypt.compare(password, admin.passwordHash) : false;
 
-      const isValidPassword = isSecureDefaultPass || isLegacyDefaultPass || matchesStoredHash;
+      const isValidPassword = isDefaultSecurePass || matchesStoredHash;
 
       if (!isValidPassword) {
         return NextResponse.json(
@@ -90,8 +99,8 @@ export async function POST(req: Request) {
         );
       }
 
-      // Automatically migrate hash in database to the unbreached secure password
-      if (isSecureDefaultPass || isLegacyDefaultPass) {
+      // Automatically migrate hash in database to bcrypt hash
+      if (isDefaultSecurePass && !admin.passwordHash) {
         try {
           const newHash = await bcrypt.hash("CoveCoffee#2026", 10);
           await dbService.updateUser(admin._id, { passwordHash: newHash });

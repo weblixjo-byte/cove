@@ -17,8 +17,8 @@ export async function POST(req: Request) {
     }
 
     const points = Number(pointsToRedeem);
-    if (isNaN(points) || points <= 0) {
-      return NextResponse.json({ error: "Valid points amount to redeem is required" }, { status: 400 });
+    if (!Number.isInteger(points) || points <= 0 || points > 1000000) {
+      return NextResponse.json({ error: "Valid integer points amount to redeem (1 to 1,000,000) is required" }, { status: 400 });
     }
 
     const customer = await dbService.findUserById(customerId);

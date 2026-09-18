@@ -25,7 +25,7 @@ import {
   ShieldCheck,
   RefreshCw,
   X,
-  Languages,
+  ChevronDown,
   Search,
   Upload,
   Image as ImageIcon,
@@ -649,9 +649,9 @@ export default function AdminPage() {
             <p className="text-xs text-neutral-500">{t.portalSubtitle}</p>
           </div>
 
-          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 sm:p-7 shadow-sm">
+          <div className="glass-panel rounded-3xl p-6 sm:p-8 shadow-xl">
             {loginError && (
-              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+              <div className="mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{loginError}</span>
               </div>
@@ -659,7 +659,7 @@ export default function AdminPage() {
 
             <form onSubmit={handleAdminLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[#2B0B0D] mb-1.5">
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1.5">
                   {t.adminEmail}
                 </label>
                 <input
@@ -667,13 +667,13 @@ export default function AdminPage() {
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="admin@covecoffee.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full px-4 py-3 rounded-2xl text-sm"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#2B0B0D] mb-1.5">
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1.5">
                   {t.password}
                 </label>
                 <input
@@ -681,7 +681,7 @@ export default function AdminPage() {
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full px-4 py-3 rounded-2xl text-sm"
                   required
                 />
               </div>
@@ -689,7 +689,7 @@ export default function AdminPage() {
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full py-3 rounded-xl bg-[#3F1215] text-[#FEECE2] text-sm font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-50 mt-2 cursor-pointer shadow-xs active:scale-98"
+                className="w-full py-3.5 rounded-2xl bg-[#3F1215] text-[#FEECE2] text-sm font-semibold hover:bg-[#2B0B0D] transition-all disabled:opacity-50 mt-2 cursor-pointer shadow-sm active:scale-98"
               >
                 {loginLoading ? t.authenticating : t.signIn}
               </button>
@@ -786,10 +786,10 @@ export default function AdminPage() {
       </div>
 
       {/* DESKTOP & IPAD LANDSCAPE SIDEBAR (>= lg: 1024px) */}
-      <aside className="hidden lg:flex w-64 xl:w-72 bg-white border-e border-[#EBD3C8] flex-col justify-between p-5 min-h-screen shrink-0 sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-64 xl:w-72 bg-white/70 backdrop-blur-2xl border-e border-white/60 shadow-xs flex-col justify-between p-5 min-h-screen shrink-0 sticky top-0 h-screen">
         <div>
           {/* Brand header */}
-          <div className="flex items-center gap-3 px-2 py-3 mb-4 border-b border-[#EBD3C8]/60">
+          <div className="flex items-center gap-3 px-2 py-3 mb-5 border-b border-[#EBD3C8]/60">
             <div className="w-11 h-11 rounded-xl bg-[#3F1215] flex items-center justify-center text-white flex-shrink-0 overflow-hidden p-0.5 border border-[#3F1215]">
               <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-lg" />
             </div>
@@ -799,19 +799,6 @@ export default function AdminPage() {
               </span>
               <span className="text-[10px] font-mono text-[#A44A3F] uppercase tracking-wider font-semibold">
                 {t.superAdmin}
-              </span>
-            </div>
-          </div>
-
-          {/* Active Locale */}
-          <div className="mb-4 px-1">
-            <div className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-[#EBD3C8] bg-[#FDF4F0] text-xs font-medium text-[#2B0B0D]">
-              <div className="flex items-center gap-2">
-                <Languages className="w-3.5 h-3.5 text-[#3F1215]" />
-                <span>Language</span>
-              </div>
-              <span className="text-[11px] font-bold text-[#3F1215]">
-                English (US)
               </span>
             </div>
           </div>
@@ -887,19 +874,19 @@ export default function AdminPage() {
               <button
                 onClick={loadMetrics}
                 disabled={loadingMetrics}
-                className="px-3.5 py-2 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FAF5F2] text-xs font-medium text-[#3F1215] flex items-center gap-2 self-start transition-colors shadow-2xs cursor-pointer"
+                className="px-4 py-2.5 rounded-2xl glass-panel hover:bg-white text-xs font-semibold text-[#3F1215] flex items-center gap-2 self-start transition-all shadow-xs cursor-pointer active:scale-95"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loadingMetrics ? "animate-spin" : ""}`} />
                 <span>{t.refreshData}</span>
               </button>
             </div>
 
-            {/* Metrics Cards Grid - Clean Minimalist Luxury */}
+            {/* Metrics Cards Grid - Clean Minimalist Luxury Glass */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Card 1: Revenue Volume */}
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs transition-all hover:border-[#3F1215]/30">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6 transition-all hover:shadow-md hover:border-[#3F1215]/30">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-medium text-neutral-500">{t.cardRevenue}</span>
+                  <span className="text-[11px] font-semibold text-neutral-500">{t.cardRevenue}</span>
                   <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
                     <DollarSign className="w-4 h-4" />
                   </div>
@@ -913,9 +900,9 @@ export default function AdminPage() {
               </div>
 
               {/* Card 2: Points Issued */}
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs transition-all hover:border-[#3F1215]/30">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6 transition-all hover:shadow-md hover:border-[#3F1215]/30">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-medium text-neutral-500">{t.cardIssued}</span>
+                  <span className="text-[11px] font-semibold text-neutral-500">{t.cardIssued}</span>
                   <div className="w-8 h-8 rounded-xl bg-[#FDF4F0] text-[#3F1215] flex items-center justify-center">
                     <TrendingUp className="w-4 h-4" />
                   </div>
@@ -929,9 +916,9 @@ export default function AdminPage() {
               </div>
 
               {/* Card 3: Points Redeemed */}
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs transition-all hover:border-[#3F1215]/30">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6 transition-all hover:shadow-md hover:border-[#3F1215]/30">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-medium text-neutral-500">{t.cardRedeemed}</span>
+                  <span className="text-[11px] font-semibold text-neutral-500">{t.cardRedeemed}</span>
                   <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center">
                     <Award className="w-4 h-4" />
                   </div>
@@ -945,9 +932,9 @@ export default function AdminPage() {
               </div>
 
               {/* Card 4: Active Customer Base */}
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs transition-all hover:border-[#3F1215]/30">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6 transition-all hover:shadow-md hover:border-[#3F1215]/30">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-medium text-neutral-500">{t.cardMembers}</span>
+                  <span className="text-[11px] font-semibold text-neutral-500">{t.cardMembers}</span>
                   <div className="w-8 h-8 rounded-xl bg-[#FAF5F2] text-[#3F1215] flex items-center justify-center">
                     <Users className="w-4 h-4" />
                   </div>
@@ -964,7 +951,7 @@ export default function AdminPage() {
             {/* Clean Recent Activity & Top Customer Overview */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Top Customers summary */}
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 shadow-xs">
+              <div className="glass-panel rounded-3xl p-6 sm:p-7 shadow-sm">
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EBD3C8]/60">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#3F1215]" />
@@ -1012,7 +999,7 @@ export default function AdminPage() {
               </div>
 
               {/* Recent Activity Feed */}
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 shadow-xs">
+              <div className="glass-panel rounded-3xl p-6 sm:p-7 shadow-sm">
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EBD3C8]/60">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-emerald-600" />
@@ -1099,7 +1086,7 @@ export default function AdminPage() {
             </div>
 
             {/* Search Input */}
-            <div className="bg-white border border-[#EBD3C8] rounded-2xl p-3 shadow-xs flex items-center gap-2.5">
+            <div className="glass-panel-subtle rounded-2xl p-3 shadow-xs flex items-center gap-2.5">
               <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
               <input
                 type="text"
@@ -1119,7 +1106,7 @@ export default function AdminPage() {
             </div>
 
             {/* Customers Table */}
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs">
+            <div className="glass-panel rounded-3xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-start text-xs border-collapse">
                   <thead>
@@ -1244,7 +1231,7 @@ export default function AdminPage() {
                 {rewardsList.map((reward) => (
                   <div
                     key={reward._id}
-                    className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+                    className="glass-panel rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
                   >
                     <div>
                       {/* Image Thumbnail Banner */}
@@ -1342,7 +1329,7 @@ export default function AdminPage() {
               </button>
             </div>
 
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs">
+            <div className="glass-panel rounded-3xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="min-w-[620px] w-full text-start text-xs">
                   <thead className="bg-[#FAF5F2] border-b border-[#EBD3C8] font-mono text-neutral-500 uppercase tracking-wider">
@@ -1404,16 +1391,16 @@ export default function AdminPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSendBroadcast} className="bg-white border border-[#EBD3C8] rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
+            <form onSubmit={handleSendBroadcast} className="glass-panel rounded-3xl p-6 sm:p-8 space-y-5">
               {broadcastSuccess && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                   <span>{broadcastSuccess}</span>
                 </div>
               )}
 
               {broadcastError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-rose-50/80 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{broadcastError}</span>
                 </div>
@@ -1431,7 +1418,7 @@ export default function AdminPage() {
                     className={`py-2.5 px-3 rounded-xl border text-xs font-medium text-center transition-all cursor-pointer ${
                       broadcastAudience === "all"
                         ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs font-semibold"
-                        : "bg-[#FAF5F2] text-neutral-600 border-[#EBD3C8] hover:bg-white"
+                        : "bg-white/60 text-neutral-600 border-[#EBD3C8] hover:bg-white"
                     }`}
                   >
                     {t.audienceAll}
@@ -1442,7 +1429,7 @@ export default function AdminPage() {
                     className={`py-2.5 px-3 rounded-xl border text-xs font-medium text-center transition-all cursor-pointer ${
                       broadcastAudience === "single"
                         ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs font-semibold"
-                        : "bg-[#FAF5F2] text-neutral-600 border-[#EBD3C8] hover:bg-white"
+                        : "bg-white/60 text-neutral-600 border-[#EBD3C8] hover:bg-white"
                     }`}
                   >
                     {t.audienceSingle}
@@ -1459,23 +1446,26 @@ export default function AdminPage() {
                   {loadingCustomers ? (
                     <div className="p-3 text-xs text-neutral-400 font-mono">Loading customers directory...</div>
                   ) : customersList.length === 0 ? (
-                    <div className="p-3 text-xs text-amber-800 bg-amber-50 rounded-xl border border-amber-200">
+                    <div className="p-3 text-xs text-amber-800 bg-amber-50/80 rounded-xl border border-amber-200">
                       {t.noCustomersFound}
                     </div>
                   ) : (
-                    <select
-                      value={selectedCustomerId}
-                      onChange={(e) => setSelectedCustomerId(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
-                      required
-                    >
-                      <option value="">-- {t.selectCustomer} --</option>
-                      {customersList.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} {c.phone ? `(${c.phone})` : c.email ? `(${c.email})` : ""} — {c.pointsBalance} pts
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={selectedCustomerId}
+                        onChange={(e) => setSelectedCustomerId(e.target.value)}
+                        className="glass-select w-full pr-10"
+                        required
+                      >
+                        <option value="">-- {t.selectCustomer} --</option>
+                        {customersList.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} {c.phone ? `(${c.phone})` : c.email ? `(${c.email})` : ""} — {c.pointsBalance} pts
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
                   )}
                 </div>
               )}
@@ -1489,7 +1479,7 @@ export default function AdminPage() {
                   value={broadcastTitle}
                   onChange={(e) => setBroadcastTitle(e.target.value)}
                   placeholder="Notification title or offer announcement"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full"
                   required
                 />
               </div>
@@ -1503,7 +1493,7 @@ export default function AdminPage() {
                   value={broadcastMessage}
                   onChange={(e) => setBroadcastMessage(e.target.value)}
                   placeholder="Write notification message details here..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full resize-none"
                   required
                 />
               </div>
@@ -1517,7 +1507,7 @@ export default function AdminPage() {
                   value={broadcastBonus}
                   onChange={(e) => setBroadcastBonus(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full font-mono"
                 />
                 <span className="text-[10px] text-neutral-400 mt-1 block">
                   {t.bonusHelp}
@@ -1548,7 +1538,7 @@ export default function AdminPage() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div
             dir="ltr"
-            className="bg-white border border-[#EBD3C8] rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-200"
+            className="glass-panel rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-200"
           >
             <div className="flex items-center justify-between pb-4 border-b border-[#EBD3C8]/60 mb-5">
               <div className="flex items-center gap-2.5">
@@ -1563,14 +1553,14 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => setShowAddRewardModal(false)}
-                className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 cursor-pointer transition-colors"
+                className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100/50 cursor-pointer transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {createRewardError && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2 mb-4">
+              <div className="p-3.5 rounded-2xl bg-rose-50/80 border border-rose-200 text-xs text-rose-800 flex items-center gap-2 mb-4">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{createRewardError}</span>
               </div>
@@ -1586,7 +1576,7 @@ export default function AdminPage() {
                   value={newReward.title}
                   onChange={(e) => setNewReward({ ...newReward, title: e.target.value })}
                   placeholder="e.g. Flat White, French Croissant, Kyoto Cold Brew..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full"
                   required
                 />
               </div>
@@ -1600,7 +1590,7 @@ export default function AdminPage() {
                   value={newReward.description}
                   onChange={(e) => setNewReward({ ...newReward, description: e.target.value })}
                   placeholder="e.g. Double shot espresso with velvety steamed whole milk"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full"
                 />
               </div>
 
@@ -1713,7 +1703,7 @@ export default function AdminPage() {
                     onChange={(e) =>
                       setNewReward({ ...newReward, pointsRequired: parseInt(e.target.value) || 0 })
                     }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                    className="glass-input w-full font-mono"
                     required
                     min={1}
                   />
@@ -1723,17 +1713,20 @@ export default function AdminPage() {
                   <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">
                     {t.tblCategory} *
                   </label>
-                  <select
-                    value={newReward.category}
-                    onChange={(e) => setNewReward({ ...newReward, category: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
-                  >
-                    <option value="Drinks">Beverages</option>
-                    <option value="Food">Food & Pastries</option>
-                    <option value="Beans">Specialty Beans</option>
-                    <option value="Merchandise">Merchandise</option>
-                    <option value="Special">Special Offers</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={newReward.category}
+                      onChange={(e) => setNewReward({ ...newReward, category: e.target.value })}
+                      className="glass-select w-full pr-10"
+                    >
+                      <option value="Drinks">Beverages</option>
+                      <option value="Food">Food & Pastries</option>
+                      <option value="Beans">Specialty Beans</option>
+                      <option value="Merchandise">Merchandise</option>
+                      <option value="Special">Special Offers</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 
@@ -1767,13 +1760,13 @@ export default function AdminPage() {
 
       {/* MODAL: ADD NEW CASHIER */}
       {showAddCashierModal && (
-        <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div
-            className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-md w-full shadow-2xl"
+            className="glass-panel rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between pb-4 border-b border-[#EBD3C8]/60 mb-5">
               <h3 className="text-base font-semibold text-[#2B0B0D] font-serif">{t.addCashierModalTitle}</h3>
-              <button onClick={() => setShowAddCashierModal(false)} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
+              <button onClick={() => setShowAddCashierModal(false)} className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100/50 cursor-pointer transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1786,7 +1779,7 @@ export default function AdminPage() {
                   value={newCashier.name}
                   onChange={(e) => setNewCashier({ ...newCashier, name: e.target.value })}
                   placeholder="Staff Full Name"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full"
                   required
                 />
               </div>
@@ -1798,7 +1791,7 @@ export default function AdminPage() {
                   value={newCashier.username}
                   onChange={(e) => setNewCashier({ ...newCashier, username: e.target.value })}
                   placeholder="cashier"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                  className="glass-input w-full font-mono"
                   dir="ltr"
                   required
                 />
@@ -1811,7 +1804,7 @@ export default function AdminPage() {
                     type="text"
                     value={newCashier.branchName}
                     onChange={(e) => setNewCashier({ ...newCashier, branchName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                    className="glass-input w-full"
                     required
                   />
                 </div>
@@ -1824,17 +1817,17 @@ export default function AdminPage() {
                     value={newCashier.staffPin}
                     onChange={(e) => setNewCashier({ ...newCashier, staffPin: e.target.value })}
                     placeholder="••••"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                    className="glass-input w-full font-mono text-center tracking-widest"
                     required
                   />
                 </div>
               </div>
 
-              <div className="pt-3 flex justify-end gap-2">
+              <div className="pt-4 border-t border-[#EBD3C8]/60 flex justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setShowAddCashierModal(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-[#EBD3C8] text-xs text-neutral-600 hover:bg-neutral-100/50 cursor-pointer"
                 >
                   {t.cancel}
                 </button>

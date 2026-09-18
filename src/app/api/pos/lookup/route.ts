@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { dbService } from "@/lib/db";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession();
+    const ip = getClientIp(req);
+    const rateLimit = checkRateLimit(`pos_lookup_${ip}`, { limit: 40, windowMs: 60 * 1000 });
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: "Lookup rate limit exceeded. Please wait a moment." }, { status: 429 });
+    }
+
+    const session = await getSession(req);
     if (!session || (session.role !== "cashier" && session.role !== "super_admin")) {
       return NextResponse.json({ error: "Unauthorized: Cashier access required" }, { status: 403 });
     }

@@ -600,7 +600,7 @@ export default function CustomerPage() {
   // If Not Logged In, Show Google-Only Login & Sign-Up Screen
   if (!customer) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex flex-col justify-between p-6">
+      <div className="min-h-screen bg-[#FAF5F2]/80 backdrop-blur-md flex flex-col justify-between p-6">
         <div className="max-w-md w-full mx-auto my-auto">
           {/* Brand header */}
           <div className="text-center mb-8">
@@ -614,7 +614,7 @@ export default function CustomerPage() {
           </div>
 
           {/* Login Card (Google Authentication Only) */}
-          <div className="bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm text-center">
+          <div className="glass-panel rounded-3xl p-8 shadow-xl text-center">
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-neutral-900 mb-2">
                 Digital Loyalty Pass
@@ -625,7 +625,7 @@ export default function CustomerPage() {
             </div>
 
             {authError && (
-              <div className="mb-5 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex flex-col gap-1.5 text-start">
+              <div className="mb-5 p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 flex flex-col gap-1.5 text-start">
                 <div className="flex items-center gap-2 font-medium">
                   <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0" />
                   <span>Notice</span>
@@ -639,7 +639,7 @@ export default function CustomerPage() {
               type="button"
               onClick={handleGoogleRedirect}
               disabled={googleRedirecting}
-              className="w-full py-3.5 px-4 rounded-2xl border border-neutral-300 bg-white hover:bg-neutral-50 active:scale-98 text-neutral-800 text-sm font-medium flex items-center justify-center gap-3 transition-all shadow-xs disabled:opacity-70 cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-2xl border border-neutral-300/80 bg-white/90 hover:bg-white active:scale-98 text-neutral-800 text-sm font-medium flex items-center justify-center gap-3 transition-all shadow-xs disabled:opacity-70 cursor-pointer"
             >
               {googleRedirecting ? (
                 <>
@@ -680,8 +680,8 @@ export default function CustomerPage() {
 
         {/* MODAL: Direct Account Sign-In / Registration */}
         {showGoogleModal && (
-          <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-7 max-w-md w-full shadow-2xl">
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="glass-panel rounded-3xl p-7 max-w-md w-full shadow-2xl">
               {/* Modal Header */}
               <div className="flex items-center justify-between pb-4 mb-4 border-b border-neutral-100">
                 <div className="flex items-center gap-2.5">
@@ -697,7 +697,7 @@ export default function CustomerPage() {
                     setShowGoogleModal(false);
                     setGoogleError(null);
                   }}
-                  className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -713,7 +713,7 @@ export default function CustomerPage() {
               </div>
 
               {googleError && (
-                <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-700 text-xs flex items-center gap-2">
+                <div className="mb-4 p-3 rounded-xl bg-red-50/80 text-red-700 text-xs flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{googleError}</span>
                 </div>
@@ -721,7 +721,7 @@ export default function CustomerPage() {
 
               {/* Clean Account Form */}
               <form onSubmit={handleCustomGoogleSubmit} className="space-y-4 mb-4">
-                <div className="p-3 rounded-2xl bg-[#FAF5F2] border border-[#EBD3C8] text-xs text-neutral-700 mb-2">
+                <div className="p-3 rounded-2xl glass-panel-subtle text-xs text-neutral-700 mb-2">
                   Enter your name and email to access your loyalty card instantly and save your points:
                 </div>
 
@@ -734,7 +734,7 @@ export default function CustomerPage() {
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
                     placeholder="Full Name"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                    className="glass-input w-full"
                     required
                     autoFocus
                   />
@@ -748,8 +748,8 @@ export default function CustomerPage() {
                     type="email"
                     value={customEmail}
                     onChange={(e) => setCustomEmail(e.target.value)}
-                    placeholder="name@domain.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                    placeholder="name@gmail.com"
+                    className="glass-input w-full"
                     required
                   />
                 </div>
@@ -784,9 +784,9 @@ export default function CustomerPage() {
 
   // Authenticated Mobile-First Customer View
   return (
-    <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between pb-28 sm:pb-32">
+    <div className="min-h-screen bg-[#FAF5F2]/80 backdrop-blur-md flex flex-col justify-between pb-28 sm:pb-32">
       {/* Top Mobile Bar */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-[#EBD3C8] sticky top-0 z-20 px-4 py-3">
+      <header className="glass-panel border-x-0 border-t-0 rounded-none sticky top-0 z-20 px-4 py-3">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-[#3F1215] flex items-center justify-center text-white overflow-hidden p-0.5 border border-[#3F1215]">
@@ -803,7 +803,7 @@ export default function CustomerPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleLogout}
-              className="p-2 rounded-xl text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100/50 transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -821,10 +821,10 @@ export default function CustomerPage() {
               setActiveTab("notifications");
               markAllRead();
             }}
-            className="mb-4 p-3.5 rounded-2xl bg-[#3F1215] text-[#FEECE2] shadow-md flex items-center justify-between gap-3 cursor-pointer hover:bg-[#2B0B0D] transition-all border border-[#3F1215]"
+            className="mb-4 bg-[#3F1215] text-[#FEECE2] rounded-2xl p-3.5 shadow-md flex items-center justify-between gap-3 cursor-pointer hover:bg-[#2B0B0D] transition-all animate-in fade-in slide-in-from-top-2"
           >
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-xl bg-[#FEECE2]/20 flex items-center justify-center shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
                 <Bell className="w-4 h-4 text-[#FEECE2]" />
               </div>
               <div className="overflow-hidden">
@@ -869,7 +869,7 @@ export default function CustomerPage() {
 
         {/* State 3: Push Permission Denied Banner */}
         {pushPermission === "denied" && (
-          <div className="mb-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+          <div className="mb-4 p-3 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
             <span className="text-[11px]">
               Notifications are blocked in your browser settings. Tap the lock icon in your address bar and allow notifications.
@@ -879,7 +879,7 @@ export default function CustomerPage() {
 
         {/* Push Activation Success Toast */}
         {pushSuccessToast && (
-          <div className="mb-4 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 shadow-xs">
+          <div className="mb-4 p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 shadow-xs">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span className="font-medium">{pushSuccessToast}</span>
           </div>
@@ -889,7 +889,7 @@ export default function CustomerPage() {
         {activeTab === "card" && (
           <div className="space-y-4">
             {/* The Main Member Card */}
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 shadow-sm relative overflow-hidden">
+            <div className="glass-panel rounded-3xl p-6 shadow-xl relative overflow-hidden">
               {/* Card Header */}
               <div className="flex items-start justify-between mb-5">
                 <div>
@@ -943,7 +943,7 @@ export default function CustomerPage() {
               </div>
 
               {/* 6-Digit PIN: Bold Monospace with Quick Copy */}
-              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-center">
+              <div className="glass-panel-subtle rounded-2xl p-4 text-center">
                 <span className="text-[11px] uppercase tracking-wider font-mono text-neutral-500 block mb-1">
                   Fallback 6-Digit Counter PIN
                 </span>
@@ -1001,7 +1001,7 @@ export default function CustomerPage() {
             {/* Quick Action: Browse Rewards Shortcut */}
             <button
               onClick={() => setActiveTab("rewards")}
-              className="w-full bg-white border border-neutral-200 hover:border-neutral-300 rounded-2xl p-4 flex items-center justify-between text-left transition-all shadow-xs"
+              className="w-full glass-panel hover:bg-white/80 rounded-2xl p-4 flex items-center justify-between text-left transition-all shadow-xs cursor-pointer"
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-amber-50 text-[#C87D55] flex items-center justify-center">
@@ -1025,7 +1025,7 @@ export default function CustomerPage() {
         {activeTab === "rewards" && (
           <div className="space-y-4">
             {/* Balance Overview Banner */}
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs flex items-center justify-between">
+            <div className="glass-panel rounded-3xl p-5 shadow-xs flex items-center justify-between">
               <div>
                 <span className="text-[11px] text-neutral-500 font-medium block">
                   Current Points Balance
@@ -1036,7 +1036,7 @@ export default function CustomerPage() {
                 </span>
               </div>
               <div className="text-end">
-                <span className="text-xs text-emerald-800 font-medium bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full block">
+                <span className="text-xs text-emerald-800 font-medium bg-emerald-50/80 border border-emerald-200 px-3 py-1 rounded-full block">
                   = {formatCurrency(customer.currencyValue)} instant discount
                 </span>
               </div>
@@ -1295,7 +1295,7 @@ export default function CustomerPage() {
       </main>
 
       {/* Sticky Bottom Glassmorphism Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/85 backdrop-blur-xl border-t border-[#EBD3C8]/80 shadow-[0_-4px_25px_rgba(63,18,21,0.06)] px-4 py-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 glass-panel border-x-0 border-b-0 rounded-none shadow-[0_-4px_25px_rgba(63,18,21,0.06)] px-4 py-2">
         <div className="max-w-md mx-auto flex items-center justify-around">
           <button
             onClick={() => setActiveTab("card")}
@@ -1379,8 +1379,8 @@ export default function CustomerPage() {
 
       {/* MODAL: REDEMPTION PASS & CASHIER CODE */}
       {redeemingReward && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="glass-panel rounded-3xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-[#FAF5F2] border border-[#EBD3C8] flex items-center justify-center text-[#3F1215]">
@@ -1390,14 +1390,14 @@ export default function CustomerPage() {
               </div>
               <button
                 onClick={() => setRedeemingReward(null)}
-                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100/50 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Reward Card Summary */}
-            <div className="bg-[#FAF5F2] rounded-2xl overflow-hidden mb-4 border border-[#EBD3C8]">
+            <div className="glass-panel-subtle rounded-2xl overflow-hidden mb-4 border border-[#EBD3C8]">
               {redeemingReward.imageUrl && (
                 <div className="w-full h-32 overflow-hidden border-b border-[#EBD3C8]">
                   <img
@@ -1420,7 +1420,7 @@ export default function CustomerPage() {
             </div>
 
             {/* Prominent Counter Code Box */}
-            <div className="bg-white border-2 border-[#3F1215] rounded-2xl p-4 mb-3 text-center shadow-xs">
+            <div className="glass-panel-subtle border-2 border-[#3F1215]/30 rounded-2xl p-4 mb-3 text-center shadow-xs">
               <span className="text-[10px] uppercase tracking-wider font-mono text-neutral-400 block mb-1">
                 Give this 6-Digit Code to Cashier
               </span>
@@ -1430,7 +1430,7 @@ export default function CustomerPage() {
                 </span>
                 <button
                   onClick={handleCopyPin}
-                  className="p-1.5 rounded-lg border border-[#EBD3C8] bg-[#FAF5F2] hover:bg-[#FDF4F0] text-neutral-600 transition-colors active:scale-95 cursor-pointer"
+                  className="p-1.5 rounded-lg border border-[#EBD3C8] bg-white/80 hover:bg-[#FDF4F0] text-neutral-600 transition-colors active:scale-95 cursor-pointer"
                   title="Copy PIN"
                 >
                   {copied ? (

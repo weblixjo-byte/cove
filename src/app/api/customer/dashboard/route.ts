@@ -6,26 +6,14 @@ import { signToken, TOKEN_COOKIE_NAME } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
-    let session = await getSession(req);
-    let user = null;
-
-    if (session && session.role === "customer") {
-      user = await dbService.findUserById(session.userId);
-    }
-
-    // Fallback: If cookie is missing on iOS Safari PWA, check persistent header
-    if (!user) {
-      const fallbackCustomerId = req.headers.get("x-customer-id");
-      if (fallbackCustomerId) {
-        const candidate = await dbService.findUserById(fallbackCustomerId);
-        if (candidate && candidate.role === "customer") {
-          user = candidate;
-        }
-      }
-    }
-
-    if (!user) {
+    const session = await getSession(req);
+    if (!session || session.role !== "customer") {
       return NextResponse.json({ error: "Customer authentication required" }, { status: 401 });
+    }
+
+    const user = await dbService.findUserById(session.userId);
+    if (!user) {
+      return NextResponse.json({ error: "Customer account not found" }, { status: 404 });
     }
 
     const config = await dbService.getConfig();

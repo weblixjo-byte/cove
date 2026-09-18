@@ -24,6 +24,7 @@ import {
   Receipt,
   Check,
   ChevronLeft,
+  ChevronDown,
   Smartphone,
   Share2,
 } from "lucide-react";
@@ -386,9 +387,9 @@ export default function CashierPage() {
             </p>
           </div>
 
-          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 sm:p-7 shadow-xs">
+          <div className="glass-panel rounded-3xl p-6 sm:p-7 shadow-xl">
             {loginError && (
-              <div className="mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+              <div className="mb-4 p-3 rounded-2xl bg-red-50/80 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                 <span>{loginError}</span>
               </div>
@@ -404,7 +405,7 @@ export default function CashierPage() {
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
                   placeholder="e.g. sajji"
-                  className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215] bg-[#FAF5F2]/40"
+                  className="glass-input w-full"
                   required
                 />
               </div>
@@ -419,7 +420,7 @@ export default function CashierPage() {
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}
                   placeholder="••••"
-                  className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-center font-mono text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215] bg-[#FAF5F2]/40"
+                  className="glass-input w-full text-center font-mono text-xl tracking-widest"
                   required
                 />
               </div>
@@ -437,7 +438,7 @@ export default function CashierPage() {
 
           {/* Install Cashier App to Home Screen Banner */}
           {!isStandaloneApp && (
-            <div className="mt-4 p-3.5 rounded-2xl bg-white border border-[#EBD3C8] shadow-2xs flex items-center justify-between gap-3">
+            <div className="mt-4 p-3.5 rounded-2xl glass-panel-subtle border border-[#EBD3C8] shadow-2xs flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-[#FDF4F0] text-[#3F1215] flex items-center justify-center shrink-0">
                   <Smartphone className="w-4 h-4" />
@@ -461,11 +462,11 @@ export default function CashierPage() {
         {/* Install Guide Modal (Login View) */}
         {showInstallGuide && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="glass-panel rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
               <button
                 type="button"
                 onClick={() => setShowInstallGuide(false)}
-                className="absolute top-4 end-4 p-1 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors"
+                className="absolute top-4 end-4 p-1 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100/50 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -481,7 +482,7 @@ export default function CashierPage() {
                 Install a dedicated Cashier POS icon that opens this terminal directly:
               </p>
 
-              <div className="space-y-3 bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-xs text-[#2B0B0D]">
+              <div className="space-y-3 glass-panel-subtle rounded-2xl p-4 text-xs text-[#2B0B0D]">
                 <div className="flex items-start gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
                   <span>Tap the <strong>Share</strong> button <Share2 className="w-3.5 h-3.5 inline mx-0.5 text-[#3F1215]" /> in Safari or <strong>Menu (⋮)</strong> in Chrome.</span>
@@ -524,9 +525,9 @@ export default function CashierPage() {
   // Cashier POS Checkout Interface (English)
   // ==========================================
   return (
-    <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between select-none font-sans">
+    <div className="min-h-screen bg-[#FAF5F2]/80 backdrop-blur-md flex flex-col justify-between select-none font-sans">
       {/* Top Header - Super Compact & Clean on Mobile */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-[#EBD3C8] px-3.5 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-20 shadow-xs">
+      <header className="glass-panel border-x-0 border-t-0 rounded-none px-3.5 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-20 shadow-xs">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-2">
           {/* Cashier Info */}
           <div className="flex items-center gap-2.5 min-w-0">
@@ -552,7 +553,7 @@ export default function CashierPage() {
               <button
                 type="button"
                 onClick={handleInstallClick}
-                className="px-2.5 sm:px-3 py-1.5 rounded-xl border border-[#EBD3C8] bg-[#FDF4F0] hover:bg-[#EBD3C8]/40 text-xs font-semibold text-[#3F1215] flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl border border-[#EBD3C8] glass-panel-subtle hover:bg-white text-xs font-semibold text-[#3F1215] flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
                 title="Install Cashier POS App"
               >
                 <Smartphone className="w-3.5 h-3.5 text-[#3F1215]" />
@@ -562,7 +563,7 @@ export default function CashierPage() {
 
             <button
               onClick={resetPOS}
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FDF4F0] text-xs font-semibold text-[#2B0B0D] flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl border border-[#EBD3C8] glass-panel-subtle hover:bg-white text-xs font-semibold text-[#2B0B0D] flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               <RefreshCw className="w-3.5 h-3.5 text-[#3F1215]" />
               <span className="text-xs">Reset</span>
@@ -587,7 +588,7 @@ export default function CashierPage() {
         {!identifiedCustomer && (
           <div className="w-full max-w-md mx-auto space-y-3.5">
             {/* Mode Switcher Buttons */}
-            <div className="grid grid-cols-2 gap-2 bg-neutral-200/50 p-1 rounded-2xl border border-[#EBD3C8]/60">
+            <div className="grid grid-cols-2 gap-2 glass-panel-subtle p-1 rounded-2xl border border-[#EBD3C8]/60">
               <button
                 type="button"
                 onClick={() => {
@@ -624,7 +625,7 @@ export default function CashierPage() {
 
             {/* Error Message */}
             {lookupError && (
-              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+              <div className="p-3 rounded-2xl bg-red-50/80 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                 <span className="font-medium">{lookupError}</span>
               </div>
@@ -632,7 +633,7 @@ export default function CashierPage() {
 
             {/* MODE 1: 6-DIGIT PIN WITH OPTIONAL TACTILE NUMPAD */}
             {activeMode === "pin" && (
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-4 sm:p-5 shadow-xs space-y-4">
+              <div className="glass-panel rounded-3xl p-4 sm:p-5 shadow-lg space-y-4">
                 <div className="text-center">
                   <span className="text-xs font-semibold text-neutral-500 block mb-1">
                     Enter Customer 6-Digit PIN
@@ -668,7 +669,7 @@ export default function CashierPage() {
                       type="button"
                       onClick={() => handleKeypadPress(num)}
                       disabled={lookupLoading}
-                      className="h-12 sm:h-13 rounded-2xl bg-[#FAF5F2] hover:bg-[#FDF4F0] active:scale-95 border border-[#EBD3C8] text-[#2B0B0D] font-bold text-lg font-mono flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+                      className="h-12 sm:h-13 rounded-2xl glass-panel-subtle hover:bg-white/90 active:scale-95 text-[#2B0B0D] font-bold text-lg font-mono flex items-center justify-center transition-all cursor-pointer shadow-2xs"
                     >
                       {num}
                     </button>
@@ -676,7 +677,7 @@ export default function CashierPage() {
                   <button
                     type="button"
                     onClick={handleKeypadClear}
-                    className="h-12 sm:h-13 rounded-2xl bg-[#FAF5F2] hover:bg-neutral-100 active:scale-95 border border-[#EBD3C8] text-neutral-500 font-semibold text-xs flex items-center justify-center transition-all cursor-pointer"
+                    className="h-12 sm:h-13 rounded-2xl glass-panel-subtle hover:bg-neutral-200/50 active:scale-95 text-neutral-500 font-semibold text-xs flex items-center justify-center transition-all cursor-pointer"
                   >
                     Clear
                   </button>
@@ -684,14 +685,14 @@ export default function CashierPage() {
                     type="button"
                     onClick={() => handleKeypadPress("0")}
                     disabled={lookupLoading}
-                    className="h-12 sm:h-13 rounded-2xl bg-[#FAF5F2] hover:bg-[#FDF4F0] active:scale-95 border border-[#EBD3C8] text-[#2B0B0D] font-bold text-lg font-mono flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+                    className="h-12 sm:h-13 rounded-2xl glass-panel-subtle hover:bg-white/90 active:scale-95 text-[#2B0B0D] font-bold text-lg font-mono flex items-center justify-center transition-all cursor-pointer shadow-2xs"
                   >
                     0
                   </button>
                   <button
                     type="button"
                     onClick={handleKeypadBackspace}
-                    className="h-12 sm:h-13 rounded-2xl bg-[#FAF5F2] hover:bg-red-50 active:scale-95 border border-[#EBD3C8] text-neutral-600 hover:text-red-600 font-bold flex items-center justify-center transition-all cursor-pointer"
+                    className="h-12 sm:h-13 rounded-2xl glass-panel-subtle hover:bg-red-50/80 active:scale-95 text-neutral-600 hover:text-red-600 font-bold flex items-center justify-center transition-all cursor-pointer"
                   >
                     <Delete className="w-5 h-5" />
                   </button>
@@ -721,7 +722,7 @@ export default function CashierPage() {
 
             {/* MODE 2: QR SCANNER BUTTON & MANUAL TOKEN */}
             {activeMode === "qr" && (
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 sm:p-6 shadow-xs space-y-4 text-center">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-lg space-y-4 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#FDF4F0] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center mx-auto">
                   <ScanLine className="w-8 h-8 animate-pulse" />
                 </div>
@@ -756,7 +757,7 @@ export default function CashierPage() {
                     value={qrQuery}
                     onChange={(e) => setQrQuery(e.target.value)}
                     placeholder="Customer QR code..."
-                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                    className="glass-input flex-1 text-xs font-mono"
                   />
                   <button
                     type="button"
@@ -778,7 +779,7 @@ export default function CashierPage() {
         {identifiedCustomer && !receipt && (
           <div className="w-full max-w-lg mx-auto space-y-4">
             {/* Customer Profile Card */}
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-4 sm:p-5 shadow-xs">
+            <div className="glass-panel rounded-3xl p-4 sm:p-5 shadow-lg">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-12 h-12 rounded-2xl bg-[#FDF4F0] border border-[#EBD3C8] flex items-center justify-center text-[#3F1215] text-xl font-bold shrink-0">
@@ -817,7 +818,7 @@ export default function CashierPage() {
               </div>
 
               {/* Balance Bar */}
-              <div className="bg-[#FAF5F2] border border-[#EBD3C8]/80 rounded-2xl p-3 flex items-center justify-between">
+              <div className="glass-panel-subtle rounded-2xl p-3 flex items-center justify-between">
                 <div>
                   <span className="text-[11px] text-neutral-500 block">Current Points Balance</span>
                   <div className="flex items-baseline gap-1">
@@ -827,7 +828,7 @@ export default function CashierPage() {
                     <span className="text-xs text-neutral-500 font-semibold">pts</span>
                   </div>
                 </div>
-                <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-[#EBD3C8]/70 shadow-2xs">
+                <div className="text-right bg-white/80 px-3 py-1.5 rounded-xl border border-[#EBD3C8]/70 shadow-2xs">
                   <span className="text-[10px] text-neutral-400 block font-medium">Cash Discount Value</span>
                   <span className="text-xs font-bold text-[#3F1215] font-mono">
                     {formatCurrency(identifiedCustomer.currencyValue)}
@@ -837,7 +838,7 @@ export default function CashierPage() {
             </div>
 
             {/* Action Switcher: Credit Points vs. Redeem Reward */}
-            <div className="grid grid-cols-2 gap-2 bg-neutral-200/50 p-1 rounded-2xl border border-[#EBD3C8]/60">
+            <div className="grid grid-cols-2 gap-2 glass-panel-subtle p-1 rounded-2xl border border-[#EBD3C8]/60">
               <button
                 type="button"
                 onClick={() => {
@@ -873,7 +874,7 @@ export default function CashierPage() {
 
             {/* TAB A: CREDIT POINTS ON BILL */}
             {actionTab === "credit" && (
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-lg space-y-4">
                 <div>
                   <h4 className="text-sm font-bold text-[#2B0B0D] mb-1">
                     Total Bill Amount
@@ -884,7 +885,7 @@ export default function CashierPage() {
                 </div>
 
                 {transactError && (
-                  <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+                  <div className="p-3 rounded-2xl bg-red-50/80 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                     <span>{transactError}</span>
                   </div>
@@ -905,11 +906,11 @@ export default function CashierPage() {
                         value={billAmount}
                         onChange={(e) => setBillAmount(e.target.value)}
                         placeholder="0.000"
-                        className="w-full pr-16 pl-4 py-3.5 rounded-2xl border-2 border-[#EBD3C8] text-2xl font-bold font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215] bg-[#FAF5F2]/30 text-left"
+                        className="glass-input w-full pr-16 pl-4 py-3.5 text-2xl font-bold font-mono text-left"
                         autoFocus
                         required
                       />
-                      <span className="absolute right-3 px-2.5 py-1 rounded-xl bg-[#FAF5F2] border border-[#EBD3C8] text-xs font-bold text-[#3F1215] font-mono pointer-events-none">
+                      <span className="absolute right-3 px-2.5 py-1 rounded-xl bg-[#FAF5F2]/80 border border-[#EBD3C8] text-xs font-bold text-[#3F1215] font-mono pointer-events-none">
                         {config.currency}
                       </span>
                     </div>
@@ -924,7 +925,7 @@ export default function CashierPage() {
                             const current = parseFloat(billAmount) || 0;
                             setBillAmount((current + val).toFixed(3));
                           }}
-                          className="px-2.5 py-1.5 rounded-xl bg-[#FAF5F2] hover:bg-[#FDF4F0] active:scale-95 border border-[#EBD3C8] text-[#2B0B0D] text-xs font-mono font-bold transition-all cursor-pointer"
+                          className="px-2.5 py-1.5 rounded-xl glass-panel-subtle hover:bg-white active:scale-95 text-[#2B0B0D] text-xs font-mono font-bold transition-all cursor-pointer"
                         >
                           +{val.toFixed(3)}
                         </button>
@@ -932,7 +933,7 @@ export default function CashierPage() {
                       <button
                         type="button"
                         onClick={() => setBillAmount("")}
-                        className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-red-50 text-neutral-600 hover:text-red-600 border border-neutral-200 text-xs font-bold transition-all cursor-pointer"
+                        className="px-2.5 py-1.5 rounded-xl glass-panel-subtle hover:bg-red-50/80 text-neutral-600 hover:text-red-600 text-xs font-bold transition-all cursor-pointer"
                       >
                         Clear
                       </button>
@@ -940,7 +941,7 @@ export default function CashierPage() {
                   </div>
 
                   {/* Real-time points preview */}
-                  <div className="p-3.5 bg-[#FDF4F0] border border-[#EBD3C8] rounded-2xl flex items-center justify-between">
+                  <div className="p-3.5 glass-panel-subtle rounded-2xl flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-[#2B0B0D]">
                       <Sparkles className="w-4 h-4 text-[#3F1215]" />
                       <span>Points to be Earned:</span>
@@ -984,7 +985,7 @@ export default function CashierPage() {
 
             {/* TAB B: REDEEM REWARD / DISCOUNT */}
             {actionTab === "redeem" && (
-              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-lg space-y-4">
                 <div>
                   <h4 className="text-sm font-bold text-[#2B0B0D] mb-1">
                     Redeem Reward or Instant Discount
@@ -995,7 +996,7 @@ export default function CashierPage() {
                 </div>
 
                 {redeemError && (
-                  <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+                  <div className="p-3 rounded-2xl bg-red-50/80 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                     <span>{redeemError}</span>
                   </div>
@@ -1006,33 +1007,36 @@ export default function CashierPage() {
                     <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
                       Select Reward or Discount Reason
                     </label>
-                    <select
-                      value={rewardTitle}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setRewardTitle(val);
-                        const matched = activeRewards.find((r) => r.title === val);
-                        if (matched) {
-                          setRedeemPoints(matched.pointsRequired.toString());
-                        }
-                      }}
-                      className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 bg-[#FAF5F2]/40"
-                    >
-                      {activeRewards.length > 0 ? (
-                        activeRewards.map((r) => (
-                          <option key={r._id} value={r.title}>
-                            {r.title} ({r.pointsRequired} pts)
-                          </option>
-                        ))
-                      ) : (
-                        <>
-                          <option value="Specialty Flat White / Latte">Specialty Flat White / Latte (80 pts)</option>
-                          <option value="Kyoto Cold Brew">Kyoto Cold Brew (120 pts)</option>
-                          <option value="Fresh French Pistachio Croissant">Fresh French Pistachio Croissant (90 pts)</option>
-                        </>
-                      )}
-                      <option value="Custom Bill Discount">Custom Bill Discount</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={rewardTitle}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setRewardTitle(val);
+                          const matched = activeRewards.find((r) => r.title === val);
+                          if (matched) {
+                            setRedeemPoints(matched.pointsRequired.toString());
+                          }
+                        }}
+                        className="glass-select w-full pr-10"
+                      >
+                        {activeRewards.length > 0 ? (
+                          activeRewards.map((r) => (
+                            <option key={r._id} value={r.title}>
+                              {r.title} ({r.pointsRequired} pts)
+                            </option>
+                          ))
+                        ) : (
+                          <>
+                            <option value="Specialty Flat White / Latte">Specialty Flat White / Latte (80 pts)</option>
+                            <option value="Kyoto Cold Brew">Kyoto Cold Brew (120 pts)</option>
+                            <option value="Fresh French Pistachio Croissant">Fresh French Pistachio Croissant (90 pts)</option>
+                          </>
+                        )}
+                        <option value="Custom Bill Discount">Custom Bill Discount</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
                   </div>
 
                   <div>
@@ -1043,7 +1047,7 @@ export default function CashierPage() {
                       type="number"
                       value={redeemPoints}
                       onChange={(e) => setRedeemPoints(e.target.value)}
-                      className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-lg font-mono font-bold focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 bg-[#FAF5F2]/40"
+                      className="glass-input w-full text-lg font-mono font-bold"
                       required
                     />
                   </div>
@@ -1092,7 +1096,7 @@ export default function CashierPage() {
         {/* ============================================================== */}
         {receipt && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 sm:p-7 max-w-sm w-full shadow-2xl text-center animate-in fade-in zoom-in-95 duration-200">
+            <div className="glass-panel rounded-3xl p-5 sm:p-7 max-w-sm w-full shadow-2xl text-center animate-in fade-in zoom-in-95 duration-200">
               <div className="w-14 h-14 rounded-full bg-[#FDF4F0] border-2 border-[#EBD3C8] text-[#3F1215] flex items-center justify-center mx-auto mb-3 shadow-xs">
                 <CheckCircle2 className="w-8 h-8 text-[#3F1215]" />
               </div>
@@ -1104,7 +1108,7 @@ export default function CashierPage() {
                 Receipt #: #{receipt.referenceCode}
               </p>
 
-              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 mb-5 text-left space-y-2 text-xs">
+              <div className="glass-panel-subtle rounded-2xl p-4 mb-5 text-left space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Customer:</span>
                   <span className="font-bold text-[#2B0B0D]">{receipt.customerName}</span>
@@ -1120,12 +1124,12 @@ export default function CashierPage() {
                 )}
 
                 {receipt.pointsEarned ? (
-                  <div className="flex justify-between text-emerald-800 font-bold bg-emerald-50 px-2 py-1 rounded-lg">
+                  <div className="flex justify-between text-emerald-800 font-bold bg-emerald-50/90 px-2 py-1 rounded-lg">
                     <span>Points Added:</span>
                     <span className="font-mono">+{receipt.pointsEarned} pts</span>
                   </div>
                 ) : (
-                  <div className="flex justify-between text-neutral-800 font-bold bg-neutral-100 px-2 py-1 rounded-lg">
+                  <div className="flex justify-between text-neutral-800 font-bold bg-neutral-100/90 px-2 py-1 rounded-lg">
                     <span>Points Redeemed:</span>
                     <span className="font-mono">-{receipt.pointsRedeemed} pts</span>
                   </div>
@@ -1137,7 +1141,7 @@ export default function CashierPage() {
                 </div>
 
                 {receipt.tierUpgraded && (
-                  <div className="p-2.5 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-center font-bold mt-2 flex items-center justify-center gap-1.5 text-xs">
+                  <div className="p-2.5 bg-amber-50/90 text-amber-900 border border-amber-200 rounded-xl text-center font-bold mt-2 flex items-center justify-center gap-1.5 text-xs">
                     <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>Customer tier upgraded to {receipt.tier}!</span>
                   </div>
@@ -1166,11 +1170,11 @@ export default function CashierPage() {
         {/* Install Guide Modal (Authenticated View) */}
         {showInstallGuide && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="glass-panel rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
               <button
                 type="button"
                 onClick={() => setShowInstallGuide(false)}
-                className="absolute top-4 end-4 p-1 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors"
+                className="absolute top-4 end-4 p-1 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100/50 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1186,7 +1190,7 @@ export default function CashierPage() {
                 Install a dedicated Cashier POS icon that opens this terminal directly:
               </p>
 
-              <div className="space-y-3 bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-xs text-[#2B0B0D]">
+              <div className="space-y-3 glass-panel-subtle rounded-2xl p-4 text-xs text-[#2B0B0D]">
                 <div className="flex items-start gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
                   <span>Tap the <strong>Share</strong> button <Share2 className="w-3.5 h-3.5 inline mx-0.5 text-[#3F1215]" /> in Safari or <strong>Menu (⋮)</strong> in Chrome.</span>
