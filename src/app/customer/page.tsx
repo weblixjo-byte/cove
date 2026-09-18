@@ -745,7 +745,7 @@ export default function CustomerPage() {
 
   // Authenticated Mobile-First Customer View
   return (
-    <div className="min-h-screen bg-[#FAF5F2]/80 backdrop-blur-md flex flex-col justify-between pb-28 sm:pb-32">
+    <div className="min-h-screen flex flex-col">
       {/* Top Mobile Bar */}
       <header className="glass-panel border-x-0 border-t-0 rounded-none sticky top-0 z-20 px-4 py-3">
         <div className="max-w-md mx-auto flex items-center justify-between">
@@ -1255,8 +1255,8 @@ export default function CustomerPage() {
       </main>
 
       {/* Floating Semi-Rounded Glassmorphism Navigation Bar */}
-      <nav className="fixed bottom-5 left-0 right-0 z-40 px-4 pointer-events-none flex justify-center">
-        <div className="w-full max-w-sm glass-nav rounded-full p-1.5 shadow-[0_16px_36px_-6px_rgba(63,18,21,0.18),0_4px_16px_rgba(0,0,0,0.06)] border border-white/85 pointer-events-auto flex items-center justify-between gap-1">
+      <nav className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-50 px-4 pointer-events-none flex justify-center">
+        <div className="w-full max-w-sm glass-nav rounded-full p-1.5 shadow-[0_16px_40px_-8px_rgba(63,18,21,0.22),0_4px_16px_rgba(0,0,0,0.08)] border border-white/90 pointer-events-auto flex items-center justify-between gap-1">
           <button
             onClick={() => setActiveTab("card")}
             className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all duration-300 cursor-pointer ${
