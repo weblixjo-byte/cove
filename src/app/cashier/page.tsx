@@ -276,8 +276,8 @@ export default function CashierPage() {
 
   if (loadingSession) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-neutral-300 border-t-[#1A5336] animate-spin" />
+      <div className="min-h-screen bg-[#FAF5F2] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-neutral-300 border-t-[#3F1215] animate-spin" />
       </div>
     );
   }
@@ -285,19 +285,19 @@ export default function CashierPage() {
   // Cashier Login View
   if (!cashier) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex flex-col justify-between px-4 py-6 sm:p-6 overflow-y-auto">
+      <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between px-4 py-6 sm:p-6 overflow-y-auto">
         <div className="max-w-sm w-full mx-auto my-auto py-4">
           <div className="text-center mb-6 sm:mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#1A5336] text-white flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-sm">
-              <ScanLine className="w-7 h-7 text-emerald-200" />
+            <div className="w-16 h-16 rounded-2xl bg-[#3F1215] text-white flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-md overflow-hidden p-0.5 border border-[#3F1215]">
+              <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
             </div>
-            <h1 className="text-2xl font-serif font-medium text-neutral-900 mb-1">
+            <h1 className="text-2xl font-serif font-medium text-[#2B0B0D] mb-1">
               Cashier Terminal
             </h1>
             <p className="text-xs text-neutral-500">{config.storeName} • POS Verification</p>
           </div>
 
-          <div className="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-7 shadow-sm">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 sm:p-7 shadow-sm">
             {loginError && (
               <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -307,7 +307,7 @@ export default function CashierPage() {
 
             <form onSubmit={handleCashierLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1.5">
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1.5">
                   Cashier Username / اسم المستخدم
                 </label>
                 <input
@@ -315,13 +315,13 @@ export default function CashierPage() {
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
                   placeholder="sajji or ahmad"
-                  className="w-full px-3.5 py-3 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                  className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1.5">
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1.5">
                   4-Digit Terminal PIN / رمز الدخول
                 </label>
                 <input
@@ -332,7 +332,7 @@ export default function CashierPage() {
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}
                   placeholder="••••"
-                  className="w-full px-3.5 py-3 rounded-xl border border-neutral-200 text-center font-mono text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                  className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-center font-mono text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
@@ -340,14 +340,14 @@ export default function CashierPage() {
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full py-3.5 rounded-xl bg-[#1A5336] text-white text-sm font-semibold hover:bg-[#14422B] transition-colors disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
+                className="w-full py-3.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-sm font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
               >
                 {loginLoading ? "Verifying PIN..." : "Open POS Terminal"}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-neutral-100">
+            <div className="mt-6 pt-5 border-t border-[#EBD3C8]/60">
               <span className="text-[11px] uppercase tracking-wider font-mono text-neutral-400 block mb-2">
                 Authorized Cashiers / حسابات الكاشير:
               </span>
@@ -358,9 +358,9 @@ export default function CashierPage() {
                     setUsernameInput("sajji");
                     setPinInput("2026");
                   }}
-                  className="p-2.5 rounded-xl border border-neutral-200 text-left hover:bg-neutral-50 transition-colors"
+                  className="p-2.5 rounded-xl border border-[#EBD3C8] text-left hover:bg-[#FDF4F0] transition-colors cursor-pointer"
                 >
-                  <span className="font-semibold block text-neutral-900">Sajji</span>
+                  <span className="font-semibold block text-[#2B0B0D]">Sajji</span>
                   <span className="text-neutral-500 font-mono text-[11px]">PIN: 2026</span>
                 </button>
                 <button
@@ -369,9 +369,9 @@ export default function CashierPage() {
                     setUsernameInput("ahmad");
                     setPinInput("1111");
                   }}
-                  className="p-2.5 rounded-xl border border-neutral-200 text-left hover:bg-neutral-50 transition-colors"
+                  className="p-2.5 rounded-xl border border-[#EBD3C8] text-left hover:bg-[#FDF4F0] transition-colors cursor-pointer"
                 >
-                  <span className="font-semibold block text-neutral-900">Ahmad</span>
+                  <span className="font-semibold block text-[#2B0B0D]">Ahmad</span>
                   <span className="text-neutral-500 font-mono text-[11px]">PIN: 1111</span>
                 </button>
               </div>
@@ -390,20 +390,20 @@ export default function CashierPage() {
 
   // Cashier POS Checkout Interface
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col justify-between">
+    <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between">
       {/* Top Header */}
-      <header className="bg-white border-b border-neutral-200 px-3 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-20">
+      <header className="bg-white/90 backdrop-blur-md border-b border-[#EBD3C8] px-3 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-20">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#1A5336] flex items-center justify-center text-white shrink-0 shadow-xs">
-              <ScanLine className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-200" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3F1215] flex items-center justify-center text-white shrink-0 shadow-xs overflow-hidden p-0.5 border border-[#3F1215]">
+              <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-lg" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-xs sm:text-sm text-neutral-900 truncate">
+                <span className="font-semibold text-xs sm:text-sm text-[#2B0B0D] truncate font-serif">
                   {config.storeName} POS
                 </span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#1A5336] font-medium shrink-0">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FDF4F0] border border-[#EBD3C8] text-[#3F1215] font-medium shrink-0">
                   Active
                 </span>
               </div>
@@ -416,7 +416,7 @@ export default function CashierPage() {
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               onClick={resetPOS}
-              className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 text-xs text-neutral-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#EBD3C8] hover:bg-[#FDF4F0] text-xs text-[#2B0B0D] flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Reset Terminal</span>
@@ -440,7 +440,7 @@ export default function CashierPage() {
         {!identifiedCustomer && (
           <div className="max-w-xl mx-auto">
             <div className="text-center mb-6 sm:mb-8">
-              <h2 className="text-xl sm:text-2xl font-serif font-medium text-neutral-900 mb-1 sm:mb-2">
+              <h2 className="text-xl sm:text-2xl font-serif font-medium text-[#2B0B0D] mb-1 sm:mb-2">
                 Identify Customer / البحث عن الزبون
               </h2>
               <p className="text-xs sm:text-sm text-neutral-500">
@@ -458,12 +458,12 @@ export default function CashierPage() {
                 }}
                 className={`p-4 sm:p-5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   activeMode === "pin"
-                    ? "border-[#1A5336] bg-emerald-50/50 text-[#1A5336] shadow-xs ring-1 ring-[#1A5336]"
-                    : "border-neutral-200 bg-white hover:border-neutral-300 text-neutral-700"
+                    ? "border-[#3F1215] bg-[#FDF4F0] text-[#3F1215] shadow-xs ring-1 ring-[#3F1215]"
+                    : "border-[#EBD3C8] bg-white hover:border-[#3F1215]/40 text-[#2B0B0D]"
                 }`}
               >
                 <Hash className="w-5 h-5 sm:w-6 sm:h-6" />
-                <span className="font-semibold text-xs sm:text-sm">6-Digit PIN</span>
+                <span className="font-semibold text-xs sm:text-sm font-serif">6-Digit PIN</span>
                 <span className="text-[10px] sm:text-[11px] text-neutral-400 font-mono">
                   رمز الزبون
                 </span>
@@ -478,12 +478,12 @@ export default function CashierPage() {
                 }}
                 className={`p-4 sm:p-5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   activeMode === "qr"
-                    ? "border-[#1A5336] bg-emerald-50/50 text-[#1A5336] shadow-xs ring-1 ring-[#1A5336]"
-                    : "border-neutral-200 bg-white hover:border-neutral-300 text-neutral-700"
+                    ? "border-[#3F1215] bg-[#FDF4F0] text-[#3F1215] shadow-xs ring-1 ring-[#3F1215]"
+                    : "border-[#EBD3C8] bg-white hover:border-[#3F1215]/40 text-[#2B0B0D]"
                 }`}
               >
                 <ScanLine className="w-5 h-5 sm:w-6 sm:h-6" />
-                <span className="font-semibold text-xs sm:text-sm">Scan QR Code</span>
+                <span className="font-semibold text-xs sm:text-sm font-serif">Scan QR Code</span>
                 <span className="text-[10px] sm:text-[11px] text-neutral-400 font-mono">
                   كاميرا الـ QR
                 </span>
@@ -491,7 +491,7 @@ export default function CashierPage() {
             </div>
 
             {/* Input Form based on Active Mode */}
-            <div className="bg-white border border-neutral-200 rounded-3xl p-5 sm:p-7 shadow-sm">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 sm:p-7 shadow-sm">
               {lookupError && (
                 <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2 text-start">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -519,13 +519,13 @@ export default function CashierPage() {
                         }
                       }}
                       placeholder="482910"
-                      className="flex-1 px-3 sm:px-4 py-3 sm:py-3.5 rounded-2xl border border-neutral-200 text-center font-pin text-xl sm:text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                      className="flex-1 px-3 sm:px-4 py-3 sm:py-3.5 rounded-2xl border border-[#EBD3C8] text-center font-pin text-xl sm:text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                       autoFocus
                     />
                     <button
                       onClick={() => performLookup(pinQuery)}
                       disabled={lookupLoading || pinQuery.length < 6}
-                      className="px-4 sm:px-6 rounded-2xl bg-[#1A5336] text-white text-xs sm:text-sm font-semibold hover:bg-[#14422B] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+                      className="px-4 sm:px-6 rounded-2xl bg-[#3F1215] text-[#FEECE2] text-xs sm:text-sm font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-40 cursor-pointer shrink-0 shadow-xs"
                     >
                       {lookupLoading ? "Looking..." : "Lookup"}
                     </button>
@@ -537,16 +537,16 @@ export default function CashierPage() {
                   <button
                     type="button"
                     onClick={() => setShowCameraScanner(true)}
-                    className="w-full py-4 px-4 rounded-2xl bg-[#1A5336] hover:bg-[#14422B] text-white text-sm font-semibold flex items-center justify-center gap-3 transition-all shadow-md active:scale-98 cursor-pointer"
+                    className="w-full py-4 px-4 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-sm font-semibold flex items-center justify-center gap-3 transition-all shadow-md active:scale-98 cursor-pointer"
                   >
-                    <Camera className="w-6 h-6 text-emerald-300 animate-pulse" />
+                    <Camera className="w-6 h-6 text-[#FEECE2] animate-pulse" />
                     <span>تشغيل كاميرا الموبايل للمسح المباشر (Open Camera)</span>
                   </button>
 
                   <div className="flex items-center gap-2 my-2">
-                    <div className="flex-1 h-px bg-neutral-200" />
+                    <div className="flex-1 h-px bg-[#EBD3C8]" />
                     <span className="text-[11px] text-neutral-400 font-mono">أو إدخال رمز الـ QR يدوياً</span>
-                    <div className="flex-1 h-px bg-neutral-200" />
+                    <div className="flex-1 h-px bg-[#EBD3C8]" />
                   </div>
 
                   <div>
@@ -559,12 +559,12 @@ export default function CashierPage() {
                         value={qrQuery}
                         onChange={(e) => setQrQuery(e.target.value)}
                         placeholder="Paste or type QR token (e.g. cove_token_...)"
-                        className="flex-1 px-3.5 py-3 rounded-xl border border-neutral-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                        className="flex-1 px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                       />
                       <button
                         onClick={() => performLookup(qrQuery)}
                         disabled={lookupLoading || !qrQuery}
-                        className="px-4 sm:px-6 rounded-xl bg-[#1A5336] text-white text-xs font-semibold hover:bg-[#14422B] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+                        className="px-4 sm:px-6 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
                       >
                         {lookupLoading ? "Scanning..." : "Verify"}
                       </button>
@@ -581,14 +581,14 @@ export default function CashierPage() {
         {identifiedCustomer && !receipt && (
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Customer Details Summary Card */}
-            <div className="bg-white border border-neutral-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-13 h-13 rounded-2xl bg-stone-100 border border-stone-200 flex items-center justify-center text-[#2C221E] font-serif text-xl font-bold">
+                <div className="w-13 h-13 rounded-2xl bg-[#FDF4F0] border border-[#EBD3C8] flex items-center justify-center text-[#3F1215] font-serif text-xl font-bold">
                   {identifiedCustomer.name.charAt(0)}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold text-neutral-900">
+                    <h3 className="text-lg font-semibold text-[#2B0B0D] font-serif">
                       {identifiedCustomer.name}
                     </h3>
                     <span
@@ -609,26 +609,26 @@ export default function CashierPage() {
                 </div>
               </div>
 
-              <div className="text-right flex sm:flex-col items-baseline sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-100">
+              <div className="text-right flex sm:flex-col items-baseline sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-[#EBD3C8]/60">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-[#2C221E] font-serif">
+                  <span className="text-2xl font-bold text-[#3F1215] font-serif">
                     {identifiedCustomer.pointsBalance}
                   </span>
                   <span className="text-xs font-mono text-neutral-500">pts</span>
                 </div>
-                <span className="text-xs font-semibold text-[#1A5336] bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                <span className="text-xs font-semibold text-[#3F1215] bg-[#FDF4F0] px-2.5 py-1 rounded-lg border border-[#EBD3C8]">
                   = {formatCurrency(identifiedCustomer.currencyValue)} discount
                 </span>
               </div>
             </div>
 
             {/* Tab Selector: Issue Points (Default) vs. Redeem Reward */}
-            <div className="flex bg-neutral-200/60 p-1 rounded-2xl text-xs font-medium">
+            <div className="flex bg-[#EED9D1]/50 p-1 rounded-2xl text-xs font-medium border border-[#EBD3C8]">
               <button
                 onClick={() => setActiveMode("pin")}
                 className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
                   activeMode !== "redeem"
-                    ? "bg-white text-neutral-900 shadow-xs font-semibold"
+                    ? "bg-white text-[#3F1215] shadow-xs font-semibold"
                     : "text-neutral-600 hover:text-neutral-900"
                 }`}
               >
@@ -640,7 +640,7 @@ export default function CashierPage() {
                 onClick={() => setActiveMode("redeem")}
                 className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
                   activeMode === "redeem"
-                    ? "bg-white text-neutral-900 shadow-xs font-semibold"
+                    ? "bg-white text-[#3F1215] shadow-xs font-semibold"
                     : "text-neutral-600 hover:text-neutral-900"
                 }`}
               >
@@ -651,8 +651,8 @@ export default function CashierPage() {
 
             {/* FLOW A: Direct Bill Input (Points Earning) */}
             {activeMode !== "redeem" ? (
-              <div className="bg-white border border-neutral-200 rounded-3xl p-7 shadow-sm">
-                <h4 className="text-sm font-semibold text-neutral-900 mb-1">
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-7 shadow-sm">
+                <h4 className="text-sm font-semibold text-[#2B0B0D] mb-1 font-serif">
                   Input Bill Total
                 </h4>
                 <p className="text-xs text-neutral-500 mb-6">
@@ -679,7 +679,7 @@ export default function CashierPage() {
                         value={billAmount}
                         onChange={(e) => setBillAmount(e.target.value)}
                         placeholder="0.000"
-                        className="w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border border-neutral-200 text-2xl sm:text-3xl font-bold font-serif focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                        className="w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border border-[#EBD3C8] text-2xl sm:text-3xl font-bold font-serif focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                         autoFocus
                         required
                       />
@@ -698,7 +698,7 @@ export default function CashierPage() {
                             const current = parseFloat(billAmount) || 0;
                             setBillAmount((current + val).toFixed(3));
                           }}
-                          className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 active:scale-95 text-neutral-800 text-xs font-mono font-medium transition-all cursor-pointer"
+                          className="px-2.5 py-1.5 rounded-xl bg-[#FAF5F2] hover:bg-[#FDF4F0] border border-[#EBD3C8] active:scale-95 text-[#2B0B0D] text-xs font-mono font-medium transition-all cursor-pointer"
                         >
                           +{val.toFixed(3)}
                         </button>
@@ -706,7 +706,7 @@ export default function CashierPage() {
                       <button
                         type="button"
                         onClick={() => setBillAmount("")}
-                        className="px-2.5 py-1.5 rounded-xl bg-neutral-50 hover:bg-red-50 active:scale-95 text-neutral-500 hover:text-red-600 text-xs font-mono font-medium transition-all cursor-pointer"
+                        className="px-2.5 py-1.5 rounded-xl bg-[#FAF5F2] hover:bg-red-50 border border-[#EBD3C8] active:scale-95 text-neutral-500 hover:text-red-600 text-xs font-mono font-medium transition-all cursor-pointer"
                       >
                         Clear
                       </button>
@@ -714,11 +714,11 @@ export default function CashierPage() {
                   </div>
 
                   {/* Real-Time Points Preview */}
-                  <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl flex items-center justify-between">
-                    <span className="text-xs font-medium text-neutral-700">
+                  <div className="p-4 bg-[#FDF4F0] border border-[#EBD3C8] rounded-2xl flex items-center justify-between">
+                    <span className="text-xs font-medium text-[#2B0B0D]">
                       Loyalty Points to Credit:
                     </span>
-                    <span className="text-lg font-bold font-mono text-[#1A5336]">
+                    <span className="text-lg font-bold font-mono text-[#3F1215]">
                       +{calculatedPoints} Points
                     </span>
                   </div>
@@ -727,7 +727,7 @@ export default function CashierPage() {
                     <button
                       type="button"
                       onClick={resetPOS}
-                      className="px-5 py-3 rounded-2xl border border-neutral-200 text-neutral-600 hover:bg-neutral-50 text-xs font-medium transition-colors"
+                      className="px-5 py-3 rounded-2xl border border-[#EBD3C8] text-neutral-600 hover:bg-[#FAF5F2] text-xs font-medium transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -735,7 +735,7 @@ export default function CashierPage() {
                     <button
                       type="submit"
                       disabled={transactLoading || !billAmount || parseFloat(billAmount) <= 0}
-                      className="flex-1 py-3.5 rounded-2xl bg-[#1A5336] hover:bg-[#14422B] text-white text-sm font-semibold transition-colors disabled:opacity-40 flex items-center justify-center gap-2 shadow-xs"
+                      className="flex-1 py-3.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-sm font-semibold transition-colors disabled:opacity-40 flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                     >
                       {transactLoading ? "Processing Bill..." : "Credit Points & Complete"}
                       <ArrowRight className="w-4 h-4" />
@@ -745,8 +745,8 @@ export default function CashierPage() {
               </div>
             ) : (
               /* FLOW B: Reward Redemption / Points Deduction */
-              <div className="bg-white border border-neutral-200 rounded-3xl p-7 shadow-sm">
-                <h4 className="text-sm font-semibold text-neutral-900 mb-1">
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-7 shadow-sm">
+                <h4 className="text-sm font-semibold text-[#2B0B0D] mb-1 font-serif">
                   Redeem Rewards or Cash Discount
                 </h4>
                 <p className="text-xs text-neutral-500 mb-6">
@@ -773,7 +773,7 @@ export default function CashierPage() {
                         if (e.target.value === "Pistachio Croissant") setRedeemPoints("90");
                         if (e.target.value === `Bill Discount (1.000 ${config.currency})`) setRedeemPoints("100");
                       }}
-                      className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20"
                     >
                       <option value="Artisan Flat White">Artisan Flat White / Latte (80 pts)</option>
                       <option value="Kyoto Cold Brew">Kyoto Cold Brew (120 pts)</option>
@@ -791,7 +791,7 @@ export default function CashierPage() {
                       type="number"
                       value={redeemPoints}
                       onChange={(e) => setRedeemPoints(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#EBD3C8] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20"
                       required
                     />
                   </div>
@@ -800,7 +800,7 @@ export default function CashierPage() {
                     <button
                       type="button"
                       onClick={resetPOS}
-                      className="px-5 py-2.5 rounded-2xl border border-neutral-200 text-neutral-600 hover:bg-neutral-50 text-xs font-medium"
+                      className="px-5 py-2.5 rounded-2xl border border-[#EBD3C8] text-neutral-600 hover:bg-[#FAF5F2] text-xs font-medium cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -809,7 +809,7 @@ export default function CashierPage() {
                       type="button"
                       onClick={handleRedeemPoints}
                       disabled={redeemLoading || parseInt(redeemPoints) > identifiedCustomer.pointsBalance}
-                      className="flex-1 py-3 rounded-2xl bg-[#2C221E] hover:bg-[#3E322D] text-white text-xs font-semibold transition-colors disabled:opacity-40"
+                      className="flex-1 py-3 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-40 cursor-pointer shadow-xs"
                     >
                       {redeemLoading ? "Redeeming..." : "Confirm Redemption"}
                     </button>
@@ -822,36 +822,36 @@ export default function CashierPage() {
 
         {/* STEP 3: Tactile Success Receipt Modal */}
         {receipt && (
-          <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-xl text-center max-h-[90vh] overflow-y-auto">
-              <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-100 text-[#1A5336] flex items-center justify-center mx-auto mb-4">
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-xl text-center max-h-[90vh] overflow-y-auto">
+              <div className="w-14 h-14 rounded-full bg-[#FDF4F0] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
-              <h3 className="text-xl font-medium text-neutral-900 font-serif mb-1">
+              <h3 className="text-xl font-medium text-[#2B0B0D] font-serif mb-1">
                 Transaction Successful
               </h3>
               <p className="text-xs text-neutral-500 mb-6">
                 Receipt reference #{receipt.referenceCode} logged.
               </p>
 
-              <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-5 mb-6 text-left space-y-2.5 text-xs">
+              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-5 mb-6 text-left space-y-2.5 text-xs">
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Customer</span>
-                  <span className="font-semibold text-neutral-900">{receipt.customerName}</span>
+                  <span className="font-semibold text-[#2B0B0D]">{receipt.customerName}</span>
                 </div>
 
                 {receipt.billAmount && (
                   <div className="flex justify-between">
                     <span className="text-neutral-500">Bill Total</span>
-                    <span className="font-mono font-medium text-neutral-900">
+                    <span className="font-mono font-medium text-[#2B0B0D]">
                       {receipt.billAmount.toFixed(3)} {receipt.currency}
                     </span>
                   </div>
                 )}
 
                 {receipt.pointsEarned ? (
-                  <div className="flex justify-between text-[#1A5336] font-semibold">
+                  <div className="flex justify-between text-[#3F1215] font-semibold">
                     <span>Points Credited</span>
                     <span className="font-mono">+{receipt.pointsEarned} pts</span>
                   </div>
@@ -862,9 +862,9 @@ export default function CashierPage() {
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-neutral-200 flex justify-between font-bold text-sm">
-                  <span className="text-neutral-900">New Balance</span>
-                  <span className="font-mono text-[#2C221E]">{receipt.newBalance} pts</span>
+                <div className="pt-2 border-t border-[#EBD3C8] flex justify-between font-bold text-sm">
+                  <span className="text-[#2B0B0D]">New Balance</span>
+                  <span className="font-mono text-[#3F1215]">{receipt.newBalance} pts</span>
                 </div>
 
                 {receipt.tierUpgraded && (
@@ -876,7 +876,7 @@ export default function CashierPage() {
 
               <button
                 onClick={resetPOS}
-                className="w-full py-3.5 rounded-2xl bg-[#1A5336] hover:bg-[#14422B] text-white text-sm font-semibold transition-colors shadow-xs"
+                className="w-full py-3.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-sm font-semibold transition-colors shadow-xs cursor-pointer"
               >
                 Next Customer in Line
               </button>

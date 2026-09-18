@@ -324,10 +324,10 @@ export default function CustomerPage() {
         <div className="max-w-md w-full mx-auto my-auto">
           {/* Brand header */}
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#2C221E] flex items-center justify-center text-white mx-auto mb-4 shadow-sm">
-              <Coffee className="w-7 h-7 text-[#E6D5C7]" />
+            <div className="w-16 h-16 rounded-2xl bg-[#3F1215] flex items-center justify-center text-white mx-auto mb-4 shadow-md overflow-hidden p-0.5 border border-[#3F1215]">
+              <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
             </div>
-            <h1 className="text-2xl font-serif font-medium text-neutral-900 mb-1">
+            <h1 className="text-2xl font-serif font-medium text-[#2B0B0D] mb-1">
               {config.storeName}
             </h1>
             <p className="text-sm text-neutral-500">{config.tagline}</p>
@@ -504,16 +504,16 @@ export default function CustomerPage() {
 
   // Authenticated Mobile-First Customer View
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col justify-between pb-12">
+    <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between pb-12">
       {/* Top Mobile Bar */}
-      <header className="bg-white border-b border-neutral-200/80 sticky top-0 z-20 px-4 py-3">
+      <header className="bg-white/90 backdrop-blur-md border-b border-[#EBD3C8] sticky top-0 z-20 px-4 py-3">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#2C221E] flex items-center justify-center text-white">
-              <Coffee className="w-4 h-4 text-[#E6D5C7]" />
+            <div className="w-9 h-9 rounded-xl bg-[#3F1215] flex items-center justify-center text-white overflow-hidden p-0.5 border border-[#3F1215]">
+              <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-lg" />
             </div>
             <div>
-              <span className="font-semibold text-xs tracking-tight text-neutral-900 block">
+              <span className="font-semibold text-xs tracking-tight text-[#2B0B0D] block font-serif">
                 {config.storeName}
               </span>
               <span className="text-[10px] text-neutral-400 font-mono">Digital Loyalty Member</span>
@@ -532,7 +532,7 @@ export default function CustomerPage() {
             >
               <Bell className="w-4 h-4" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#1A5336]" />
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#3F1215]" />
               )}
             </button>
 
@@ -550,12 +550,12 @@ export default function CustomerPage() {
       {/* Main Container */}
       <main className="max-w-md mx-auto w-full px-4 pt-4 flex-1">
         {/* Navigation Pills */}
-        <div className="flex bg-neutral-200/60 p-1 rounded-xl mb-4 text-xs font-medium">
+        <div className="flex bg-[#EED9D1]/50 p-1 rounded-xl mb-4 text-xs font-medium border border-[#EBD3C8]">
           <button
             onClick={() => setActiveTab("card")}
             className={`flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
               activeTab === "card"
-                ? "bg-white text-neutral-900 shadow-xs font-semibold"
+                ? "bg-white text-[#3F1215] shadow-xs font-semibold"
                 : "text-neutral-600 hover:text-neutral-900"
             }`}
           >
@@ -567,7 +567,7 @@ export default function CustomerPage() {
             onClick={() => setActiveTab("rewards")}
             className={`flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
               activeTab === "rewards"
-                ? "bg-white text-neutral-900 shadow-xs font-semibold"
+                ? "bg-white text-[#3F1215] shadow-xs font-semibold"
                 : "text-neutral-600 hover:text-neutral-900"
             }`}
           >
@@ -579,7 +579,7 @@ export default function CustomerPage() {
             onClick={() => setActiveTab("history")}
             className={`flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
               activeTab === "history"
-                ? "bg-white text-neutral-900 shadow-xs font-semibold"
+                ? "bg-white text-[#3F1215] shadow-xs font-semibold"
                 : "text-neutral-600 hover:text-neutral-900"
             }`}
           >
@@ -592,7 +592,7 @@ export default function CustomerPage() {
         {activeTab === "card" && (
           <div className="space-y-4">
             {/* The Main Member Card */}
-            <div className="bg-white border border-neutral-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 shadow-sm relative overflow-hidden">
               {/* Card Header */}
               <div className="flex items-start justify-between mb-5">
                 <div>
@@ -612,7 +612,7 @@ export default function CustomerPage() {
                       {customer.tier} Tier
                     </span>
                   </div>
-                  <h2 className="text-xl font-medium text-neutral-900 font-serif">
+                  <h2 className="text-xl font-medium text-[#2B0B0D] font-serif">
                     {customer.name}
                   </h2>
                   <div className="flex items-center gap-1.5 mt-0.5">
@@ -623,42 +623,42 @@ export default function CustomerPage() {
                   </div>
                 </div>
 
-                <div className="w-9 h-9 rounded-xl bg-[#2C221E] flex items-center justify-center text-white shadow-xs">
-                  <Coffee className="w-4 h-4 text-[#E6D5C7]" />
+                <div className="w-10 h-10 rounded-xl bg-[#3F1215] flex items-center justify-center text-white shadow-xs overflow-hidden p-0.5 border border-[#3F1215]">
+                  <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-lg" />
                 </div>
               </div>
 
               {/* QR Code Section: Pristine White Box with Subtle Shadow */}
               <div className="my-6 flex flex-col items-center justify-center">
-                <div className="p-4 bg-white rounded-2xl border border-neutral-200/90 shadow-sm flex items-center justify-center">
+                <div className="p-4 bg-white rounded-2xl border border-[#EBD3C8] shadow-sm flex items-center justify-center">
                   <QRCodeSVG
                     value={customer.qrSecret}
                     size={184}
                     level="H"
                     includeMargin={false}
-                    fgColor="#2C221E"
+                    fgColor="#3F1215"
                   />
                 </div>
                 <span className="text-[11px] text-neutral-400 font-mono mt-2 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#3F1215]" />
                   Dynamic Encrypted QR
                 </span>
               </div>
 
               {/* 6-Digit PIN: Bold Monospace with Quick Copy */}
-              <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4 text-center">
+              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-center">
                 <span className="text-[11px] uppercase tracking-wider font-mono text-neutral-500 block mb-1">
                   Fallback 6-Digit Counter PIN
                 </span>
 
                 <div className="flex items-center justify-center gap-3">
-                  <span className="font-pin text-2xl font-bold tracking-widest text-neutral-900 select-all">
+                  <span className="font-pin text-2xl font-bold tracking-widest text-[#2B0B0D] select-all">
                     {customer.formattedPin}
                   </span>
 
                   <button
                     onClick={handleCopyPin}
-                    className="p-1.5 rounded-lg border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-600 transition-colors active:scale-95"
+                    className="p-1.5 rounded-lg border border-[#EBD3C8] bg-white hover:bg-[#FDF4F0] text-neutral-600 transition-colors active:scale-95 cursor-pointer"
                     title="Copy PIN"
                   >
                     {copied ? (
@@ -670,20 +670,20 @@ export default function CustomerPage() {
                 </div>
 
                 {copied && (
-                  <span className="text-[10px] font-mono text-emerald-600 mt-1 block">
+                  <span className="text-[10px] font-mono text-[#3F1215] mt-1 block">
                     Copied to clipboard!
                   </span>
                 )}
               </div>
 
               {/* Live Points Counter */}
-              <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center justify-between">
+              <div className="mt-6 pt-5 border-t border-[#EBD3C8]/60 flex items-center justify-between">
                 <div>
                   <span className="text-[11px] uppercase tracking-wider font-mono text-neutral-400 block mb-0.5">
                     Available Balance
                   </span>
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl font-bold tracking-tight text-neutral-900 font-serif">
+                    <span className="text-3xl font-bold tracking-tight text-[#3F1215] font-serif">
                       {customer.pointsBalance}
                     </span>
                     <span className="text-xs font-mono text-neutral-500 font-medium">pts</span>
@@ -694,7 +694,7 @@ export default function CustomerPage() {
                   <span className="text-[11px] uppercase tracking-wider font-mono text-neutral-400 block mb-0.5">
                     Cash Valuation
                   </span>
-                  <span className="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 text-xs font-semibold text-[#1A5336]">
+                  <span className="inline-block px-2.5 py-1 rounded-lg bg-[#FDF4F0] border border-[#EBD3C8] text-xs font-semibold text-[#3F1215]">
                     = {formatCurrency(customer.currencyValue)}
                   </span>
                 </div>
@@ -772,7 +772,7 @@ export default function CustomerPage() {
                             setRedeemingReward(reward);
                             setRedeemError(null);
                           }}
-                          className="w-full py-2 rounded-xl bg-[#1A5336] hover:bg-[#14422B] text-white text-xs font-medium transition-colors"
+                          className="w-full py-2 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors cursor-pointer shadow-xs"
                         >
                           Redeem Voucher
                         </button>
@@ -792,8 +792,8 @@ export default function CustomerPage() {
 
         {/* TAB 3: TRANSACTION LEDGER */}
         {activeTab === "history" && (
-          <div className="bg-white border border-neutral-200 rounded-3xl p-5 shadow-sm">
-            <h3 className="text-sm font-semibold text-neutral-900 mb-4 pb-2 border-b border-neutral-100">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-[#2B0B0D] mb-4 pb-2 border-b border-[#EBD3C8]/60 font-serif">
               Loyalty Activity Log
             </h3>
 
@@ -802,7 +802,7 @@ export default function CustomerPage() {
                 No recorded transactions yet.
               </div>
             ) : (
-              <div className="divide-y divide-neutral-100">
+              <div className="divide-y divide-[#EBD3C8]/50">
                 {transactions.map((tx) => (
                   <div key={tx._id} className="py-3.5 flex items-start justify-between gap-3">
                     <div>
@@ -810,8 +810,8 @@ export default function CustomerPage() {
                         <span
                           className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-medium ${
                             tx.type === "EARN"
-                              ? "bg-emerald-50 text-[#1A5336]"
-                              : "bg-amber-50 text-amber-800"
+                              ? "bg-[#FDF4F0] text-[#3F1215] border border-[#EBD3C8]"
+                              : "bg-amber-50 text-amber-900 border border-amber-200"
                           }`}
                         >
                           {tx.type}
@@ -819,7 +819,7 @@ export default function CustomerPage() {
                         <span className="text-xs font-mono text-neutral-400">{tx.referenceCode}</span>
                       </div>
 
-                      <div className="text-xs font-medium text-neutral-800">
+                      <div className="text-xs font-medium text-[#2B0B0D]">
                         {tx.rewardTitle || tx.notes || "Store Purchase"}
                       </div>
 
@@ -837,7 +837,7 @@ export default function CustomerPage() {
                     <div className="text-right flex-shrink-0">
                       <span
                         className={`text-sm font-bold font-mono ${
-                          tx.points > 0 ? "text-emerald-700" : "text-neutral-800"
+                          tx.points > 0 ? "text-[#3F1215]" : "text-neutral-800"
                         }`}
                       >
                         {tx.points > 0 ? `+${tx.points}` : tx.points} pts
@@ -855,9 +855,9 @@ export default function CustomerPage() {
 
         {/* TAB 4: IN-APP NOTIFICATIONS */}
         {activeTab === "notifications" && (
-          <div className="bg-white border border-neutral-200 rounded-3xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-neutral-100">
-              <h3 className="text-sm font-semibold text-neutral-900">Notifications</h3>
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#EBD3C8]/60">
+              <h3 className="text-sm font-semibold text-[#2B0B0D] font-serif">Notifications</h3>
               <button
                 onClick={markAllRead}
                 className="text-xs font-mono text-neutral-500 hover:text-neutral-800"
@@ -871,11 +871,11 @@ export default function CustomerPage() {
                 No notifications to display.
               </div>
             ) : (
-              <div className="divide-y divide-neutral-100">
+              <div className="divide-y divide-[#EBD3C8]/50">
                 {notifications.map((n) => (
                   <div key={n._id} className="py-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-semibold text-neutral-900">{n.title}</span>
+                      <span className="text-xs font-semibold text-[#2B0B0D]">{n.title}</span>
                       <span className="text-[10px] font-mono text-neutral-400">
                         {new Date(n.createdAt).toLocaleDateString("en-US", {
                           month: "short",
@@ -894,10 +894,10 @@ export default function CustomerPage() {
 
       {/* MODAL: REDEMPTION CONFIRMATION */}
       {redeemingReward && (
-        <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-neutral-200 rounded-3xl p-6 max-w-sm w-full shadow-lg">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-neutral-900">Confirm Redemption</h3>
+              <h3 className="text-base font-semibold text-[#2B0B0D] font-serif">Confirm Redemption</h3>
               <button
                 onClick={() => setRedeemingReward(null)}
                 className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
@@ -906,15 +906,15 @@ export default function CustomerPage() {
               </button>
             </div>
 
-            <div className="p-4 bg-neutral-50 rounded-2xl mb-4 border border-neutral-100">
+            <div className="p-4 bg-[#FAF5F2] rounded-2xl mb-4 border border-[#EBD3C8]">
               <span className="text-xs font-mono uppercase text-neutral-400 block mb-1">
                 Reward
               </span>
-              <h4 className="text-sm font-semibold text-neutral-900">{redeemingReward.title}</h4>
+              <h4 className="text-sm font-semibold text-[#2B0B0D] font-serif">{redeemingReward.title}</h4>
               <p className="text-xs text-neutral-500 mt-1">{redeemingReward.description}</p>
-              <div className="mt-3 pt-3 border-t border-neutral-200 flex justify-between items-center text-xs font-mono">
+              <div className="mt-3 pt-3 border-t border-[#EBD3C8] flex justify-between items-center text-xs font-mono">
                 <span>Cost:</span>
-                <span className="font-bold text-[#2C221E]">{redeemingReward.pointsRequired} Points</span>
+                <span className="font-bold text-[#3F1215]">{redeemingReward.pointsRequired} Points</span>
               </div>
             </div>
 
@@ -928,13 +928,13 @@ export default function CustomerPage() {
               <button
                 onClick={() => handleRedeem(redeemingReward)}
                 disabled={redeemLoading}
-                className="w-full py-2.5 rounded-xl bg-[#1A5336] hover:bg-[#14422B] text-white text-xs font-medium transition-colors disabled:opacity-50"
+                className="w-full py-3 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 {redeemLoading ? "Generating Voucher..." : "Confirm & Deduct Points"}
               </button>
               <button
                 onClick={() => setRedeemingReward(null)}
-                className="w-full py-2 rounded-xl text-neutral-500 hover:bg-neutral-100 text-xs transition-colors"
+                className="w-full py-2 rounded-xl text-neutral-500 hover:bg-[#FAF5F2] text-xs transition-colors"
               >
                 Cancel
               </button>
@@ -945,31 +945,31 @@ export default function CustomerPage() {
 
       {/* MODAL: CLAIMED VOUCHER DISPLAY */}
       {claimedVoucher && (
-        <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-neutral-200 rounded-3xl p-6 max-w-sm w-full shadow-lg text-center">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-100 text-[#1A5336] flex items-center justify-center mx-auto mb-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-xl text-center">
+            <div className="w-12 h-12 rounded-full bg-[#FDF4F0] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-6 h-6" />
             </div>
 
-            <h3 className="text-lg font-medium text-neutral-900 mb-1 font-serif">
+            <h3 className="text-lg font-medium text-[#2B0B0D] mb-1 font-serif">
               Voucher Generated!
             </h3>
             <p className="text-xs text-neutral-500 mb-4">
               Present this voucher reference to the barista at the counter.
             </p>
 
-            <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4 mb-5">
+            <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 mb-5">
               <span className="text-[10px] uppercase tracking-wider font-mono text-neutral-400 block mb-1">
                 {claimedVoucher.title}
               </span>
-              <span className="text-2xl font-bold font-mono tracking-widest text-[#2C221E] block">
+              <span className="text-2xl font-bold font-mono tracking-widest text-[#3F1215] block">
                 {claimedVoucher.code}
               </span>
             </div>
 
             <button
               onClick={() => setClaimedVoucher(null)}
-              className="w-full py-2.5 rounded-xl bg-[#2C221E] text-white text-xs font-medium hover:bg-[#3E322D] transition-colors"
+              className="w-full py-3 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors shadow-xs cursor-pointer"
             >
               Done & Return to Pass
             </button>

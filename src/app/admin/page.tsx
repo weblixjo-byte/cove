@@ -578,16 +578,16 @@ export default function AdminPage() {
 
         <div className="max-w-sm w-full mx-auto my-auto">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-neutral-900 text-white flex items-center justify-center mx-auto mb-4 shadow-sm">
-              <LayoutDashboard className="w-7 h-7 text-neutral-300" />
+            <div className="w-16 h-16 rounded-2xl bg-[#3F1215] text-white flex items-center justify-center mx-auto mb-4 shadow-md overflow-hidden p-0.5 border border-[#3F1215]">
+              <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
             </div>
-            <h1 className="text-2xl font-serif font-medium text-neutral-900 mb-1">
+            <h1 className="text-2xl font-serif font-medium text-[#2B0B0D] mb-1">
               {config.storeName}
             </h1>
             <p className="text-xs text-neutral-500">{t.portalSubtitle}</p>
           </div>
 
-          <div className="bg-white border border-neutral-200 rounded-3xl p-7 shadow-sm">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-7 shadow-sm">
             {loginError && (
               <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -597,7 +597,7 @@ export default function AdminPage() {
 
             <form onSubmit={handleAdminLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1.5">
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1.5">
                   {t.adminEmail}
                 </label>
                 <input
@@ -605,13 +605,13 @@ export default function AdminPage() {
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="admin@covecoffee.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1.5">
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1.5">
                   {t.password}
                 </label>
                 <input
@@ -619,7 +619,7 @@ export default function AdminPage() {
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
@@ -627,13 +627,13 @@ export default function AdminPage() {
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full py-3 rounded-xl bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 mt-2"
+                className="w-full py-3 rounded-xl bg-[#3F1215] text-[#FEECE2] text-sm font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-50 mt-2 cursor-pointer shadow-xs"
               >
                 {loginLoading ? t.authenticating : t.signIn}
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-neutral-100 text-center">
+            <div className="mt-6 pt-5 border-t border-[#EBD3C8]/60 text-center">
               <span className="text-[11px] font-mono text-neutral-400 block mb-1">
                 {t.defaultCredentials}
               </span>
@@ -657,15 +657,15 @@ export default function AdminPage() {
   return (
     <div
       dir={lang === "ar" ? "rtl" : "ltr"}
-      className="min-h-screen bg-[#FAFAFA] flex flex-col md:flex-row transition-all"
+      className="min-h-screen bg-[#FAF5F2] flex flex-col md:flex-row transition-all"
     >
       {/* Editorial Sidebar */}
-      <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-neutral-200 flex flex-col justify-between p-5 md:min-h-screen flex-shrink-0">
+      <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-[#EBD3C8] flex flex-col justify-between p-5 md:min-h-screen flex-shrink-0">
         <div>
           {/* Brand header */}
-          <div className="flex items-center gap-3 px-2 py-3 mb-4 border-b border-neutral-100">
-            <div className="w-9 h-9 rounded-xl bg-[#2C221E] flex items-center justify-center text-white flex-shrink-0">
-              <Coffee className="w-4 h-4 text-[#E6D5C7]" />
+          <div className="flex items-center gap-3 px-2 py-3 mb-4 border-b border-[#EBD3C8]/60">
+            <div className="w-10 h-10 rounded-xl bg-[#3F1215] flex items-center justify-center text-white flex-shrink-0 overflow-hidden p-0.5 border border-[#3F1215]">
+              <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-lg" />
             </div>
             <div className="truncate">
               <span className="font-semibold text-sm text-neutral-900 block leading-tight truncate">
