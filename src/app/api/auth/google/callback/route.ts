@@ -2,11 +2,25 @@ import { NextResponse } from "next/server";
 import { dbService } from "@/lib/db";
 import { signToken, TOKEN_COOKIE_NAME } from "@/lib/auth";
 
+function getOrigin(req: Request): string {
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  const proto = req.headers.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
+  if (host) {
+    return `${proto}://${host}`;
+  }
+  return new URL(req.url).origin;
+}
+
 export async function GET(req: Request) {
+  const origin = getOrigin(req);
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const origin = url.origin;
+  const oauthError = url.searchParams.get("error");
   const redirectUri = `${origin}/api/auth/google/callback`;
+
+  if (oauthError) {
+    return NextResponse.redirect(`${origin}/customer?error=${encodeURIComponent(oauthError)}`);
+  }
 
   if (!code) {
     return NextResponse.redirect(`${origin}/customer?error=no_code`);
@@ -18,6 +32,7 @@ export async function GET(req: Request) {
   if (!clientId || !clientSecret) {
     return NextResponse.redirect(`${origin}/customer?error=missing_credentials`);
   }
+
 
   try {
     // 1. Exchange authorization code for access token

@@ -123,6 +123,8 @@ export default function CustomerPage() {
   const [claimedVoucher, setClaimedVoucher] = useState<{ code: string; title: string } | null>(null);
   const [redeemError, setRedeemError] = useState<string | null>(null);
   const [redeemLoading, setRedeemLoading] = useState(false);
+  const [googleRedirecting, setGoogleRedirecting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Fetch Dashboard Data
   const loadDashboard = async () => {
@@ -174,7 +176,34 @@ export default function CustomerPage() {
     loadDashboard();
     loadRewards();
     loadNotifications();
+
+    // Check if redirected with OAuth error parameter
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const err = params.get("error");
+      if (err) {
+        if (err === "google_not_configured") {
+          setAuthError("لم يتم ضبط مفتاح GOOGLE_CLIENT_ID في متغيرات بيئة Vercel أو الخادم. يرجى إضافته في إعدادات البيئة بالاستضافة، أو تجربة الحسابات التجريبية بالأسفل فوراً.");
+        } else if (err === "token_exchange_failed") {
+          setAuthError("فشل استبدال رمز تسجيل الدخول مع Google (Token Exchange). تأكد من صحة GOOGLE_CLIENT_SECRET ومطابقة Redirect URI.");
+        } else if (err === "missing_credentials") {
+          setAuthError("بيانات Google OAuth غير مكتملة في الاستضافة (GOOGLE_CLIENT_ID أو GOOGLE_CLIENT_SECRET).");
+        } else if (err === "redirect_uri_mismatch") {
+          setAuthError("رابط إعادة التوجيه Redirect URI غير مسجل في Google Cloud Console. أضف رابط موقعك + /api/auth/google/callback.");
+        } else if (err === "access_denied") {
+          setAuthError("تم إلغاء عملية تسجيل الدخول من شاشة Google.");
+        } else {
+          setAuthError(`ملاحظة تسجيل الدخول مع Google: ${err}`);
+        }
+      }
+    }
   }, []);
+
+  const handleGoogleRedirect = () => {
+    setGoogleRedirecting(true);
+    setAuthError(null);
+    window.location.href = "/api/auth/google/login";
+  };
 
   // Copy 6-Digit PIN
   const handleCopyPin = () => {
@@ -315,22 +344,43 @@ export default function CustomerPage() {
               </p>
             </div>
 
-            {/* Prominent Google Sign-In Button (Official Google OAuth) */}
-            <a
-              href="/api/auth/google/login"
-              className="w-full py-3.5 px-4 rounded-2xl border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 text-sm font-medium flex items-center justify-center gap-3 transition-all shadow-xs active:scale-98"
-            >
-              <GoogleIcon className="w-5 h-5" />
-              <span>Continue with Google</span>
-            </a>
+            {authError && (
+              <div className="mb-5 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex flex-col gap-1.5 text-start">
+                <div className="flex items-center gap-2 font-medium">
+                  <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0" />
+                  <span>تنبيه تسجيل الدخول / Notice</span>
+                </div>
+                <p className="text-amber-800 leading-relaxed text-[11px]">{authError}</p>
+              </div>
+            )}
 
-            <div className="mt-3">
+            {/* Prominent Google Sign-In Button (Official Google OAuth) */}
+            <button
+              type="button"
+              onClick={handleGoogleRedirect}
+              disabled={googleRedirecting}
+              className="w-full py-3.5 px-4 rounded-2xl border border-neutral-300 bg-white hover:bg-neutral-50 active:scale-98 text-neutral-800 text-sm font-medium flex items-center justify-center gap-3 transition-all shadow-xs disabled:opacity-70 cursor-pointer"
+            >
+              {googleRedirecting ? (
+                <>
+                  <div className="w-4 h-4 rounded-full border-2 border-neutral-400 border-t-neutral-900 animate-spin" />
+                  <span className="font-medium">جاري التحويل إلى Google...</span>
+                </>
+              ) : (
+                <>
+                  <GoogleIcon className="w-5 h-5" />
+                  <span className="font-medium">تسجيل الدخول باستخدام Google</span>
+                </>
+              )}
+            </button>
+
+            <div className="mt-3.5">
               <button
                 type="button"
                 onClick={() => setShowGoogleModal(true)}
-                className="text-xs text-neutral-500 hover:text-neutral-800 underline font-mono"
+                className="text-xs text-neutral-600 hover:text-neutral-900 underline font-medium py-1 px-2 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer"
               >
-                Or use 1-click demo Google profiles
+                أو جرّب فوراً بحسابات Google تجريبية بنقرة واحدة
               </button>
             </div>
 
