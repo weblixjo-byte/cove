@@ -31,5 +31,21 @@
       "sizes": "180x180",
       "type": "image/png"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cashier POS Terminal",
+      "short_name": "Cashier POS",
+      "description": "Open Cashier Checkout Terminal",
+      "url": "/cashier",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Customer Digital Pass",
+      "short_name": "Customer Pass",
+      "description": "Open Member Loyalty Pass",
+      "url": "/customer",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }

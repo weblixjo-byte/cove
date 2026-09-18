@@ -34,5 +34,21 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
       },
     ],
+    shortcuts: [
+      {
+        name: "Cashier POS Terminal",
+        short_name: "Cashier POS",
+        description: "Open Cashier POS Checkout Terminal",
+        url: "/cashier",
+        icons: [{ src: "/icon-192.png", sizes: "192x192" }],
+      },
+      {
+        name: "Customer Digital Pass",
+        short_name: "Customer Pass",
+        description: "Open Member Loyalty Pass",
+        url: "/customer",
+        icons: [{ src: "/icon-192.png", sizes: "192x192" }],
+      },
+    ],
   };
 }

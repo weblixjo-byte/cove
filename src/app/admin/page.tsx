@@ -29,6 +29,7 @@ import {
   Search,
   Upload,
   Image as ImageIcon,
+  Camera,
 } from "lucide-react";
 import { ITenantConfig, IReward, IUser, ITransaction } from "@/lib/types";
 
@@ -451,16 +452,20 @@ export default function AdminPage() {
 
 
 
-  // Helper for image file upload & client-side compression to lightweight JPEG (~30-50KB)
+  // Helper for direct device image file upload & client-side compression to lightweight crisp JPEG (~40-60KB)
   const handleRewardImageUpload = (file: File) => {
     if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setCreateRewardError("Please select a valid image file (JPG, PNG, WebP).");
+      return;
+    }
     setCreateRewardError(null);
     const reader = new FileReader();
     reader.onload = (readerEvent) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const maxDim = 600;
+        const maxDim = 800;
         let width = img.width;
         let height = img.height;
         if (width > height) {
@@ -478,11 +483,11 @@ export default function AdminPage() {
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         ctx?.drawImage(img, 0, 0, width, height);
-        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.8);
+        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.82);
         setNewReward((prev) => ({ ...prev, imageUrl: compressedBase64 }));
       };
       img.onerror = () => {
-        setCreateRewardError("Unable to read selected image file");
+        setCreateRewardError("Unable to read selected image file. Please try another photo.");
       };
       img.src = readerEvent.target?.result as string;
     };
@@ -1197,7 +1202,7 @@ export default function AdminPage() {
         {/* TAB 3: REWARDS CATALOGUE MANAGEMENT */}
         {activeTab === "rewards" && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-serif font-medium text-neutral-900">
                   {t.rewardsTitle}
@@ -1208,81 +1213,110 @@ export default function AdminPage() {
               </div>
 
               <button
+                type="button"
                 onClick={() => setShowAddRewardModal(true)}
-                className="px-4 py-2 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-medium hover:bg-[#2B0B0D] transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0 active:scale-98"
+                className="px-4 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-all flex items-center gap-2 shadow-xs cursor-pointer self-start sm:self-auto shrink-0 active:scale-98"
               >
-                <Plus className="w-3.5 h-3.5" />
-                {t.addReward}
+                <Plus className="w-4 h-4" />
+                <span>{t.addReward}</span>
               </button>
             </div>
 
-            <div className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="min-w-[620px] w-full text-start text-xs">
-                  <thead className="bg-[#FAF5F2] border-b border-[#EBD3C8] font-mono text-neutral-500 uppercase tracking-wider">
-                    <tr>
-                      <th className="py-3 px-5 text-start">{t.tblRewardTitle}</th>
-                      <th className="py-3 px-4 text-start">{t.tblCategory}</th>
-                      <th className="py-3 px-4 text-start">{t.tblPointsCost}</th>
-                      <th className="py-3 px-4 text-start">{t.tblRedemptions}</th>
-                      <th className="py-3 px-4 text-start">{t.tblStatus}</th>
-                      <th className="py-3 px-5 text-end">{t.tblActions}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#EBD3C8]/50">
-                    {rewardsList.map((reward) => (
-                      <tr key={reward._id} className="hover:bg-[#FDF4F0]/50 transition-colors">
-                        <td className="py-3.5 px-5">
-                          <div className="flex items-center gap-3">
-                            {reward.imageUrl ? (
-                              <img
-                                src={reward.imageUrl}
-                                alt={reward.title}
-                                className="w-11 h-11 rounded-xl object-cover border border-[#EBD3C8] flex-shrink-0 shadow-2xs"
-                              />
-                            ) : (
-                              <div className="w-11 h-11 rounded-xl bg-[#FAF5F2] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center flex-shrink-0">
-                                <Gift className="w-5 h-5" />
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <span className="font-semibold text-[#2B0B0D] block truncate">{reward.title}</span>
-                              <span className="text-[11px] text-neutral-400 line-clamp-1">{reward.description}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4 font-mono text-neutral-600">{reward.category}</td>
-                        <td className="py-3.5 px-4 font-mono font-bold text-[#3F1215]" dir="ltr">
-                          {reward.pointsRequired} {t.pts}
-                        </td>
-                        <td className="py-3.5 px-4 font-mono text-neutral-500">{reward.redemptionCount || 0}</td>
-                        <td className="py-3.5 px-4">
-                          <button
-                            onClick={() => handleToggleReward(reward._id, reward.isActive)}
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border cursor-pointer transition-colors ${
-                              reward.isActive
-                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                                : "bg-neutral-100 text-neutral-500 border-neutral-200"
-                            }`}
-                          >
-                            {reward.isActive ? t.active : t.disabled}
-                          </button>
-                        </td>
-                        <td className="py-3.5 px-5 text-end">
-                          <button
-                            onClick={() => handleDeleteReward(reward._id)}
-                            className="p-1 text-neutral-400 hover:text-red-600 transition-colors cursor-pointer"
-                            title="Delete Reward"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {rewardsList.length === 0 ? (
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-10 text-center shadow-xs">
+                <div className="w-14 h-14 rounded-2xl bg-[#FDF4F0] text-[#3F1215] flex items-center justify-center mx-auto mb-3 border border-[#EBD3C8]">
+                  <Gift className="w-7 h-7" />
+                </div>
+                <h3 className="text-base font-bold text-[#2B0B0D] mb-1">No Rewards Created Yet</h3>
+                <p className="text-xs text-neutral-500 max-w-sm mx-auto mb-4">
+                  Add items customers can redeem with their loyalty points using photos directly from your device.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowAddRewardModal(true)}
+                  className="px-4 py-2 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-colors cursor-pointer"
+                >
+                  Create First Reward
+                </button>
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+                {rewardsList.map((reward) => (
+                  <div
+                    key={reward._id}
+                    className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+                  >
+                    <div>
+                      {/* Image Thumbnail Banner */}
+                      <div className="relative h-44 sm:h-48 w-full bg-[#FAF5F2] overflow-hidden border-b border-[#EBD3C8]/60">
+                        {reward.imageUrl ? (
+                          <img
+                            src={reward.imageUrl}
+                            alt={reward.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#3F1215]/30">
+                            <Gift className="w-12 h-12" />
+                          </div>
+                        )}
+
+                        {/* Points Cost Floating Badge */}
+                        <div className="absolute top-3 end-3 px-3 py-1 rounded-full bg-[#3F1215] text-[#FEECE2] shadow-sm flex items-center gap-1 font-mono text-xs font-bold">
+                          <span>{reward.pointsRequired}</span>
+                          <span className="text-[10px] opacity-80 uppercase">pts</span>
+                        </div>
+
+                        {/* Category Floating Badge */}
+                        <div className="absolute top-3 start-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[#2B0B0D] border border-neutral-200 text-[10px] font-semibold shadow-2xs">
+                          {reward.category}
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-4 sm:p-5">
+                        <h3 className="text-sm sm:text-base font-bold text-[#2B0B0D] leading-snug line-clamp-1 mb-1">
+                          {reward.title}
+                        </h3>
+                        <p className="text-xs text-neutral-500 line-clamp-2 leading-relaxed min-h-[2rem]">
+                          {reward.description || "Specialty loyalty catalogue item."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Bottom Controls Bar */}
+                    <div className="px-4 py-3 bg-[#FAF5F2]/50 border-t border-[#EBD3C8]/60 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleReward(reward._id, reward.isActive)}
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
+                            reward.isActive
+                              ? "bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100"
+                              : "bg-neutral-100 text-neutral-500 border-neutral-200 hover:bg-neutral-200"
+                          }`}
+                        >
+                          {reward.isActive ? "● Active" : "○ Disabled"}
+                        </button>
+
+                        <span className="text-[11px] text-neutral-400 font-mono" title="Total redemptions">
+                          {reward.redemptionCount || 0} claimed
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteReward(reward._id)}
+                        className="p-1.5 rounded-xl text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        title="Delete Reward"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -1511,20 +1545,32 @@ export default function AdminPage() {
 
       {/* MODAL: ADD NEW REWARD */}
       {showAddRewardModal && (
-        <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div
-            dir={lang === "ar" ? "rtl" : "ltr"}
-            className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-md w-full shadow-2xl"
+            dir="ltr"
+            className="bg-white border border-[#EBD3C8] rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-200"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#2B0B0D] font-serif">{t.addRewardModalTitle}</h3>
-              <button onClick={() => setShowAddRewardModal(false)} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
+            <div className="flex items-center justify-between pb-4 border-b border-[#EBD3C8]/60 mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-[#3F1215] text-[#FEECE2] flex items-center justify-center shadow-xs">
+                  <Gift className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#2B0B0D]">Add New Reward</h3>
+                  <p className="text-[11px] text-neutral-500">Create a reward with photo directly from your device</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddRewardModal(false)}
+                className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 cursor-pointer transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {createRewardError && (
-              <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2 mb-3">
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2 mb-4">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{createRewardError}</span>
               </div>
@@ -1532,60 +1578,116 @@ export default function AdminPage() {
 
             <form onSubmit={handleCreateReward} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.titleLabel} *</label>
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1.5">
+                  {t.titleLabel} *
+                </label>
                 <input
                   type="text"
                   value={newReward.title}
                   onChange={(e) => setNewReward({ ...newReward, title: e.target.value })}
-                  placeholder="Reward title (e.g. Flat White, Croissant...)"
+                  placeholder="e.g. Flat White, French Croissant, Kyoto Cold Brew..."
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.descriptionLabel} (Optional)</label>
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1.5">
+                  {t.descriptionLabel} (Optional)
+                </label>
                 <input
                   type="text"
                   value={newReward.description}
                   onChange={(e) => setNewReward({ ...newReward, description: e.target.value })}
-                  placeholder="Additional details or beverage tasting notes"
+                  placeholder="e.g. Double shot espresso with velvety steamed whole milk"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                 />
               </div>
 
-              {/* Reward Image (File upload, live preview, presets, or URL) */}
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-[#2B0B0D]">
-                  Reward Image
+              {/* Device-Only Image Upload */}
+              <div>
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1.5">
+                  Reward Photo (Direct Device Upload)
                 </label>
 
-                {/* Current Image Preview */}
                 {newReward.imageUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden border-2 border-[#EBD3C8] bg-[#FAF5F2] h-40 flex items-center justify-center group">
+                  <div className="relative rounded-2xl overflow-hidden border-2 border-[#EBD3C8] bg-[#FAF5F2] h-48 w-full group shadow-xs">
                     <img
                       src={newReward.imageUrl}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setNewReward({ ...newReward, imageUrl: "" })}
-                      className="absolute top-2 end-2 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-xl shadow-md transition-all cursor-pointer"
-                      title="Delete Image"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+
+                    {/* Desktop Hover Controls Overlay */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-2.5">
+                      <label className="px-3.5 py-2 rounded-xl bg-white text-[#2B0B0D] text-xs font-bold shadow-md cursor-pointer hover:bg-[#FAF5F2] flex items-center gap-1.5 transition-all">
+                        <Camera className="w-3.5 h-3.5 text-[#3F1215]" />
+                        <span>Change Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleRewardImageUpload(file);
+                          }}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setNewReward({ ...newReward, imageUrl: "" })}
+                        className="px-3.5 py-2 rounded-xl bg-red-600 text-white text-xs font-bold shadow-md cursor-pointer hover:bg-red-700 flex items-center gap-1.5 transition-all"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+
+                    {/* Mobile & Touch Controls */}
+                    <div className="sm:hidden absolute bottom-2 end-2 flex items-center gap-1.5">
+                      <label className="px-3 py-1.5 rounded-xl bg-black/75 backdrop-blur-xs text-white text-xs font-semibold cursor-pointer shadow-md flex items-center gap-1">
+                        <Camera className="w-3 h-3" />
+                        <span>Change</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleRewardImageUpload(file);
+                          }}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setNewReward({ ...newReward, imageUrl: "" })}
+                        className="px-3 py-1.5 rounded-xl bg-red-600/90 backdrop-blur-xs text-white text-xs font-semibold cursor-pointer shadow-md flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+
+                    <div className="absolute top-2.5 start-2.5 px-2.5 py-1 rounded-full bg-emerald-700/90 text-white text-[10px] font-semibold backdrop-blur-xs shadow-xs flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Photo Attached</span>
+                    </div>
                   </div>
                 ) : (
-                  /* Upload from Device / Phone Button */
-                  <label className="w-full py-4 px-3 rounded-2xl border-2 border-dashed border-[#EBD3C8] hover:border-[#3F1215] bg-[#FAF5F2]/50 hover:bg-[#FDF4F0] flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all">
-                    <Upload className="w-6 h-6 text-[#3F1215]" />
-                    <span className="text-xs font-bold text-[#2B0B0D]">
-                      Click here to upload image from your device
-                    </span>
-                    <span className="text-[10px] text-neutral-400">
-                      JPG or PNG (Auto-compressed and optimized)
+                  <label className="w-full py-8 px-4 rounded-2xl border-2 border-dashed border-[#EBD3C8] hover:border-[#3F1215] bg-[#FAF5F2]/60 hover:bg-[#FDF4F0] flex flex-col items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99] text-center">
+                    <div className="w-12 h-12 rounded-2xl bg-[#3F1215]/10 text-[#3F1215] flex items-center justify-center">
+                      <Upload className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-[#2B0B0D] block">
+                        Tap to select photo from device
+                      </span>
+                      <span className="text-[11px] text-neutral-500 block mt-0.5">
+                        Camera, Photo Library, or Files (JPG, PNG, WebP)
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-[#3F1215] bg-[#FEECE2] px-2.5 py-0.5 rounded-full mt-1">
+                      Auto-compressed on device for instant loading
                     </span>
                     <input
                       type="file"
@@ -1598,56 +1700,13 @@ export default function AdminPage() {
                     />
                   </label>
                 )}
-
-                {/* Ready Presets */}
-                <div>
-                  <span className="text-[11px] font-bold text-neutral-600 block mb-1">
-                    Or choose a preset with one tap:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { label: "☕ Flat White", url: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🧊 Cold Brew", url: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🥛 Spanish Latte", url: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🥐 Croissant", url: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🍰 Cheesecake", url: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🍩 Doughnut", url: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🍪 Cookies", url: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🫘 Coffee Beans", url: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=800&auto=format&fit=crop&q=80" },
-                    ].map((preset) => (
-                      <button
-                        key={preset.label}
-                        type="button"
-                        onClick={() => setNewReward({ ...newReward, imageUrl: preset.url })}
-                        className={`text-[11px] px-2.5 py-1 rounded-xl border transition-all cursor-pointer font-medium ${
-                          newReward.imageUrl === preset.url
-                            ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs"
-                            : "bg-[#FAF5F2] text-neutral-700 border-[#EBD3C8] hover:bg-white"
-                        }`}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Manual Image URL */}
-                <div>
-                  <span className="text-[10px] text-neutral-400 block mb-1">Or enter an image URL:</span>
-                  <input
-                    type="text"
-                    value={newReward.imageUrl.startsWith("data:") ? "" : newReward.imageUrl}
-                    onChange={(e) => setNewReward({ ...newReward, imageUrl: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3 py-2 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215] bg-[#FAF5F2]/40"
-                    dir="ltr"
-                  />
-                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 pt-1">
                 <div>
-                  <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.tblPointsCost} *</label>
+                  <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">
+                    {t.tblPointsCost} *
+                  </label>
                   <input
                     type="number"
                     value={newReward.pointsRequired}
@@ -1656,11 +1715,14 @@ export default function AdminPage() {
                     }
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                     required
+                    min={1}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.tblCategory}</label>
+                  <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">
+                    {t.tblCategory} *
+                  </label>
                   <select
                     value={newReward.category}
                     onChange={(e) => setNewReward({ ...newReward, category: e.target.value })}
@@ -1675,23 +1737,23 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="pt-3 flex justify-end gap-2">
+              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-[#EBD3C8]/60">
                 <button
                   type="button"
                   onClick={() => setShowAddRewardModal(false)}
-                  className="px-4 py-2.5 rounded-xl text-xs text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-medium text-neutral-600 hover:bg-[#FAF5F2] transition-colors cursor-pointer"
                 >
                   {t.cancel}
                 </button>
                 <button
                   type="submit"
                   disabled={createRewardLoading}
-                  className="px-6 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-all shadow-xs cursor-pointer active:scale-98 disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-all cursor-pointer shadow-xs disabled:opacity-50 active:scale-98 flex items-center gap-1.5"
                 >
                   {createRewardLoading ? (
                     <>
                       <div className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      <span>Saving reward...</span>
+                      <span>Saving Reward...</span>
                     </>
                   ) : (
                     <span>{t.createReward}</span>

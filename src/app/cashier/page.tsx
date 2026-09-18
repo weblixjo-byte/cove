@@ -24,6 +24,8 @@ import {
   Receipt,
   Check,
   ChevronLeft,
+  Smartphone,
+  Share2,
 } from "lucide-react";
 import QrCameraScanner from "@/components/QrCameraScanner";
 
@@ -94,6 +96,40 @@ export default function CashierPage() {
   const [rewardTitle, setRewardTitle] = useState<string>("Specialty Flat White / Latte");
   const [redeemLoading, setRedeemLoading] = useState(false);
   const [redeemError, setRedeemError] = useState<string | null>(null);
+
+  // Cashier PWA Installation States
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandaloneApp, setIsStandaloneApp] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const standalone =
+        ("standalone" in window.navigator && (window.navigator as any).standalone) ||
+        window.matchMedia("(display-mode: standalone)").matches;
+      setIsStandaloneApp(Boolean(standalone));
+
+      const handleBeforeInstall = (e: any) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
+
+      window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+      return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+    }
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setDeferredPrompt(null);
+      }
+    } else {
+      setShowInstallGuide(true);
+    }
+  };
 
   // Check current session
   const checkSession = async () => {
@@ -382,7 +418,78 @@ export default function CashierPage() {
               </button>
             </form>
           </div>
+
+          {/* Install Cashier App to Home Screen Banner */}
+          {!isStandaloneApp && (
+            <div className="mt-4 p-3.5 rounded-2xl bg-white border border-[#EBD3C8] shadow-2xs flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-[#FDF4F0] text-[#3F1215] flex items-center justify-center shrink-0">
+                  <Smartphone className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-[#2B0B0D] truncate">Add Cashier to Home Screen</p>
+                  <p className="text-[10px] text-neutral-500 truncate">Launches Cashier directly, never Customer</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className="px-3 py-1.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold shrink-0 hover:bg-[#2B0B0D] transition-all cursor-pointer shadow-2xs"
+              >
+                Install
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Install Guide Modal (Login View) */}
+        {showInstallGuide && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+              <button
+                type="button"
+                onClick={() => setShowInstallGuide(false)}
+                className="absolute top-4 end-4 p-1 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="w-12 h-12 rounded-2xl bg-[#3F1215] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+                <Smartphone className="w-6 h-6" />
+              </div>
+
+              <h3 className="text-base font-bold text-center text-[#2B0B0D] mb-1">
+                Install Cashier to Home Screen
+              </h3>
+              <p className="text-xs text-neutral-500 text-center mb-4">
+                Install a dedicated Cashier POS icon that opens this terminal directly:
+              </p>
+
+              <div className="space-y-3 bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-xs text-[#2B0B0D]">
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                  <span>Tap the <strong>Share</strong> button <Share2 className="w-3.5 h-3.5 inline mx-0.5 text-[#3F1215]" /> in Safari or <strong>Menu (⋮)</strong> in Chrome.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                  <span>Select <strong>&quot;Add to Home Screen&quot;</strong>.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                  <span>Tap <strong>Add</strong>. The icon will be named <strong>Cove Cashier</strong> and will open this Cashier POS terminal directly.</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowInstallGuide(false)}
+                className="w-full mt-4 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-colors cursor-pointer"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="text-center text-xs text-neutral-500 py-4 flex items-center justify-center gap-4">
           <Link href="/admin" className="hover:text-[#3F1215] font-medium transition-colors">
@@ -425,6 +532,18 @@ export default function CashierPage() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-1.5 shrink-0">
+            {!isStandaloneApp && (
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl border border-[#EBD3C8] bg-[#FDF4F0] hover:bg-[#EBD3C8]/40 text-xs font-semibold text-[#3F1215] flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                title="Install Cashier POS App"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-[#3F1215]" />
+                <span className="text-xs">Install</span>
+              </button>
+            )}
+
             <button
               onClick={resetPOS}
               className="px-2.5 sm:px-3 py-1.5 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FDF4F0] text-xs font-semibold text-[#2B0B0D] flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
@@ -1015,6 +1134,55 @@ export default function CashierPage() {
             onScan={handleQrScan}
             onClose={() => setShowCameraScanner(false)}
           />
+        )}
+
+        {/* Install Guide Modal (Authenticated View) */}
+        {showInstallGuide && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+              <button
+                type="button"
+                onClick={() => setShowInstallGuide(false)}
+                className="absolute top-4 end-4 p-1 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="w-12 h-12 rounded-2xl bg-[#3F1215] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+                <Smartphone className="w-6 h-6" />
+              </div>
+
+              <h3 className="text-base font-bold text-center text-[#2B0B0D] mb-1">
+                Install Cashier to Home Screen
+              </h3>
+              <p className="text-xs text-neutral-500 text-center mb-4">
+                Install a dedicated Cashier POS icon that opens this terminal directly:
+              </p>
+
+              <div className="space-y-3 bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-xs text-[#2B0B0D]">
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                  <span>Tap the <strong>Share</strong> button <Share2 className="w-3.5 h-3.5 inline mx-0.5 text-[#3F1215]" /> in Safari or <strong>Menu (⋮)</strong> in Chrome.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                  <span>Select <strong>&quot;Add to Home Screen&quot;</strong>.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                  <span>Tap <strong>Add</strong>. The icon will be named <strong>Cove Cashier</strong> and will open this Cashier POS terminal directly.</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowInstallGuide(false)}
+                className="w-full mt-4 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-colors cursor-pointer"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
         )}
       </main>
 
