@@ -11,7 +11,7 @@ const TenantConfigSchema = new Schema<TenantConfigDocument>(
     primaryColor: { type: String, default: "#2C221E" },
     accentColor: { type: String, default: "#1A5336" },
     terracottaColor: { type: String, default: "#C87D55" },
-    currency: { type: String, default: "KWD" },
+    currency: { type: String, default: "JOD" },
     pointsPerUnit: { type: Number, default: 10 },
     discountPer100Pts: { type: Number, default: 1.00 },
     welcomeBonusPts: { type: Number, default: 50 },

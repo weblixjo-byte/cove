@@ -21,29 +21,20 @@ export default function HomePage() {
   const router = useRouter();
   const [switching, setSwitching] = useState<string | null>(null);
 
-  // Quick 1-click test login helpers
+  // Quick test login helpers
   const handleFastLogin = async (role: "customer" | "cashier" | "admin") => {
     setSwitching(role);
     try {
       if (role === "customer") {
-        const res = await fetch("/api/auth/google", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: "Tariq Al-Mansoor",
-            email: "tariq@gmail.com",
-            googleId: "google_tariq_01",
-          }),
-        });
-        if (res.ok) router.push("/customer");
+        router.push("/customer");
       } else if (role === "cashier") {
         const res = await fetch("/api/auth/staff", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             role: "cashier",
-            username: "cashier1",
-            staffPin: "1234",
+            username: "sajji",
+            staffPin: "2026",
           }),
         });
         if (res.ok) router.push("/cashier");
@@ -147,11 +138,11 @@ export default function HomePage() {
                 disabled={switching === "customer"}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#2C221E] text-white text-sm font-medium hover:bg-[#3E322D] transition-colors disabled:opacity-50"
               >
-                {switching === "customer" ? "Loading Pass..." : "Launch Demo Customer"}
+                {switching === "customer" ? "Opening Pass..." : "Open Customer Pass"}
                 <ArrowRight className="w-4 h-4" />
               </button>
               <p className="text-center text-[11px] text-neutral-400 font-mono">
-                Google SSO: Tariq (tariq@gmail.com)
+                Google Single Sign-On / تسجيل الدخول بجوجل
               </p>
             </div>
           </div>
@@ -184,7 +175,7 @@ export default function HomePage() {
                 <ArrowRight className="w-4 h-4" />
               </button>
               <p className="text-center text-[11px] text-neutral-400 font-mono">
-                Staff: cashier1 / PIN: 1234
+                Staff: sajji (PIN: 2026) / ahmad (PIN: 1111)
               </p>
             </div>
           </div>

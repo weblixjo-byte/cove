@@ -61,8 +61,8 @@ export default function CashierPage() {
   const [loadingSession, setLoadingSession] = useState(true);
 
   // Cashier login form state
-  const [usernameInput, setUsernameInput] = useState("cashier1");
-  const [pinInput, setPinInput] = useState("1234");
+  const [usernameInput, setUsernameInput] = useState("sajji");
+  const [pinInput, setPinInput] = useState("2026");
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
 
@@ -337,30 +337,30 @@ export default function CashierPage() {
 
             <div className="mt-6 pt-5 border-t border-neutral-100">
               <span className="text-[11px] uppercase tracking-wider font-mono text-neutral-400 block mb-2">
-                Demo Cashier Profiles:
+                Authorized Cashiers / حسابات الكاشير:
               </span>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => {
-                    setUsernameInput("cashier1");
-                    setPinInput("1234");
+                    setUsernameInput("sajji");
+                    setPinInput("2026");
                   }}
-                  className="p-2 rounded-xl border border-neutral-200 text-left hover:bg-neutral-50"
+                  className="p-2.5 rounded-xl border border-neutral-200 text-left hover:bg-neutral-50 transition-colors"
                 >
-                  <span className="font-semibold block text-neutral-900">Salem (Downtown)</span>
-                  <span className="text-neutral-500 font-mono text-[10px]">PIN: 1234</span>
+                  <span className="font-semibold block text-neutral-900">Sajji</span>
+                  <span className="text-neutral-500 font-mono text-[11px]">PIN: 2026</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    setUsernameInput("cashier2");
-                    setPinInput("5678");
+                    setUsernameInput("ahmad");
+                    setPinInput("1111");
                   }}
-                  className="p-2 rounded-xl border border-neutral-200 text-left hover:bg-neutral-50"
+                  className="p-2.5 rounded-xl border border-neutral-200 text-left hover:bg-neutral-50 transition-colors"
                 >
-                  <span className="font-semibold block text-neutral-900">Nour (Marina)</span>
-                  <span className="text-neutral-500 font-mono text-[10px]">PIN: 5678</span>
+                  <span className="font-semibold block text-neutral-900">Ahmad</span>
+                  <span className="text-neutral-500 font-mono text-[11px]">PIN: 1111</span>
                 </button>
               </div>
             </div>
@@ -534,32 +534,6 @@ export default function CashierPage() {
                 </div>
               )}
 
-              {/* Quick Customer Test Chips */}
-              <div className="mt-6 pt-5 border-t border-neutral-100">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 block mb-2.5">
-                  1-Click Test Customers:
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => performLookup("482910")}
-                    className="px-3 py-1.5 rounded-xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-xs font-mono text-neutral-700 transition-colors"
-                  >
-                    Tariq (PIN: 482910)
-                  </button>
-                  <button
-                    onClick={() => performLookup("735194")}
-                    className="px-3 py-1.5 rounded-xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-xs font-mono text-neutral-700 transition-colors"
-                  >
-                    Deema (PIN: 735194)
-                  </button>
-                  <button
-                    onClick={() => performLookup("109482")}
-                    className="px-3 py-1.5 rounded-xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-xs font-mono text-neutral-700 transition-colors"
-                  >
-                    Fahad (PIN: 109482)
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         )}

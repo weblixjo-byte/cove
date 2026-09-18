@@ -10,7 +10,7 @@ const defaultBrandConfig: ITenantConfig = {
   primaryColor: "#2C221E",
   accentColor: "#1A5336",
   terracottaColor: "#C87D55",
-  currency: "KWD",
+  currency: "JOD",
   pointsPerUnit: 10,
   discountPer100Pts: 1.0,
   welcomeBonusPts: 50,
@@ -26,8 +26,8 @@ interface BrandContextType {
 const BrandContext = createContext<BrandContextType>({
   config: defaultBrandConfig,
   refreshConfig: async () => {},
-  formatCurrency: (amount: number) => `${amount.toFixed(3)} KWD`,
-  formatPointsValue: (points: number) => `${((points / 100) * 1.0).toFixed(3)} KWD`,
+  formatCurrency: (amount: number) => `${amount.toFixed(3)} JOD`,
+  formatPointsValue: (points: number) => `${((points / 100) * 1.0).toFixed(3)} JOD`,
 });
 
 export function BrandProvider({ children }: { children: React.ReactNode }) {

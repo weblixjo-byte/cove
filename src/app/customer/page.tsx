@@ -377,10 +377,13 @@ export default function CustomerPage() {
             <div className="mt-3.5">
               <button
                 type="button"
-                onClick={() => setShowGoogleModal(true)}
+                onClick={() => {
+                  setShowGoogleModal(true);
+                  setShowNewAccountForm(true);
+                }}
                 className="text-xs text-neutral-600 hover:text-neutral-900 underline font-medium py-1 px-2 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer"
               >
-                أو جرّب فوراً بحسابات Google تجريبية بنقرة واحدة
+                أو تجربة التسجيل بحساب Google يدوياً (للاختبار السريع)
               </button>
             </div>
 
@@ -397,7 +400,7 @@ export default function CustomerPage() {
           </Link>
         </div>
 
-        {/* MODAL: Google Account Selector (Simulates Google One-Tap / OAuth Account Picker) */}
+        {/* MODAL: Google Account Selector / Direct Registration */}
         {showGoogleModal && (
           <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white border border-neutral-200 rounded-3xl p-7 max-w-md w-full shadow-2xl">
@@ -406,13 +409,12 @@ export default function CustomerPage() {
                 <div className="flex items-center gap-2.5">
                   <GoogleIcon className="w-5 h-5" />
                   <span className="text-sm font-semibold text-neutral-800">
-                    Sign in with Google
+                    تسجيل الدخول بحساب Google
                   </span>
                 </div>
                 <button
                   onClick={() => {
                     setShowGoogleModal(false);
-                    setShowNewAccountForm(false);
                     setGoogleError(null);
                   }}
                   className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 transition-colors"
@@ -423,10 +425,10 @@ export default function CustomerPage() {
 
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-neutral-900">
-                  Choose an account
+                  فتح حساب زبون جديد عبر Google
                 </h3>
                 <p className="text-xs text-neutral-500">
-                  to continue to <strong className="text-neutral-700">{config.storeName}</strong>
+                  للانضمام إلى برنامج ولاء <strong className="text-neutral-700">{config.storeName}</strong>
                 </p>
               </div>
 
@@ -437,142 +439,58 @@ export default function CustomerPage() {
                 </div>
               )}
 
-              {/* Pre-Loaded Google Accounts */}
-              {!showNewAccountForm ? (
-                <div className="space-y-2 mb-4">
-                  {/* Account 1: Tariq */}
-                  <button
-                    onClick={() =>
-                      handleGoogleAuth({
-                        name: "Tariq Al-Mansoor",
-                        email: "tariq@gmail.com",
-                        googleId: "google_tariq_01",
-                      })
-                    }
-                    disabled={googleLoading}
-                    className="w-full p-3 rounded-2xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-left flex items-center justify-between transition-colors disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-semibold text-sm">
-                        T
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-neutral-900 block">
-                          Tariq Al-Mansoor
-                        </span>
-                        <span className="text-[11px] text-neutral-500 font-mono">
-                          tariq@gmail.com
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-mono bg-neutral-100 px-2 py-0.5 rounded text-neutral-600">
-                      Silver • 280 pts
-                    </span>
-                  </button>
+              {/* Clean Google Account Form */}
+              <form onSubmit={handleCustomGoogleSubmit} className="space-y-4 mb-4">
+                <div className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 text-xs text-neutral-600 mb-2">
+                  أدخل اسمك وبريدك الإلكتروني على Google لفتح بطاقة ولاء رقمية جديدة وحفظها في قاعدة البيانات السحابية:
+                </div>
 
-                  {/* Account 2: Deema */}
-                  <button
-                    onClick={() =>
-                      handleGoogleAuth({
-                        name: "Deema Al-Kandari",
-                        email: "deema@gmail.com",
-                        googleId: "google_deema_02",
-                      })
-                    }
-                    disabled={googleLoading}
-                    className="w-full p-3 rounded-2xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 text-left flex items-center justify-between transition-colors disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-semibold text-sm">
-                        D
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-neutral-900 block">
-                          Deema Al-Kandari
-                        </span>
-                        <span className="text-[11px] text-neutral-500 font-mono">
-                          deema@gmail.com
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-mono bg-neutral-100 px-2 py-0.5 rounded text-neutral-600">
-                      Gold • 520 pts
-                    </span>
-                  </button>
+                <div>
+                  <label className="block text-xs font-medium text-neutral-700 mb-1">
+                    الاسم الكامل / Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                    placeholder="مثال: يوسف الشمري"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-neutral-900/10"
+                    required
+                    autoFocus
+                  />
+                </div>
 
-                  {/* Option 3: Sign up with another Google account */}
+                <div>
+                  <label className="block text-xs font-medium text-neutral-700 mb-1">
+                    بريد Google الإلكتروني / Google Email
+                  </label>
+                  <input
+                    type="email"
+                    value={customEmail}
+                    onChange={(e) => setCustomEmail(e.target.value)}
+                    placeholder="name@gmail.com"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-xs font-mono focus:ring-2 focus:ring-neutral-900/10"
+                    required
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-2">
                   <button
-                    onClick={() => setShowNewAccountForm(true)}
-                    disabled={googleLoading}
-                    className="w-full p-3 rounded-2xl border border-dashed border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 text-left flex items-center gap-3 transition-colors mt-3"
+                    type="button"
+                    onClick={() => setShowGoogleModal(false)}
+                    className="px-4 py-2.5 rounded-xl border border-neutral-200 text-xs text-neutral-600 hover:bg-neutral-50"
                   >
-                    <div className="w-10 h-10 rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center">
-                      <Plus className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="text-xs font-semibold text-neutral-900 block">
-                        Use another Google account
-                      </span>
-                      <span className="text-[11px] text-neutral-500">
-                        Sign up or test with any name & Google email
-                      </span>
-                    </div>
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={googleLoading}
+                    className="flex-1 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {googleLoading ? "جاري فتح الحساب..." : "تسجيل / فتح الحساب"}
                   </button>
                 </div>
-              ) : (
-                /* New Google Account Registration Form */
-                <form onSubmit={handleCustomGoogleSubmit} className="space-y-4 mb-4">
-                  <div className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 text-xs text-neutral-600 mb-2">
-                    Enter any Google account credentials to register a brand new member with 50 welcome bonus points!
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-neutral-700 mb-1">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={customName}
-                      onChange={(e) => setCustomName(e.target.value)}
-                      placeholder="e.g. Ahmad Al-Sabah"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-neutral-900/10"
-                      required
-                      autoFocus
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-neutral-700 mb-1">
-                      Google Email Address
-                    </label>
-                    <input
-                      type="email"
-                      value={customEmail}
-                      onChange={(e) => setCustomEmail(e.target.value)}
-                      placeholder="ahmad.alsabah@gmail.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-xs font-mono focus:ring-2 focus:ring-neutral-900/10"
-                      required
-                    />
-                  </div>
-
-                  <div className="flex gap-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowNewAccountForm(false)}
-                      className="px-4 py-2.5 rounded-xl border border-neutral-200 text-xs text-neutral-600 hover:bg-neutral-50"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={googleLoading}
-                      className="flex-1 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {googleLoading ? "Signing Up..." : "Sign Up with Google"}
-                    </button>
-                  </div>
-                </form>
-              )}
+              </form>
 
               <p className="text-center text-[11px] text-neutral-400">
                 To continue, Google will share your name and email address with {config.storeName}.
