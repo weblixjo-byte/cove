@@ -65,7 +65,7 @@ export async function connectDB(): Promise<{ isMongoose: boolean }> {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 2500, // Fast failover to memory store
+      serverSelectionTimeoutMS: 6000, // Balanced timeout for Atlas cloud connection
     };
 
     cached.promise = mongoose
