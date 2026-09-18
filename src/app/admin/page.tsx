@@ -27,6 +27,8 @@ import {
   X,
   Languages,
   Search,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
 import { ITenantConfig, IReward, IUser, ITransaction } from "@/lib/types";
 
@@ -293,6 +295,8 @@ export default function AdminPage() {
     imageUrl: "",
     stock: 999,
   });
+  const [createRewardLoading, setCreateRewardLoading] = useState(false);
+  const [createRewardError, setCreateRewardError] = useState<string | null>(null);
 
   // Cashiers State
   const [cashiersList, setCashiersList] = useState<any[]>([]);
@@ -453,22 +457,68 @@ export default function AdminPage() {
 
 
 
+  // Helper for image file upload & client-side compression to lightweight JPEG (~30-50KB)
+  const handleRewardImageUpload = (file: File) => {
+    if (!file) return;
+    setCreateRewardError(null);
+    const reader = new FileReader();
+    reader.onload = (readerEvent) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxDim = 600;
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.8);
+        setNewReward((prev) => ({ ...prev, imageUrl: compressedBase64 }));
+      };
+      img.onerror = () => {
+        setCreateRewardError("تعذر قراءة ملف الصورة المختارة");
+      };
+      img.src = readerEvent.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Add Reward
   const handleCreateReward = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCreateRewardLoading(true);
+    setCreateRewardError(null);
     try {
       const res = await fetch("/api/admin/rewards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newReward),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success) {
         setShowAddRewardModal(false);
         setNewReward({ title: "", description: "", pointsRequired: 100, category: "Drinks", imageUrl: "", stock: 999 });
         await loadRewards();
+      } else {
+        setCreateRewardError(data.error || "فشل حفظ المكافأة. يرجى التأكد من ملء الحقول.");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setCreateRewardError(e.message || "حدث خطأ في الاتصال بالخادم");
+    } finally {
+      setCreateRewardLoading(false);
     }
   };
 
@@ -1501,61 +1551,94 @@ export default function AdminPage() {
               </button>
             </div>
 
+            {createRewardError && (
+              <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2 mb-3">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{createRewardError}</span>
+              </div>
+            )}
+
             <form onSubmit={handleCreateReward} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.titleLabel}</label>
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.titleLabel} *</label>
                 <input
                   type="text"
                   value={newReward.title}
                   onChange={(e) => setNewReward({ ...newReward, title: e.target.value })}
-                  placeholder={lang === "ar" ? "اسم المكافأة" : "Reward Title"}
+                  placeholder={lang === "ar" ? "اسم المكافأة (مثال: فلات وايت، كرواسون...)" : "Reward Title"}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.descriptionLabel}</label>
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.descriptionLabel} (اختياري)</label>
                 <input
                   type="text"
                   value={newReward.description}
                   onChange={(e) => setNewReward({ ...newReward, description: e.target.value })}
-                  placeholder={lang === "ar" ? "تفاصيل المكافأة أو المشروب" : "Reward description"}
+                  placeholder={lang === "ar" ? "تفاصيل إضافية أو وصف المشروب" : "Reward description"}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                 />
               </div>
 
-              {/* Reward Image URL & Presets */}
-              <div>
-                <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.rewardImage}</label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="url"
-                    value={newReward.imageUrl}
-                    onChange={(e) => setNewReward({ ...newReward, imageUrl: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3.5 py-2 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
-                    dir="ltr"
-                  />
-                  {newReward.imageUrl && (
+              {/* Reward Image (File upload, live preview, presets, or URL) */}
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-[#2B0B0D]">
+                  صورة المكافأة
+                </label>
+
+                {/* Current Image Preview */}
+                {newReward.imageUrl ? (
+                  <div className="relative rounded-2xl overflow-hidden border-2 border-[#EBD3C8] bg-[#FAF5F2] h-40 flex items-center justify-center group">
                     <img
                       src={newReward.imageUrl}
                       alt="Preview"
-                      className="w-9 h-9 rounded-lg object-cover border border-[#EBD3C8] flex-shrink-0"
-                      onError={(e) => ((e.target as HTMLElement).style.display = "none")}
+                      className="w-full h-full object-cover"
                     />
-                  )}
-                </div>
-                <span className="text-[10px] text-neutral-400 mt-1 block">{t.rewardImageHelp}</span>
+                    <button
+                      type="button"
+                      onClick={() => setNewReward({ ...newReward, imageUrl: "" })}
+                      className="absolute top-2 end-2 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-xl shadow-md transition-all cursor-pointer"
+                      title="حذف الصورة"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  /* Upload from Device / Phone Button */
+                  <label className="w-full py-4 px-3 rounded-2xl border-2 border-dashed border-[#EBD3C8] hover:border-[#3F1215] bg-[#FAF5F2]/50 hover:bg-[#FDF4F0] flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all">
+                    <Upload className="w-6 h-6 text-[#3F1215]" />
+                    <span className="text-xs font-bold text-[#2B0B0D]">
+                      اضغط هنا لرفع صورة من هاتفك أو جهازك
+                    </span>
+                    <span className="text-[10px] text-neutral-400">
+                      JPG أو PNG (يتم تجهيزها وضغطها تلقائياً)
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleRewardImageUpload(file);
+                      }}
+                    />
+                  </label>
+                )}
 
-                {/* Quick Presets */}
-                <div className="mt-2">
-                  <span className="text-[10px] font-semibold text-neutral-500 block mb-1">{t.presets}</span>
-                  <div className="flex flex-wrap gap-1">
+                {/* Ready Presets */}
+                <div>
+                  <span className="text-[11px] font-bold text-neutral-600 block mb-1">
+                    أو اختر صورة جاهزة بنقرة واحدة:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
                     {[
                       { label: "☕ فلات وايت", url: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&auto=format&fit=crop&q=80" },
                       { label: "🧊 كولد برو", url: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🥛 سبانش لاتيه", url: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800&auto=format&fit=crop&q=80" },
                       { label: "🥐 كرواسون", url: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🍰 تشيزكيك", url: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=800&auto=format&fit=crop&q=80" },
                       { label: "🍩 دونوت", url: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80" },
                       { label: "🍪 كوكيز", url: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&auto=format&fit=crop&q=80" },
                       { label: "🫘 حبوب قهوة", url: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=800&auto=format&fit=crop&q=80" },
@@ -1564,10 +1647,10 @@ export default function AdminPage() {
                         key={preset.label}
                         type="button"
                         onClick={() => setNewReward({ ...newReward, imageUrl: preset.url })}
-                        className={`text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                        className={`text-[11px] px-2.5 py-1 rounded-xl border transition-all cursor-pointer font-medium ${
                           newReward.imageUrl === preset.url
-                            ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] font-semibold"
-                            : "bg-[#FAF5F2] text-neutral-600 border-[#EBD3C8] hover:bg-white"
+                            ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs"
+                            : "bg-[#FAF5F2] text-neutral-700 border-[#EBD3C8] hover:bg-white"
                         }`}
                       >
                         {preset.label}
@@ -1575,11 +1658,24 @@ export default function AdminPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* Manual Image URL */}
+                <div>
+                  <span className="text-[10px] text-neutral-400 block mb-1">أو أدخل رابط صورة من الإنترنت:</span>
+                  <input
+                    type="text"
+                    value={newReward.imageUrl.startsWith("data:") ? "" : newReward.imageUrl}
+                    onChange={(e) => setNewReward({ ...newReward, imageUrl: e.target.value })}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full px-3 py-2 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215] bg-[#FAF5F2]/40"
+                    dir="ltr"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.tblPointsCost}</label>
+                  <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.tblPointsCost} *</label>
                   <input
                     type="number"
                     value={newReward.pointsRequired}
@@ -1592,7 +1688,7 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.tblCategory}</label>
+                  <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.tblCategory}</label>
                   <select
                     value={newReward.category}
                     onChange={(e) => setNewReward({ ...newReward, category: e.target.value })}
@@ -1617,9 +1713,17 @@ export default function AdminPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors shadow-xs cursor-pointer active:scale-98"
+                  disabled={createRewardLoading}
+                  className="px-6 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-all shadow-xs cursor-pointer active:scale-98 disabled:opacity-50 flex items-center gap-2"
                 >
-                  {t.createReward}
+                  {createRewardLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                      <span>جاري حفظ المكافأة...</span>
+                    </>
+                  ) : (
+                    <span>{t.createReward}</span>
+                  )}
                 </button>
               </div>
             </form>

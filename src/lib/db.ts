@@ -1,3 +1,4 @@
+import dns from "node:dns";
 import mongoose from "mongoose";
 import TenantConfig from "@/models/TenantConfig";
 import User from "@/models/User";
@@ -7,6 +8,13 @@ import Notification from "@/models/Notification";
 import PushSubscription from "@/models/PushSubscription";
 import { ITenantConfig, IUser, ITransaction, IReward, INotification, IPushSubscription } from "./types";
 import { seedInitialData } from "./seed-data";
+
+// Ensure Node.js can resolve MongoDB Atlas SRV records on Windows & servers
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch {
+  // Ignore in environments that disallow setting DNS servers
+}
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -471,10 +479,20 @@ export const dbService = {
     const { isMongoose } = await connectDB();
     if (isMongoose) {
       try {
-        const r = await Reward.create(data);
+        const r = await Reward.create({
+          title: data.title,
+          description: data.description || "",
+          pointsRequired: Number(data.pointsRequired) || 100,
+          category: data.category || "Drinks",
+          imageUrl: data.imageUrl || "",
+          stock: data.stock !== undefined ? Number(data.stock) : 999,
+          isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
+          redemptionCount: 0,
+        });
         return JSON.parse(JSON.stringify(r.toObject()));
-      } catch (e) {
-        console.warn(e);
+      } catch (e: any) {
+        console.error("Mongoose createReward error:", e);
+        throw new Error(e.message || "Failed to create reward in database");
       }
     }
     const newReward: IReward = {
@@ -483,6 +501,7 @@ export const dbService = {
       description: data.description || "",
       pointsRequired: data.pointsRequired || 100,
       category: data.category || "Drinks",
+      imageUrl: data.imageUrl || "",
       isActive: data.isActive !== undefined ? data.isActive : true,
       stock: data.stock !== undefined ? data.stock : 999,
       redemptionCount: 0,

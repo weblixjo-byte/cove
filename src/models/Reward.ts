@@ -6,14 +6,13 @@ export interface RewardDocument extends Omit<IReward, "_id">, Document {}
 const RewardSchema = new Schema<RewardDocument>(
   {
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String, default: "" },
     pointsRequired: { type: Number, required: true },
     category: {
       type: String,
-      enum: ["Drinks", "Food", "Beans", "Merchandise", "Special"],
       default: "Drinks",
     },
-    imageUrl: { type: String },
+    imageUrl: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
     stock: { type: Number, default: 999 },
     redemptionCount: { type: Number, default: 0 },
@@ -21,5 +20,9 @@ const RewardSchema = new Schema<RewardDocument>(
   { timestamps: true }
 );
 
-export default mongoose.models.Reward ||
-  mongoose.model<RewardDocument>("Reward", RewardSchema);
+// Clear model cache in dev/reload to ensure updated schema is applied
+if (mongoose.models && mongoose.models.Reward) {
+  delete mongoose.models.Reward;
+}
+
+export default mongoose.model<RewardDocument>("Reward", RewardSchema);

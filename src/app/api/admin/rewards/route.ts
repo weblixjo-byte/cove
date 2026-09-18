@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { dbService } from "@/lib/db";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const session = await getSession();
+    const session = await getSession(req);
     if (!session || session.role !== "super_admin") {
       return NextResponse.json({ error: "Unauthorized: Super Admin access required" }, { status: 403 });
     }
@@ -18,7 +18,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession();
+    const session = await getSession(req);
     if (!session || session.role !== "super_admin") {
       return NextResponse.json({ error: "Unauthorized: Super Admin access required" }, { status: 403 });
     }
@@ -27,28 +27,29 @@ export async function POST(req: Request) {
     const { title, description, pointsRequired, category, stock, isActive, imageUrl } = body;
 
     if (!title || !pointsRequired) {
-      return NextResponse.json({ error: "Title and points required are mandatory" }, { status: 400 });
+      return NextResponse.json({ error: "يرجى كتابة اسم المكافأة وعدد النقاط المطلوبة" }, { status: 400 });
     }
 
     const reward = await dbService.createReward({
       title: title.trim(),
-      description: description?.trim() || "",
+      description: description ? description.trim() : "",
       pointsRequired: Number(pointsRequired),
       category: category || "Drinks",
-      imageUrl: imageUrl?.trim() || undefined,
+      imageUrl: imageUrl ? imageUrl.trim() : "",
       stock: stock !== undefined ? Number(stock) : 999,
       isActive: isActive !== undefined ? Boolean(isActive) : true,
     });
 
     return NextResponse.json({ success: true, reward });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("POST /api/admin/rewards error:", error);
+    return NextResponse.json({ error: error.message || "Failed to create reward" }, { status: 500 });
   }
 }
 
 export async function PUT(req: Request) {
   try {
-    const session = await getSession();
+    const session = await getSession(req);
     if (!session || session.role !== "super_admin") {
       return NextResponse.json({ error: "Unauthorized: Super Admin access required" }, { status: 403 });
     }
@@ -69,7 +70,7 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const session = await getSession();
+    const session = await getSession(req);
     if (!session || session.role !== "super_admin") {
       return NextResponse.json({ error: "Unauthorized: Super Admin access required" }, { status: 403 });
     }
