@@ -1,43 +1,61 @@
-﻿// Cove Loyalty & Rewards - Web Push Service Worker
+// Cove Loyalty & Rewards - Web Push Service Worker
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
+  event.waitUntil(self.clients.claim());
 });
 
 // Handle incoming Web Push notifications from server
 self.addEventListener('push', (event) => {
   let data = {};
-  try {
-    if (event.data) {
+  if (event.data) {
+    try {
       data = event.data.json();
+    } catch (e) {
+      try {
+        data = {
+          title: 'Cove Coffee House',
+          body: event.data.text(),
+        };
+      } catch (err) {
+        data = {
+          title: 'Cove Coffee House',
+          body: 'لديك إشعار جديد في حسابك!',
+        };
+      }
     }
-  } catch (err) {
+  } else {
     data = {
       title: 'Cove Coffee House',
-      body: event.data ? event.data.text() : 'لديك إشعار جديد في حسابك!',
+      body: 'لديك إشعار جديد من كوف!',
     };
   }
 
   const title = data.title || 'Cove Coffee House';
+  const targetUrl = data.url || '/customer';
+
+  // Safe options compatible across Android Chrome, iOS Safari PWA, and Desktop
   const options = {
     body: data.body || data.message || 'لديك تحديث جديد في رصيد نقاطك ومكافآتك!',
     icon: data.icon || '/icon-192.png',
     badge: data.badge || '/icon-192.png',
     data: {
-      url: data.url || '/customer',
-      dateOfArrival: Date.now(),
-      primaryKey: 1,
+      url: targetUrl,
+      time: Date.now(),
     },
-    vibrate: [200, 100, 200],
-    tag: data.tag || 'cove-notification-' + Date.now(),
-    renotify: true,
+    tag: data.tag || 'cove-' + Date.now(),
   };
 
   event.waitUntil(
-    self.registration.showNotification(title, options)
+    self.registration.showNotification(title, options).catch(() => {
+      // Fallback for strict browser engines (like early iOS Safari PWA)
+      return self.registration.showNotification(title, {
+        body: options.body,
+        icon: '/icon-192.png',
+      });
+    })
   );
 });
 
@@ -48,17 +66,19 @@ self.addEventListener('notificationclick', (event) => {
   const targetUrl = (event.notification.data && event.notification.data.url) || '/customer';
 
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // If a window is already open, focus it and navigate
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If customer window is already open, focus it
       for (const client of clientList) {
         if (client.url && 'focus' in client) {
-          client.navigate(targetUrl);
+          if ('navigate' in client) {
+            client.navigate(targetUrl);
+          }
           return client.focus();
         }
       }
       // Otherwise open a new window
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
       }
     })
   );

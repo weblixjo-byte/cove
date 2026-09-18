@@ -114,6 +114,10 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+const VAPID_KEY =
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
+  "BHzh75OJaSOoRiQqAck0_0_j9bVyALf2Op7wUFKpQ8sAQgxI7yXnO8dQWf9ZOx6Fm3T3T9LFG34ovf2KC_gvdF0";
+
 export default function CustomerPage() {
   const { config, formatCurrency } = useBrand();
 
@@ -130,6 +134,7 @@ export default function CustomerPage() {
   const [pushPermission, setPushPermission] = useState<"default" | "granted" | "denied" | "unsupported">("default");
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
+  const [testPushLoading, setTestPushLoading] = useState(false);
   const [showIosInstallModal, setShowIosInstallModal] = useState(false);
   const [pushSuccessToast, setPushSuccessToast] = useState<string | null>(null);
 
@@ -289,26 +294,32 @@ export default function CustomerPage() {
       }
     }
 
-    // Register Service Worker for PWA & Web Push
+    // Register Service Worker for PWA & Web Push with automatic synchronization
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")
-        .then((reg) => {
-          if ("PushManager" in window) {
-            reg.pushManager.getSubscription().then((sub) => {
+        .then(async (reg) => {
+          if (!("Notification" in window) || !("PushManager" in window)) {
+            setPushPermission("unsupported");
+            return;
+          }
+          setPushPermission(Notification.permission);
+
+          // If permission is already granted, ensure subscription is actively linked to MongoDB
+          if (Notification.permission === "granted") {
+            try {
+              const sub = await reg.pushManager.getSubscription();
               if (sub) {
                 setPushSubscribed(true);
+                // Background refresh subscription in database
+                await syncPushSubscription(reg, false);
               }
-            });
+            } catch (e) {
+              console.warn("Auto-sync error:", e);
+            }
           }
         })
         .catch((err) => console.warn("SW register warning:", err));
-
-      if (!("Notification" in window) || !("PushManager" in window)) {
-        setPushPermission("unsupported");
-      } else {
-        setPushPermission(Notification.permission);
-      }
     } else {
       setPushPermission("unsupported");
     }
@@ -336,6 +347,66 @@ export default function CustomerPage() {
     );
   };
 
+  // Synchronize Push Subscription with backend and ensure valid keys
+  const syncPushSubscription = async (
+    reg: ServiceWorkerRegistration,
+    forceNew = false
+  ): Promise<boolean> => {
+    try {
+      if (!("PushManager" in window)) return false;
+
+      let sub = await reg.pushManager.getSubscription();
+
+      if (forceNew && sub) {
+        try {
+          await sub.unsubscribe();
+          sub = null;
+        } catch (e) {
+          console.warn("Unsubscribe notice:", e);
+        }
+      }
+
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_KEY),
+        });
+      }
+
+      if (!sub) return false;
+
+      const subJson = sub.toJSON ? sub.toJSON() : ({} as any);
+      const payload = {
+        endpoint: sub.endpoint,
+        keys: {
+          p256dh: subJson.keys?.p256dh || "",
+          auth: subJson.keys?.auth || "",
+        },
+        customerId:
+          customer?.id ||
+          (typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_ID_KEY) : undefined),
+      };
+
+      const headers = getAuthHeaders();
+      headers["Content-Type"] = "application/json";
+
+      const res = await fetch("/api/customer/push-subscription", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setPushSubscribed(true);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.warn("syncPushSubscription warning:", err);
+      return false;
+    }
+  };
+
   const handleEnablePush = async () => {
     // If iOS and not running as standalone PWA on home screen, guide user first
     if (isIosDevice() && !isStandalone()) {
@@ -344,7 +415,7 @@ export default function CustomerPage() {
     }
 
     if (!("Notification" in window) || !("serviceWorker" in navigator)) {
-      alert("متصفحك لا يدعم الإشعارات المباشرة");
+      alert("متصفحك الحالي لا يدعم الإشعارات المباشرة");
       return;
     }
 
@@ -355,39 +426,73 @@ export default function CustomerPage() {
 
       if (permission === "granted") {
         const reg = await navigator.serviceWorker.ready;
-        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-        if (!vapidPublicKey) {
-          console.warn("Missing NEXT_PUBLIC_VAPID_PUBLIC_KEY");
-          return;
-        }
+        const success = await syncPushSubscription(reg, true);
 
-        let sub = await reg.pushManager.getSubscription();
-        if (!sub) {
-          sub = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-          });
-        }
-
-        const headers = getAuthHeaders();
-        headers["Content-Type"] = "application/json";
-
-        const res = await fetch("/api/customer/push-subscription", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(sub),
-        });
-
-        if (res.ok) {
+        if (success) {
           setPushSubscribed(true);
-          setPushSuccessToast("تم تفعيل الإشعارات بنجاح على هاتفك! 🔔");
-          setTimeout(() => setPushSuccessToast(null), 4000);
+          setPushSuccessToast("🎉 تم تفعيل الإشعارات بنجاح! جاري إرسال إشعار تجريبي لهاتفك...");
+
+          // Immediately send a test notification from server so user verifies it instantly
+          try {
+            const sub = await reg.pushManager.getSubscription();
+            const headers = getAuthHeaders();
+            headers["Content-Type"] = "application/json";
+            await fetch("/api/customer/test-push", {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                endpoint: sub?.endpoint,
+                customerId: customer?.id,
+              }),
+            });
+          } catch (e) {
+            console.warn("Test push dispatch error:", e);
+          }
+
+          setTimeout(() => setPushSuccessToast(null), 5000);
+        } else {
+          alert("حدث خطأ أثناء حفظ اشتراك الإشعارات، يرجى المحاولة مرة أخرى.");
         }
+      } else if (permission === "denied") {
+        alert("تم رفض إذن الإشعارات من إعدادات المتصفح. يرجى تفعيل الإشعارات من إعدادات الموقع بالمتصفح.");
       }
     } catch (err: any) {
       console.error("Push subscription error:", err);
+      alert("تعذر تفعيل الإشعارات: " + (err.message || "خطأ غير متوقع"));
     } finally {
       setPushLoading(false);
+    }
+  };
+
+  // Send a manual test notification to customer phone
+  const handleSendTestPush = async () => {
+    try {
+      setTestPushLoading(true);
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      const headers = getAuthHeaders();
+      headers["Content-Type"] = "application/json";
+
+      const res = await fetch("/api/customer/test-push", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          endpoint: sub?.endpoint,
+          customerId: customer?.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPushSuccessToast("🔔 تم إرسال الإشعار التجريبي! سيظهر على شاشة هاتفك الآن.");
+        setTimeout(() => setPushSuccessToast(null), 5000);
+      } else {
+        alert(data.error || "تعذر إرسال الإشعار التجريبي");
+      }
+    } catch (err: any) {
+      alert("خطأ في الاتصال: " + err.message);
+    } finally {
+      setTestPushLoading(false);
     }
   };
 
@@ -782,7 +887,7 @@ export default function CustomerPage() {
           </div>
         )}
 
-        {/* Web Push Notification Opt-in Prompt */}
+        {/* Web Push Notification Status & Prompts */}
         {!pushSubscribed && pushPermission !== "denied" && pushPermission !== "unsupported" && (
           <div className="mb-4 bg-gradient-to-r from-[#3F1215] to-[#52181C] text-[#FEECE2] rounded-3xl p-4 shadow-md border border-[#3F1215] flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -792,7 +897,7 @@ export default function CustomerPage() {
               <div>
                 <h4 className="text-xs font-bold leading-tight">تفعيل إشعارات العروض والنقاط 🔔</h4>
                 <p className="text-[10px] text-[#FEECE2]/80 mt-0.5 leading-snug">
-                  استقبل نقاطك والعروض الحصرية مباشرة كإشعار فوري على هاتفك
+                  استقبل نقاطك وعروضك كإشعار خارجي حتى والتطبيق مغلق
                 </p>
               </div>
             </div>
@@ -803,6 +908,34 @@ export default function CustomerPage() {
             >
               {pushLoading ? "جاري..." : "تفعيل"}
             </button>
+          </div>
+        )}
+
+        {/* Push Subscribed Active Banner + Instant Test Button */}
+        {pushSubscribed && (
+          <div className="mb-4 bg-white border border-[#EBD3C8] rounded-2xl p-3 shadow-2xs flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span className="font-bold text-[#2B0B0D] text-xs">إشعارات الهاتف الخارجية مفعلة 🔔</span>
+            </div>
+            <button
+              onClick={handleSendTestPush}
+              disabled={testPushLoading}
+              className="px-2.5 py-1.5 rounded-xl bg-[#FDF4F0] hover:bg-[#FAF5F2] border border-[#EBD3C8] text-[#3F1215] font-bold text-[11px] transition-all cursor-pointer active:scale-95 shrink-0"
+              title="إرسال إشعار تجريبي لهاتفك"
+            >
+              {testPushLoading ? "جاري الإرسال..." : "إشعار تجريبي"}
+            </button>
+          </div>
+        )}
+
+        {/* Push Permission Denied Banner */}
+        {pushPermission === "denied" && (
+          <div className="mb-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
+            <span className="text-[11px]">
+              الإشعارات محظورة من إعدادات المتصفح. اضغط على رمز القفل 🔒 أعلى المتصفح واختر السماح بالإشعارات.
+            </span>
           </div>
         )}
 
