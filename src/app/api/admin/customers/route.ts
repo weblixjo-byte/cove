@@ -19,6 +19,8 @@ export async function GET() {
         phone: c.phone,
         pointsBalance: c.pointsBalance,
         tier: c.tier,
+        lifetimePoints: c.lifetimePoints,
+        createdAt: c.createdAt,
       })),
     });
   } catch (error: any) {

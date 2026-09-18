@@ -9,7 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized: Super Admin access required" }, { status: 403 });
     }
 
-    const cashiers = await dbService.getAllCashiers();
+    const cashiers = (await dbService.getAllCashiers()).filter((c) => c.username !== "ahmad");
     return NextResponse.json({
       success: true,
       cashiers: cashiers.map((c) => ({

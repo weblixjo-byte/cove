@@ -26,6 +26,7 @@ import {
   RefreshCw,
   X,
   Languages,
+  Search,
 } from "lucide-react";
 import { ITenantConfig, IReward, IUser, ITransaction } from "@/lib/types";
 
@@ -43,50 +44,46 @@ const i18n = {
     openCashier: "Cashier POS Terminal",
     openCustomer: "Customer Pass",
     returnHome: "Open Cashier Terminal",
-    navAnalytics: "Analytics & Metrics",
-    navBranding: "White-Label & Rules",
+    navAnalytics: "Analytics & KPIs",
+    navCustomers: "Customers",
     navRewards: "Rewards Catalogue",
-    navCashiers: "Cashier Staff",
-    navBroadcast: "Broadcast Center",
+    navCashiers: "POS Cashiers",
+    navBroadcast: "Notifications",
     signOut: "Sign Out",
     home: "Cashier POS",
-    analyticsTitle: "Loyalty Performance & Metrics",
-    analyticsSubtitle: "Real-time financial volume and customer retention tracking.",
+    analyticsTitle: "Executive Analytics & Metrics",
+    analyticsSubtitle: "Real-time overview of loyalty performance, financial volume, and member activity.",
     refreshData: "Refresh Data",
-    cardRevenue: "Loyalty Revenue",
-    cardRevenueSub: (txs: number) => `Tracked via ${txs} visits`,
+    cardRevenue: "Total Revenue Volume",
+    cardRevenueSub: (txs: number) => `From ${txs} total transactions`,
     cardIssued: "Points Issued",
-    cardIssuedSub: "Earned across store orders",
+    cardIssuedSub: "Credited for store purchases",
     cardRedeemed: "Points Redeemed",
-    cardRedeemedSub: "Claimed for coffee & treats",
-    cardMembers: "Member Base",
-    cardMembersSub: "Active enrolled customers",
-    topCustomers: "Top Loyal Customers",
-    byLifetime: "By Lifetime Points",
-    liveActivity: "Live Activity Stream",
-    auditTrail: "Audit Trail",
+    cardRedeemedSub: "Claimed for rewards & perks",
+    cardMembers: "Active Members",
+    cardMembersSub: "Registered loyalty customers",
+    topCustomers: "Top Loyal Members",
+    byLifetime: "Ranked by Lifetime Points",
+    liveActivity: "Recent Activity Log",
+    auditTrail: "Financial & Loyalty Audit",
     noTransactions: "No recorded transactions yet.",
     pts: "pts",
     bal: "Bal",
-    brandingTitle: "White-Label Identity & Loyalty Rules",
-    brandingSubtitle: "Instantly rebrand this application for any coffee shop or retail store.",
-    savedSuccess: "White-label configurations saved and active across all customer and POS screens!",
-    storeName: "Store Name",
-    tagline: "Store Tagline / Slogan",
-    currency: "Store Currency Symbol",
-    welcomeBonus: "Signup Welcome Bonus (Points)",
-    pointsPerUnit: "Earning Ratio (Points per 1.000 Currency)",
-    pointsPerUnitHelp: (curr: string) => `Points awarded per 1.000 ${curr} spent.`,
-    discountPer100: (curr: string) => `Redemption Rate (${curr} discount per 100 pts)`,
-    discountPer100Help: (curr: string) => `Discount value per 100 points redeemed.`,
-    themePalette: "Theme Palette (Editorial Minimalist)",
-    primaryColor: "Primary Color",
-    accentColor: "Action Accent Color",
-    saveBranding: "Save White-Label Rules",
-    savingBranding: "Saving Configuration...",
+    customersTitle: "Customer Directory",
+    customersSubtitle: "Complete overview of all registered members, points balances, and quick actions.",
+    searchPlaceholder: "Search by name, phone, or email...",
+    totalCustomers: "Total Registered Members",
+    totalPointsHeld: "Points in Circulation",
+    tblCustomer: "Member",
+    tblPhoneEmail: "Contact",
+    tblTier: "Tier",
+    tblBalance: "Current Balance",
+    tblLifetime: "Lifetime Points",
+    tblJoined: "Joined Date",
+    tblSendNotif: "Send Notice",
     rewardsTitle: "Rewards Catalogue",
-    rewardsSubtitle: "Manage redeemable items and point costs for your customers.",
-    addReward: "Add Reward",
+    rewardsSubtitle: "Manage redeemable items, images, and point costs.",
+    addReward: "Add New Reward",
     tblRewardTitle: "Reward Title",
     tblCategory: "Category",
     tblPointsCost: "Points Cost",
@@ -95,29 +92,32 @@ const i18n = {
     tblActions: "Actions",
     active: "Active",
     disabled: "Disabled",
-    addRewardModalTitle: "Add Catalogue Reward",
-    titleLabel: "Title",
+    addRewardModalTitle: "Add New Reward",
+    titleLabel: "Reward Title",
     descriptionLabel: "Description",
+    rewardImage: "Image URL",
+    rewardImageHelp: "Paste an image URL or choose a preset below",
+    presets: "Quick Presets:",
     cancel: "Cancel",
-    createReward: "Create Reward",
+    createReward: "Save Reward",
     deleteConfirm: "Are you sure you want to remove this reward?",
-    cashiersTitle: "Cashier & Terminal Accounts",
-    cashiersSubtitle: "Authorize register staff and manage terminal access PINs.",
+    cashiersTitle: "Cashier Accounts & POS Terminals",
+    cashiersSubtitle: "Manage authorized staff and POS access PINs.",
     addCashier: "Add Cashier",
-    tblStaffMember: "Staff Member",
+    tblStaffMember: "Staff Name",
     tblUsername: "Username",
     tblBranch: "Branch",
-    tblPin: "POS PIN",
-    authorized: "Authorized",
+    tblPin: "PIN",
+    authorized: "Active",
     suspended: "Suspended",
     deactivate: "Deactivate",
-    reactivate: "Re-activate",
+    reactivate: "Activate",
     addCashierModalTitle: "Create Cashier Account",
     fullName: "Full Name",
-    usernameForPOS: "Username (for POS login)",
+    usernameForPOS: "Username",
     createAccount: "Create Account",
-    broadcastTitle: "Customer Broadcast Center",
-    broadcastSubtitle: "Send in-app notifications and promotional loyalty points boosts to all members or a specific member.",
+    broadcastTitle: "Customer Broadcast & Notification Center",
+    broadcastSubtitle: "Dispatch in-app notifications and promotional loyalty points boosts.",
     announcementTitle: "Announcement Title",
     notificationMessage: "Notification Message",
     optionalBonus: "Optional Bonus Points Gift",
@@ -148,48 +148,44 @@ const i18n = {
     openCustomer: "بطاقة الزبون الرقمية",
     returnHome: "فتح شاشة الكاشير",
     navAnalytics: "التحليلات والمؤشرات",
-    navBranding: "الهوية وقواعد الولاء",
+    navCustomers: "العملاء",
     navRewards: "كتالوج المكافآت",
     navCashiers: "طاقم الكاشير",
-    navBroadcast: "مركز الإشعارات والرسائل",
+    navBroadcast: "مركز الإشعارات",
     signOut: "تسجيل الخروج",
     home: "شاشة الكاشير",
-    analyticsTitle: "أداء برنامج الولاء والمؤشرات المالية",
-    analyticsSubtitle: "متابعة فورية لحجم المبيعات وحركة النقاط ونشاط الزبائن.",
+    analyticsTitle: "لوحة التحليلات والمؤشرات الرئيسية",
+    analyticsSubtitle: "متابعة فورية للحجم المالي الإجمالي وحركة النقاط ونشاط الزبائن بأسلوب تنفيذي دقيق.",
     refreshData: "تحديث البيانات",
-    cardRevenue: "إجمالي المبيعات المسجلة",
-    cardRevenueSub: (txs: number) => `من خلال ${txs} عملية شراء`,
-    cardIssued: "النقاط الممنوحة",
-    cardIssuedSub: "مكتسبة من طلبات الزبائن",
-    cardRedeemed: "النقاط المستبدلة",
+    cardRevenue: "الحجم المالي للمبيعات",
+    cardRevenueSub: (txs: number) => `من إجمالي ${txs} عملية شراء`,
+    cardIssued: "مجموع النقاط المكتسبة",
+    cardIssuedSub: "أُضيفت لحسابات الزبائن",
+    cardRedeemed: "مجموع النقاط المستبدلة",
     cardRedeemedSub: "تم استبدالها بقهوة ومكافآت",
-    cardMembers: "قاعدة الأعضاء",
-    cardMembersSub: "زبائن مسجلين نشطين",
-    topCustomers: "أكثر الزبائن ولاءً",
-    byLifetime: "حسب إجمالي النقاط المكتسبة",
-    liveActivity: "سجل العمليات المباشر",
+    cardMembers: "العملاء النشطين",
+    cardMembersSub: "أعضاء مسجلين في البرنامج",
+    topCustomers: "العملاء الأكثر ولاءً",
+    byLifetime: "ترتيب حسب النقاط التراكمية",
+    liveActivity: "سجل العمليات المباشرة",
     auditTrail: "سجل التدقيق المالي",
     noTransactions: "لا توجد عمليات مسجلة حتى الآن.",
     pts: "نقطة",
     bal: "الرصيد",
-    brandingTitle: "إعدادات الهوية والعلامة التجارية وقواعد الولاء",
-    brandingSubtitle: "أعد تخصيص التطبيق فوراً ليتناسب مع أي كافيه أو متجر تجزئة.",
-    savedSuccess: "تم حفظ إعدادات الهوية بنجاح وتطبيقها فوراً على شاشات الزبائن ونقاط البيع!",
-    storeName: "اسم المتجر / الكافيه",
-    tagline: "الشعار اللفظي للمتجر (Slogan)",
-    currency: "رمز العملة",
-    welcomeBonus: "نقاط الترحيب عند تسجيل زبون جديد",
-    pointsPerUnit: "معامل كسب النقاط (نقاط لكل 1 وحدة نقدية)",
-    pointsPerUnitHelp: (curr: string) => `النقاط الممنوحة للزبون لكل 1.000 ${curr} من قيمة الطلب.`,
-    discountPer100: (curr: string) => `قيمة الخصم بالـ (${curr}) لكل 100 نقطة`,
-    discountPer100Help: (curr: string) => `قيمة الخصم المالي الفعلي لكل 100 نقطة مستبدلة.`,
-    themePalette: "لوحة ألوان الهوية البصرية (Editorial Minimalist)",
-    primaryColor: "اللون الأساسي (Primary)",
-    accentColor: "لون التفاعل والإبراز (Accent)",
-    saveBranding: "حفظ إعدادات الهوية",
-    savingBranding: "جاري حفظ التعديلات...",
-    rewardsTitle: "كتالوج المكافآت",
-    rewardsSubtitle: "إدارة العناصر والمشروبات القابلة للاستبدال وتكلفة النقاط لكل منها.",
+    customersTitle: "قاعدة بيانات الأعضاء والعملاء",
+    customersSubtitle: "عرض تفصيلي لكافة الزبائن المسجلين في برنامج الولاء ومتابعة رصيدهم وإرسال الإشعارات.",
+    searchPlaceholder: "ابحث بالاسم، أو رقم الهاتف، أو البريد الإلكتروني...",
+    totalCustomers: "إجمالي الأعضاء",
+    totalPointsHeld: "مجموع النقاط بحوزة الزبائن",
+    tblCustomer: "العميل",
+    tblPhoneEmail: "بيانات الاتصال",
+    tblTier: "الفئة",
+    tblBalance: "الرصيد الحالي",
+    tblLifetime: "النقاط التراكمية",
+    tblJoined: "تاريخ التسجيل",
+    tblSendNotif: "إرسال إشعار",
+    rewardsTitle: "كتالوج المكافآت والعروض",
+    rewardsSubtitle: "إدارة عناصر المكافآت القابلة للاستبدال وصورها وتكلفة النقاط لكل منها.",
     addReward: "إضافة مكافأة جديدة",
     tblRewardTitle: "اسم المكافأة",
     tblCategory: "التصنيف",
@@ -202,6 +198,9 @@ const i18n = {
     addRewardModalTitle: "إضافة مكافأة جديدة للكتالوج",
     titleLabel: "اسم المكافأة",
     descriptionLabel: "الوصف",
+    rewardImage: "رابط صورة المكافأة",
+    rewardImageHelp: "اختر صورة جاهزة من النماذج بالأسفل أو الصق رابط صورة خارجية",
+    presets: "نماذج صور جاهزة:",
     cancel: "إلغاء",
     createReward: "حفظ المكافأة",
     deleteConfirm: "هل أنت متأكد من رغبتك في حذف هذه المكافأة؟",
@@ -270,16 +269,14 @@ export default function AdminPage() {
   const [loginLoading, setLoginLoading] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"analytics" | "branding" | "rewards" | "cashiers" | "broadcast">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "customers" | "rewards" | "cashiers" | "broadcast">("analytics");
+
+  // Customer Directory State
+  const [customerSearchQuery, setCustomerSearchQuery] = useState("");
 
   // Analytics State
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(false);
-
-  // Branding Settings Form State
-  const [brandForm, setBrandForm] = useState<Partial<ITenantConfig>>({});
-  const [savingBrand, setSavingBrand] = useState(false);
-  const [brandSaved, setBrandSaved] = useState(false);
 
   // Rewards State
   const [rewardsList, setRewardsList] = useState<IReward[]>([]);
@@ -289,6 +286,7 @@ export default function AdminPage() {
     description: "",
     pointsRequired: 100,
     category: "Drinks",
+    imageUrl: "",
     stock: 999,
   });
 
@@ -303,7 +301,7 @@ export default function AdminPage() {
   });
 
   // Customer List for Targeted Notifications
-  const [customersList, setCustomersList] = useState<{ id: string; name: string; email?: string; phone?: string; pointsBalance: number }[]>([]);
+  const [customersList, setCustomersList] = useState<{ id: string; name: string; email?: string; phone?: string; pointsBalance: number; tier?: string; lifetimePoints?: number; createdAt?: string }[]>([]);
   const [loadingCustomers, setLoadingCustomers] = useState(false);
 
   // Broadcast & Targeted Notification State
@@ -412,18 +410,8 @@ export default function AdminPage() {
       loadRewards();
       loadCashiers();
       loadCustomers();
-      setBrandForm({
-        storeName: config.storeName,
-        tagline: config.tagline,
-        currency: config.currency,
-        pointsPerUnit: config.pointsPerUnit,
-        discountPer100Pts: config.discountPer100Pts,
-        welcomeBonusPts: config.welcomeBonusPts,
-        primaryColor: config.primaryColor,
-        accentColor: config.accentColor,
-      });
     }
-  }, [admin, config]);
+  }, [admin]);
 
   // Admin Login
   const handleAdminLogin = async (e: React.FormEvent) => {
@@ -459,30 +447,7 @@ export default function AdminPage() {
     setAdmin(null);
   };
 
-  // Save White-Label Branding Settings
-  const handleSaveBrand = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingBrand(true);
-    setBrandSaved(false);
 
-    try {
-      const res = await fetch("/api/config", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(brandForm),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        await refreshConfig();
-        setBrandSaved(true);
-        setTimeout(() => setBrandSaved(false), 3000);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSavingBrand(false);
-    }
-  };
 
   // Add Reward
   const handleCreateReward = async (e: React.FormEvent) => {
@@ -495,7 +460,7 @@ export default function AdminPage() {
       });
       if (res.ok) {
         setShowAddRewardModal(false);
-        setNewReward({ title: "", description: "", pointsRequired: 100, category: "Drinks", stock: 999 });
+        setNewReward({ title: "", description: "", pointsRequired: 100, category: "Drinks", imageUrl: "", stock: 999 });
         await loadRewards();
       }
     } catch (e) {
@@ -706,9 +671,9 @@ export default function AdminPage() {
 
   const navTabs = [
     { id: "analytics", label: t.navAnalytics, icon: LayoutDashboard },
-    { id: "branding", label: t.navBranding, icon: Settings },
+    { id: "customers", label: t.navCustomers, icon: Users },
     { id: "rewards", label: t.navRewards, icon: Gift },
-    { id: "cashiers", label: t.navCashiers, icon: Users },
+    { id: "cashiers", label: t.navCashiers, icon: ShieldCheck },
     { id: "broadcast", label: t.navBroadcast, icon: Send },
   ] as const;
 
@@ -875,9 +840,9 @@ export default function AdminPage() {
 
       {/* Main Workspace */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 max-w-6xl w-full mx-auto overflow-y-auto">
-        {/* TAB 1: ANALYTICS & METRICS */}
+        {/* TAB 1: EXECUTIVE ANALYTICS & METRICS */}
         {activeTab === "analytics" && (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-serif font-medium text-neutral-900">
@@ -891,103 +856,119 @@ export default function AdminPage() {
               <button
                 onClick={loadMetrics}
                 disabled={loadingMetrics}
-                className="px-3.5 py-2 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-xs font-medium text-neutral-700 flex items-center gap-2 self-start transition-colors shadow-2xs"
+                className="px-3.5 py-2 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FAF5F2] text-xs font-medium text-[#3F1215] flex items-center gap-2 self-start transition-colors shadow-2xs cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${loadingMetrics ? "animate-spin" : ""}`} />
-                {t.refreshData}
+                <span>{t.refreshData}</span>
               </button>
             </div>
 
-            {/* Metrics Cards Grid (Editorial rounded-2xl, clean Line Icons) */}
+            {/* Metrics Cards Grid - Clean Minimalist Luxury */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Card 1: Revenue Volume */}
-              <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
-                <div className="flex items-center justify-between text-neutral-400 mb-3">
-                  <span className="text-xs font-mono uppercase tracking-wider">{t.cardRevenue}</span>
-                  <DollarSign className="w-4 h-4 text-emerald-600" />
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs transition-all hover:border-[#3F1215]/30">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-medium text-neutral-500">{t.cardRevenue}</span>
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+                    <DollarSign className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-2xl font-bold font-serif text-neutral-900" dir="ltr">
+                <div className="text-2xl font-bold text-[#2B0B0D] tracking-tight" dir="ltr">
                   {formatCurrency(metrics?.totalRevenueVolume || 0)}
                 </div>
-                <span className="text-[11px] text-neutral-500 mt-1 block">
+                <span className="text-[11px] text-neutral-400 mt-1 block">
                   {t.cardRevenueSub(metrics?.totalTransactions || 0)}
                 </span>
               </div>
 
               {/* Card 2: Points Issued */}
-              <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
-                <div className="flex items-center justify-between text-neutral-400 mb-3">
-                  <span className="text-xs font-mono uppercase tracking-wider">{t.cardIssued}</span>
-                  <TrendingUp className="w-4 h-4 text-[#1A5336]" />
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs transition-all hover:border-[#3F1215]/30">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-medium text-neutral-500">{t.cardIssued}</span>
+                  <div className="w-8 h-8 rounded-xl bg-[#FDF4F0] text-[#3F1215] flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-2xl font-bold font-serif text-neutral-900" dir="ltr">
+                <div className="text-2xl font-bold text-[#3F1215] font-mono" dir="ltr">
                   +{metrics?.totalPointsIssued.toLocaleString() || 0}
                 </div>
-                <span className="text-[11px] text-neutral-500 mt-1 block font-mono">
+                <span className="text-[11px] text-neutral-400 mt-1 block font-mono">
                   {t.cardIssuedSub}
                 </span>
               </div>
 
               {/* Card 3: Points Redeemed */}
-              <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
-                <div className="flex items-center justify-between text-neutral-400 mb-3">
-                  <span className="text-xs font-mono uppercase tracking-wider">{t.cardRedeemed}</span>
-                  <Award className="w-4 h-4 text-[#C87D55]" />
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs transition-all hover:border-[#3F1215]/30">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-medium text-neutral-500">{t.cardRedeemed}</span>
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center">
+                    <Award className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-2xl font-bold font-serif text-neutral-900" dir="ltr">
+                <div className="text-2xl font-bold text-neutral-800 font-mono" dir="ltr">
                   -{metrics?.totalPointsRedeemed.toLocaleString() || 0}
                 </div>
-                <span className="text-[11px] text-neutral-500 mt-1 block font-mono">
+                <span className="text-[11px] text-neutral-400 mt-1 block font-mono">
                   {t.cardRedeemedSub}
                 </span>
               </div>
 
               {/* Card 4: Active Customer Base */}
-              <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
-                <div className="flex items-center justify-between text-neutral-400 mb-3">
-                  <span className="text-xs font-mono uppercase tracking-wider">{t.cardMembers}</span>
-                  <Users className="w-4 h-4 text-neutral-700" />
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs transition-all hover:border-[#3F1215]/30">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-medium text-neutral-500">{t.cardMembers}</span>
+                  <div className="w-8 h-8 rounded-xl bg-[#FAF5F2] text-[#3F1215] flex items-center justify-center">
+                    <Users className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-2xl font-bold font-serif text-neutral-900" dir="ltr">
+                <div className="text-2xl font-bold text-[#2B0B0D]" dir="ltr">
                   {metrics?.activeCustomerCount || 0}
                 </div>
-                <span className="text-[11px] text-neutral-500 mt-1 block font-mono">
+                <span className="text-[11px] text-neutral-400 mt-1 block">
                   {t.cardMembersSub}
                 </span>
               </div>
             </div>
 
-            {/* Top Customers Leaderboard & Recent Transactions */}
+            {/* Clean Recent Activity & Top Customer Overview */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Leaderboard */}
-              <div className="bg-white border border-neutral-200 rounded-3xl p-6 shadow-xs">
-                <h3 className="text-sm font-semibold text-neutral-900 mb-4 pb-2 border-b border-neutral-100 flex items-center justify-between">
-                  <span>{t.topCustomers}</span>
-                  <span className="text-xs font-mono text-neutral-400 font-normal">{t.byLifetime}</span>
-                </h3>
+              {/* Top Customers summary */}
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 shadow-xs">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EBD3C8]/60">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#3F1215]" />
+                    <h3 className="text-sm font-semibold text-[#2B0B0D]">{t.topCustomers}</h3>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab("customers")}
+                    className="text-xs text-[#3F1215] hover:underline font-medium cursor-pointer"
+                  >
+                    عرض كل العملاء ←
+                  </button>
+                </div>
 
-                <div className="divide-y divide-neutral-100">
-                  {metrics?.topCustomers.map((cust, idx) => (
+                <div className="divide-y divide-[#EBD3C8]/40">
+                  {metrics?.topCustomers.slice(0, 5).map((cust, idx) => (
                     <div key={cust._id} className="py-3 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="w-5 text-xs font-mono text-neutral-400 text-center">
+                        <span className="w-6 h-6 rounded-lg bg-[#FAF5F2] text-[#3F1215] text-xs font-mono font-semibold flex items-center justify-center">
                           #{idx + 1}
                         </span>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-neutral-900">{cust.name}</span>
-                            <span className="text-[9px] px-1.5 py-0.2 rounded font-medium bg-neutral-100 text-neutral-600">
+                            <span className="text-xs font-semibold text-[#2B0B0D]">{cust.name}</span>
+                            <span className="text-[9px] px-2 py-0.5 rounded-full font-medium bg-[#FDF4F0] text-[#3F1215] border border-[#EBD3C8]">
                               {cust.tier}
                             </span>
                           </div>
-                          <span className="text-[11px] text-neutral-400 font-mono" dir="ltr">
-                            {cust.phone}
+                          <span className="text-[11px] text-neutral-400 font-mono block" dir="ltr">
+                            {cust.phone || cust.email}
                           </span>
                         </div>
                       </div>
 
                       <div className={lang === "ar" ? "text-left" : "text-right"}>
-                        <span className="text-xs font-bold font-mono text-neutral-900 block" dir="ltr">
+                        <span className="text-xs font-bold font-mono text-[#3F1215] block" dir="ltr">
                           {cust.lifetimePoints} {t.pts}
                         </span>
                         <span className="text-[10px] text-neutral-400 font-mono" dir="ltr">
@@ -999,31 +980,34 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Recent Transactions Feed */}
-              <div className="bg-white border border-neutral-200 rounded-3xl p-6 shadow-xs">
-                <h3 className="text-sm font-semibold text-neutral-900 mb-4 pb-2 border-b border-neutral-100 flex items-center justify-between">
-                  <span>{t.liveActivity}</span>
-                  <span className="text-xs font-mono text-neutral-400 font-normal">{t.auditTrail}</span>
-                </h3>
+              {/* Recent Activity Feed */}
+              <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 shadow-xs">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EBD3C8]/60">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                    <h3 className="text-sm font-semibold text-[#2B0B0D]">{t.liveActivity}</h3>
+                  </div>
+                  <span className="text-[11px] font-mono text-neutral-400">{t.auditTrail}</span>
+                </div>
 
                 {metrics?.recentTransactions.length === 0 ? (
-                  <p className="text-xs text-neutral-400 py-6 text-center">{t.noTransactions}</p>
+                  <p className="text-xs text-neutral-400 py-8 text-center">{t.noTransactions}</p>
                 ) : (
-                  <div className="divide-y divide-neutral-100">
-                    {metrics?.recentTransactions.map((tx) => (
+                  <div className="divide-y divide-[#EBD3C8]/40">
+                    {metrics?.recentTransactions.slice(0, 5).map((tx) => (
                       <div key={tx._id} className="py-3 flex items-center justify-between text-xs">
                         <div>
-                          <div className="flex items-center gap-1.5 mb-0.5">
+                          <div className="flex items-center gap-2 mb-1">
                             <span
-                              className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-medium ${
+                              className={`text-[10px] font-medium px-2 py-0.5 rounded-md border ${
                                 tx.type === "EARN"
-                                  ? "bg-emerald-50 text-[#1A5336]"
-                                  : "bg-amber-50 text-amber-800"
+                                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                  : "bg-amber-50 text-amber-800 border-amber-200"
                               }`}
                             >
-                              {tx.type}
+                              {tx.type === "EARN" ? "كسب نقاط" : "استبدال"}
                             </span>
-                            <span className="font-semibold text-neutral-900">{tx.customerName}</span>
+                            <span className="font-semibold text-[#2B0B0D]">{tx.customerName}</span>
                           </div>
                           <span className="text-[10px] text-neutral-400 font-mono block">
                             {tx.referenceCode} • {tx.branchName || "Main"}
@@ -1034,7 +1018,7 @@ export default function AdminPage() {
                           <span
                             dir="ltr"
                             className={`font-mono font-bold block ${
-                              tx.points > 0 ? "text-emerald-700" : "text-neutral-800"
+                              tx.points > 0 ? "text-emerald-700" : "text-[#3F1215]"
                             }`}
                           >
                             {tx.points > 0 ? `+${tx.points}` : tx.points} {t.pts}
@@ -1054,173 +1038,133 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 2: WHITE-LABEL & RULES CONFIGURATION */}
-        {activeTab === "branding" && (
-          <div className="max-w-2xl space-y-6">
-            <div>
-              <h1 className="text-2xl font-serif font-medium text-neutral-900">
-                {t.brandingTitle}
-              </h1>
-              <p className="text-xs text-neutral-500 mt-0.5">
-                {t.brandingSubtitle}
-              </p>
-            </div>
-
-            <form onSubmit={handleSaveBrand} className="bg-white border border-neutral-200 rounded-3xl p-7 shadow-xs space-y-6">
-              {brandSaved && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-[#1A5336] flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                  <span>{t.savedSuccess}</span>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
-                    {t.storeName}
-                  </label>
-                  <input
-                    type="text"
-                    value={brandForm.storeName || ""}
-                    onChange={(e) => setBrandForm({ ...brandForm, storeName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:ring-2 focus:ring-neutral-900/10"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
-                    {t.tagline}
-                  </label>
-                  <input
-                    type="text"
-                    value={brandForm.tagline || ""}
-                    onChange={(e) => setBrandForm({ ...brandForm, tagline: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:ring-2 focus:ring-neutral-900/10"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
-                    {t.currency}
-                  </label>
-                  <input
-                    type="text"
-                    value={brandForm.currency || ""}
-                    onChange={(e) => setBrandForm({ ...brandForm, currency: e.target.value })}
-                    placeholder="JOD"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm font-mono focus:ring-2 focus:ring-neutral-900/10"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
-                    {t.welcomeBonus}
-                  </label>
-                  <input
-                    type="number"
-                    value={brandForm.welcomeBonusPts || 0}
-                    onChange={(e) =>
-                      setBrandForm({ ...brandForm, welcomeBonusPts: parseInt(e.target.value) || 0 })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm font-mono focus:ring-2 focus:ring-neutral-900/10"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
-                    {t.pointsPerUnit}
-                  </label>
-                  <input
-                    type="number"
-                    value={brandForm.pointsPerUnit || 10}
-                    onChange={(e) =>
-                      setBrandForm({ ...brandForm, pointsPerUnit: parseFloat(e.target.value) || 10 })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm font-mono focus:ring-2 focus:ring-neutral-900/10"
-                    required
-                  />
-                  <span className="text-[10px] text-neutral-400 mt-1 block">
-                    {t.pointsPerUnitHelp(brandForm.currency || "KWD")}
-                  </span>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
-                    {t.discountPer100(brandForm.currency || "KWD")}
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={brandForm.discountPer100Pts || 1.0}
-                    onChange={(e) =>
-                      setBrandForm({ ...brandForm, discountPer100Pts: parseFloat(e.target.value) || 1.0 })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm font-mono focus:ring-2 focus:ring-neutral-900/10"
-                    required
-                  />
-                  <span className="text-[10px] text-neutral-400 mt-1 block">
-                    {t.discountPer100Help(brandForm.currency || "KWD")}
-                  </span>
-                </div>
+        {/* TAB 2: CUSTOMERS DIRECTORY */}
+        {activeTab === "customers" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-serif font-medium text-neutral-900">
+                  {t.customersTitle}
+                </h1>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  {t.customersSubtitle}
+                </p>
               </div>
 
-              {/* Brand Palette Settings */}
-              <div className="pt-4 border-t border-neutral-100">
-                <span className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-3">
-                  {t.themePalette}
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs text-neutral-600 block mb-1">{t.primaryColor}</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={brandForm.primaryColor || "#2C221E"}
-                        onChange={(e) => setBrandForm({ ...brandForm, primaryColor: e.target.value })}
-                        className="w-9 h-9 rounded-lg border border-neutral-200 cursor-pointer p-0.5"
-                      />
-                      <input
-                        type="text"
-                        value={brandForm.primaryColor || "#2C221E"}
-                        onChange={(e) => setBrandForm({ ...brandForm, primaryColor: e.target.value })}
-                        className="flex-1 px-3 py-1.5 rounded-lg border border-neutral-200 font-mono text-xs"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-neutral-600 block mb-1">{t.accentColor}</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={brandForm.accentColor || "#1A5336"}
-                        onChange={(e) => setBrandForm({ ...brandForm, accentColor: e.target.value })}
-                        className="w-9 h-9 rounded-lg border border-neutral-200 cursor-pointer p-0.5"
-                      />
-                      <input
-                        type="text"
-                        value={brandForm.accentColor || "#1A5336"}
-                        onChange={(e) => setBrandForm({ ...brandForm, accentColor: e.target.value })}
-                        className="flex-1 px-3 py-1.5 rounded-lg border border-neutral-200 font-mono text-xs"
-                      />
-                    </div>
-                  </div>
+              <div className="flex items-center gap-3">
+                <div className="px-3.5 py-1.5 rounded-xl bg-white border border-[#EBD3C8] shadow-2xs text-xs">
+                  <span className="text-neutral-400 font-mono text-[11px] me-1.5">{t.totalCustomers}:</span>
+                  <span className="font-bold text-[#3F1215]">{customersList.length}</span>
                 </div>
-              </div>
-
-              <div className="pt-4 border-t border-neutral-100 flex justify-end">
                 <button
-                  type="submit"
-                  disabled={savingBrand}
-                  className="px-6 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-50 flex items-center gap-2 shadow-xs cursor-pointer active:scale-98"
+                  onClick={loadCustomers}
+                  disabled={loadingCustomers}
+                  className="px-3.5 py-2 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FAF5F2] text-xs font-medium text-[#3F1215] flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
                 >
-                  <Save className="w-3.5 h-3.5" />
-                  {savingBrand ? t.savingBranding : t.saveBranding}
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingCustomers ? "animate-spin" : ""}`} />
+                  <span>{t.refreshData}</span>
                 </button>
               </div>
-            </form>
+            </div>
+
+            {/* Search Input */}
+            <div className="bg-white border border-[#EBD3C8] rounded-2xl p-3 shadow-xs flex items-center gap-2.5">
+              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              <input
+                type="text"
+                value={customerSearchQuery}
+                onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                placeholder={t.searchPlaceholder}
+                className="w-full text-xs bg-transparent focus:outline-none text-[#2B0B0D] placeholder-neutral-400"
+              />
+              {customerSearchQuery && (
+                <button
+                  onClick={() => setCustomerSearchQuery("")}
+                  className="text-neutral-400 hover:text-neutral-700 text-xs px-2 cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Customers Table */}
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-start text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-[#FDF4F0] border-b border-[#EBD3C8] text-[#3F1215] font-semibold">
+                      <th className="py-3.5 px-5 text-start">{t.tblCustomer}</th>
+                      <th className="py-3.5 px-4 text-start">{t.tblPhoneEmail}</th>
+                      <th className="py-3.5 px-4 text-start">{t.tblTier}</th>
+                      <th className="py-3.5 px-4 text-start">{t.tblBalance}</th>
+                      <th className="py-3.5 px-5 text-end">{t.tblActions}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#EBD3C8]/50">
+                    {customersList
+                      .filter((c) => {
+                        if (!customerSearchQuery.trim()) return true;
+                        const q = customerSearchQuery.toLowerCase().trim();
+                        return (
+                          (c.name && c.name.toLowerCase().includes(q)) ||
+                          (c.phone && c.phone.includes(q)) ||
+                          (c.email && c.email.toLowerCase().includes(q))
+                        );
+                      })
+                      .map((c) => (
+                        <tr key={c.id} className="hover:bg-[#FDF4F0]/40 transition-colors">
+                          <td className="py-3.5 px-5">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-xl bg-[#3F1215] text-[#FEECE2] font-semibold text-xs flex items-center justify-center flex-shrink-0">
+                                {c.name ? c.name.charAt(0).toUpperCase() : "C"}
+                              </div>
+                              <div>
+                                <span className="font-semibold text-[#2B0B0D] block">{c.name}</span>
+                                {c.email && (
+                                  <span className="text-[11px] text-neutral-400 font-mono block" dir="ltr">
+                                    {c.email}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4 font-mono text-neutral-600" dir="ltr">
+                            {c.phone || "—"}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium border bg-[#FAF5F2] text-[#3F1215] border-[#EBD3C8]">
+                              {c.tier || "Member"}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 font-bold text-[#3F1215] font-mono">
+                            {c.pointsBalance.toLocaleString()} {t.pts}
+                          </td>
+                          <td className="py-3.5 px-5 text-end">
+                            <button
+                              onClick={() => {
+                                setSelectedCustomerId(c.id);
+                                setBroadcastAudience("single");
+                                setActiveTab("broadcast");
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-[#FAF5F2] hover:bg-[#3F1215] text-[#3F1215] hover:text-[#FEECE2] border border-[#EBD3C8] text-[11px] font-medium transition-all flex items-center gap-1.5 ms-auto cursor-pointer shadow-2xs"
+                            >
+                              <Send className="w-3 h-3" />
+                              <span>{t.tblSendNotif}</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    {customersList.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="py-8 text-center text-xs text-neutral-400">
+                          {t.noCustomersFound}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1263,8 +1207,23 @@ export default function AdminPage() {
                     {rewardsList.map((reward) => (
                       <tr key={reward._id} className="hover:bg-[#FDF4F0]/50 transition-colors">
                         <td className="py-3.5 px-5">
-                          <span className="font-semibold text-[#2B0B0D] block">{reward.title}</span>
-                          <span className="text-[11px] text-neutral-400 line-clamp-1">{reward.description}</span>
+                          <div className="flex items-center gap-3">
+                            {reward.imageUrl ? (
+                              <img
+                                src={reward.imageUrl}
+                                alt={reward.title}
+                                className="w-11 h-11 rounded-xl object-cover border border-[#EBD3C8] flex-shrink-0 shadow-2xs"
+                              />
+                            ) : (
+                              <div className="w-11 h-11 rounded-xl bg-[#FAF5F2] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center flex-shrink-0">
+                                <Gift className="w-5 h-5" />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <span className="font-semibold text-[#2B0B0D] block truncate">{reward.title}</span>
+                              <span className="text-[11px] text-neutral-400 line-clamp-1">{reward.description}</span>
+                            </div>
+                          </div>
                         </td>
                         <td className="py-3.5 px-4 font-mono text-neutral-600">{reward.category}</td>
                         <td className="py-3.5 px-4 font-mono font-bold text-[#3F1215]" dir="ltr">
@@ -1560,6 +1519,58 @@ export default function AdminPage() {
                   placeholder={lang === "ar" ? "تفاصيل المكافأة أو المشروب" : "Reward description"}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                 />
+              </div>
+
+              {/* Reward Image URL & Presets */}
+              <div>
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.rewardImage}</label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="url"
+                    value={newReward.imageUrl}
+                    onChange={(e) => setNewReward({ ...newReward, imageUrl: e.target.value })}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                    dir="ltr"
+                  />
+                  {newReward.imageUrl && (
+                    <img
+                      src={newReward.imageUrl}
+                      alt="Preview"
+                      className="w-9 h-9 rounded-lg object-cover border border-[#EBD3C8] flex-shrink-0"
+                      onError={(e) => ((e.target as HTMLElement).style.display = "none")}
+                    />
+                  )}
+                </div>
+                <span className="text-[10px] text-neutral-400 mt-1 block">{t.rewardImageHelp}</span>
+
+                {/* Quick Presets */}
+                <div className="mt-2">
+                  <span className="text-[10px] font-semibold text-neutral-500 block mb-1">{t.presets}</span>
+                  <div className="flex flex-wrap gap-1">
+                    {[
+                      { label: "☕ فلات وايت", url: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🧊 كولد برو", url: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🥐 كرواسون", url: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🍩 دونوت", url: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🍪 كوكيز", url: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🫘 حبوب قهوة", url: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=800&auto=format&fit=crop&q=80" },
+                    ].map((preset) => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() => setNewReward({ ...newReward, imageUrl: preset.url })}
+                        className={`text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                          newReward.imageUrl === preset.url
+                            ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] font-semibold"
+                            : "bg-[#FAF5F2] text-neutral-600 border-[#EBD3C8] hover:bg-white"
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

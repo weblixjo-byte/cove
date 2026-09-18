@@ -1,6 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { BrandProvider } from "@/components/BrandProvider";
+
+const ibmPlexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-ibm-plex-arabic",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   themeColor: "#3F1215",
@@ -51,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl" className={ibmPlexArabic.variable}>
       <head>
         <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
         <meta name="googlebot" content="noindex, nofollow" />
@@ -67,16 +75,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Cove" />
         <meta name="application-name" content="Cove Coffee House" />
         <meta name="theme-color" content="#3F1215" />
-
-        {/* Typography */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
-          rel="stylesheet"
-        />
       </head>
-      <body className="min-h-screen bg-[#FAF5F2] text-[#2B0B0D] antialiased selection:bg-[#3F1215] selection:text-[#FEECE2]">
+      <body className={`${ibmPlexArabic.className} min-h-screen bg-[#FAF5F2] text-[#2B0B0D] antialiased selection:bg-[#3F1215] selection:text-[#FEECE2]`}>
         <BrandProvider>{children}</BrandProvider>
       </body>
     </html>

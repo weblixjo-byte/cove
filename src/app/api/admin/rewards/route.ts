@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, pointsRequired, category, stock, isActive } = body;
+    const { title, description, pointsRequired, category, stock, isActive, imageUrl } = body;
 
     if (!title || !pointsRequired) {
       return NextResponse.json({ error: "Title and points required are mandatory" }, { status: 400 });
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       description: description?.trim() || "",
       pointsRequired: Number(pointsRequired),
       category: category || "Drinks",
+      imageUrl: imageUrl?.trim() || undefined,
       stock: stock !== undefined ? Number(stock) : 999,
       isActive: isActive !== undefined ? Boolean(isActive) : true,
     });

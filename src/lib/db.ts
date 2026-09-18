@@ -97,6 +97,31 @@ export async function connectDB(): Promise<{ isMongoose: boolean }> {
 
 async function initMongoData() {
   try {
+    // Ensure deleted cashier Ahmad is removed from MongoDB
+    await User.deleteMany({ username: "ahmad" });
+
+    // Ensure rewards have high-res image URLs
+    await Reward.updateMany(
+      { $or: [{ imageUrl: "/coffee-latte.svg" }, { imageUrl: { $exists: false } }, { imageUrl: "" }] },
+      { $set: { imageUrl: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&auto=format&fit=crop&q=80" } }
+    );
+    await Reward.updateMany(
+      { imageUrl: "/cold-brew.svg" },
+      { $set: { imageUrl: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop&q=80" } }
+    );
+    await Reward.updateMany(
+      { imageUrl: "/croissant.svg" },
+      { $set: { imageUrl: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop&q=80" } }
+    );
+    await Reward.updateMany(
+      { $or: [{ imageUrl: "/discount.svg" }, { imageUrl: "/coffee-bag.svg" }] },
+      { $set: { imageUrl: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=800&auto=format&fit=crop&q=80" } }
+    );
+    await Reward.updateMany(
+      { imageUrl: "/tumbler.svg" },
+      { $set: { imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80" } }
+    );
+
     const configCount = await TenantConfig.countDocuments();
     if (configCount === 0) {
       const seed = seedInitialData();

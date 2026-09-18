@@ -84,6 +84,7 @@ interface RewardItem {
   description: string;
   pointsRequired: number;
   category: string;
+  imageUrl?: string;
   canRedeem: boolean;
 }
 
@@ -816,62 +817,112 @@ export default function CustomerPage() {
 
         {/* TAB 2: REWARDS CATALOGUE */}
         {activeTab === "rewards" && (
-          <div className="space-y-3">
-            <div className="bg-white border border-neutral-200 rounded-2xl p-4 mb-2 flex items-center justify-between shadow-xs">
+          <div className="space-y-4">
+            {/* Balance Overview Banner */}
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs flex items-center justify-between">
               <div>
-                <span className="text-xs text-neutral-500 font-mono">Your Balance</span>
-                <span className="text-lg font-bold text-neutral-900 block font-serif">
-                  {customer.pointsBalance} pts
+                <span className="text-[11px] text-neutral-500 font-medium block">
+                  رصيد نقاطك الحالي
+                </span>
+                <span className="text-2xl font-bold text-[#3F1215] font-mono" dir="ltr">
+                  {customer.pointsBalance.toLocaleString()}{" "}
+                  <span className="text-xs font-normal text-neutral-500">نقطة</span>
                 </span>
               </div>
-              <span className="text-xs text-[#1A5336] font-medium bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100">
-                = {formatCurrency(customer.currencyValue)} discount
-              </span>
+              <div className="text-end">
+                <span className="text-xs text-emerald-800 font-medium bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full block">
+                  = {formatCurrency(customer.currencyValue)} خصم مباشر
+                </span>
+              </div>
             </div>
 
-            <div className="space-y-2.5">
+            {/* Rewards Cards Stack */}
+            <div className="space-y-4">
               {rewards.map((reward) => {
                 const canAfford = customer.pointsBalance >= reward.pointsRequired;
+                const progressPercent = Math.min(
+                  100,
+                  Math.round((customer.pointsBalance / reward.pointsRequired) * 100)
+                );
                 return (
                   <div
                     key={reward._id}
-                    className={`bg-white border rounded-2xl p-4 transition-all shadow-xs ${
-                      canAfford ? "border-neutral-200" : "border-neutral-200/60 opacity-80"
-                    }`}
+                    className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all group"
                   >
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block mb-0.5">
-                          {reward.category}
-                        </span>
-                        <h4 className="text-sm font-semibold text-neutral-900">{reward.title}</h4>
-                      </div>
-                      <span className="text-sm font-bold font-mono text-[#2C221E] px-2 py-0.5 bg-stone-100 rounded-md">
-                        {reward.pointsRequired} pts
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-neutral-500 mb-4 line-clamp-2 leading-relaxed">
-                      {reward.description}
-                    </p>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-neutral-100">
-                      {canAfford ? (
-                        <button
-                          onClick={() => {
-                            setRedeemingReward(reward);
-                            setRedeemError(null);
-                          }}
-                          className="w-full py-2 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors cursor-pointer shadow-xs"
-                        >
-                          Redeem Voucher
-                        </button>
+                    {/* Top Hero Image Banner */}
+                    <div className="relative h-48 sm:h-52 w-full bg-[#FDF4F0] overflow-hidden">
+                      {reward.imageUrl ? (
+                        <img
+                          src={reward.imageUrl}
+                          alt={reward.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
                       ) : (
-                        <div className="w-full flex items-center justify-between text-xs text-neutral-400 font-mono py-1">
-                          <span>Need {reward.pointsRequired - customer.pointsBalance} more pts</span>
-                          <span>Progress: {Math.round((customer.pointsBalance / reward.pointsRequired) * 100)}%</span>
+                        <div className="w-full h-full flex items-center justify-center text-[#3F1215]/40 bg-[#FDF4F0]">
+                          <Gift className="w-12 h-12" />
                         </div>
                       )}
+
+                      {/* Points Badge (Inspired by McDonald's McCafé circle style) */}
+                      <div className="absolute top-3.5 end-3.5 w-14 h-14 rounded-full bg-[#3F1215] text-[#FEECE2] border-2 border-white shadow-lg flex flex-col items-center justify-center">
+                        <span className="text-base font-extrabold font-mono leading-none">
+                          {reward.pointsRequired}
+                        </span>
+                        <span className="text-[9px] font-semibold leading-none mt-0.5 opacity-90">
+                          نقطة
+                        </span>
+                      </div>
+
+                      {/* Category Tag */}
+                      <div className="absolute top-3.5 start-3.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/95 backdrop-blur-xs text-[#3F1215] shadow-xs border border-white/80">
+                        {reward.category === "Drinks"
+                          ? "مشروبات"
+                          : reward.category === "Food"
+                          ? "مأكولات ومخبوزات"
+                          : reward.category === "Beans"
+                          ? "حبوب قهوة"
+                          : reward.category === "Merchandise"
+                          ? "أكواب ومنتجات"
+                          : reward.category}
+                      </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-4 sm:p-5">
+                      <h4 className="text-base font-bold text-[#2B0B0D] mb-1 leading-snug">
+                        {reward.title}
+                      </h4>
+                      <p className="text-xs text-neutral-500 mb-4 line-clamp-2 leading-relaxed">
+                        {reward.description}
+                      </p>
+
+                      <div className="pt-2 border-t border-[#EBD3C8]/60">
+                        {canAfford ? (
+                          <button
+                            onClick={() => {
+                              setRedeemingReward(reward);
+                              setRedeemError(null);
+                            }}
+                            className="w-full py-2.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                          >
+                            <Gift className="w-4 h-4" />
+                            <span>استبدال المكافأة الآن</span>
+                          </button>
+                        ) : (
+                          <div className="space-y-1.5 py-1">
+                            <div className="flex items-center justify-between text-[11px] text-neutral-500 font-mono">
+                              <span>باقي {reward.pointsRequired - customer.pointsBalance} نقطة للحصول عليها</span>
+                              <span className="font-semibold text-[#3F1215]">{progressPercent}%</span>
+                            </div>
+                            <div className="w-full h-2 bg-[#FAF5F2] border border-[#EBD3C8] rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-[#8C2E34] to-[#3F1215] rounded-full transition-all duration-500"
+                                style={{ width: `${progressPercent}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -987,29 +1038,40 @@ export default function CustomerPage() {
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#2B0B0D] font-serif">Confirm Redemption</h3>
+              <h3 className="text-base font-semibold text-[#2B0B0D]">تأكيد استبدال المكافأة</h3>
               <button
                 onClick={() => setRedeemingReward(null)}
-                className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
+                className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-4 bg-[#FAF5F2] rounded-2xl mb-4 border border-[#EBD3C8]">
-              <span className="text-xs font-mono uppercase text-neutral-400 block mb-1">
-                Reward
-              </span>
-              <h4 className="text-sm font-semibold text-[#2B0B0D] font-serif">{redeemingReward.title}</h4>
-              <p className="text-xs text-neutral-500 mt-1">{redeemingReward.description}</p>
-              <div className="mt-3 pt-3 border-t border-[#EBD3C8] flex justify-between items-center text-xs font-mono">
-                <span>Cost:</span>
-                <span className="font-bold text-[#3F1215]">{redeemingReward.pointsRequired} Points</span>
+            <div className="bg-[#FAF5F2] rounded-2xl overflow-hidden mb-4 border border-[#EBD3C8]">
+              {redeemingReward.imageUrl && (
+                <div className="w-full h-36 overflow-hidden border-b border-[#EBD3C8]">
+                  <img
+                    src={redeemingReward.imageUrl}
+                    alt={redeemingReward.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="p-4">
+                <span className="text-[10px] font-mono uppercase text-neutral-400 block mb-1">
+                  {redeemingReward.category}
+                </span>
+                <h4 className="text-sm font-bold text-[#2B0B0D]">{redeemingReward.title}</h4>
+                <p className="text-xs text-neutral-500 mt-1">{redeemingReward.description}</p>
+                <div className="mt-3 pt-3 border-t border-[#EBD3C8] flex justify-between items-center text-xs font-mono">
+                  <span>تكلفة المكافأة:</span>
+                  <span className="font-bold text-[#3F1215]">{redeemingReward.pointsRequired} نقطة</span>
+                </div>
               </div>
             </div>
 
             {redeemError && (
-              <div className="mb-4 p-2.5 rounded-xl bg-red-50 text-red-700 text-xs">
+              <div className="mb-4 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
                 {redeemError}
               </div>
             )}
@@ -1018,15 +1080,15 @@ export default function CustomerPage() {
               <button
                 onClick={() => handleRedeem(redeemingReward)}
                 disabled={redeemLoading}
-                className="w-full py-3 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+                className="w-full py-3 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-98"
               >
-                {redeemLoading ? "Generating Voucher..." : "Confirm & Deduct Points"}
+                {redeemLoading ? "جاري إنشاء رمز القسيمة..." : "تأكيد واستبدال النقاط"}
               </button>
               <button
                 onClick={() => setRedeemingReward(null)}
-                className="w-full py-2 rounded-xl text-neutral-500 hover:bg-[#FAF5F2] text-xs transition-colors"
+                className="w-full py-2 rounded-xl text-neutral-500 hover:bg-[#FAF5F2] text-xs transition-colors cursor-pointer"
               >
-                Cancel
+                إلغاء
               </button>
             </div>
           </div>
