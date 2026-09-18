@@ -11,7 +11,6 @@ export function middleware(request: NextRequest) {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
   const path = request.nextUrl.pathname;
-  const token = request.cookies.get("cove_loyalty_session")?.value;
 
   // Let public API routes, auth routes, and static assets pass
   if (

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useBrand } from "@/components/BrandProvider";
 import {
   LayoutDashboard,
-  Settings,
   Gift,
   Users,
   Send,
@@ -13,25 +12,20 @@ import {
   DollarSign,
   TrendingUp,
   Award,
-  Sparkles,
   Plus,
   Trash2,
   CheckCircle2,
   AlertCircle,
   LogOut,
-  Save,
-  Check,
-  ChevronRight,
   ShieldCheck,
   RefreshCw,
   X,
   ChevronDown,
   Search,
   Upload,
-  Image as ImageIcon,
   Camera,
 } from "lucide-react";
-import { ITenantConfig, IReward, IUser, ITransaction } from "@/lib/types";
+import { IReward, IUser, ITransaction } from "@/lib/types";
 
 // Bilingual Dictionary for Admin Console
 const i18n = {
@@ -260,7 +254,7 @@ interface MetricsData {
 }
 
 export default function AdminPage() {
-  const { config, refreshConfig, formatCurrency } = useBrand();
+  const { config, formatCurrency } = useBrand();
 
   // Language State: English by default
   const [lang, setLang] = useState<"en" | "ar">("en");

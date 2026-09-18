@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { useBrand } from "@/components/BrandProvider";
 import confetti from "canvas-confetti";
 import {
-  Coffee,
   Copy,
   Check,
   Gift,
@@ -15,16 +13,12 @@ import {
   LogOut,
   QrCode,
   Sparkles,
-  ArrowRight,
   ShieldCheck,
   ChevronRight,
   X,
   AlertCircle,
   CheckCircle2,
   CheckCheck,
-  User,
-  Plus,
-  Send,
 } from "lucide-react";
 
 // Official Google Multi-Color Icon
@@ -148,15 +142,11 @@ export default function CustomerPage() {
   const [googleError, setGoogleError] = useState<string | null>(null);
 
   // Custom Google Signup Form State (for signing up with any new Google email)
-  const [showNewAccountForm, setShowNewAccountForm] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customEmail, setCustomEmail] = useState("");
 
   // Redemption state
   const [redeemingReward, setRedeemingReward] = useState<RewardItem | null>(null);
-  const [claimedVoucher, setClaimedVoucher] = useState<{ code: string; title: string } | null>(null);
-  const [redeemError, setRedeemError] = useState<string | null>(null);
-  const [redeemLoading, setRedeemLoading] = useState(false);
   const [googleRedirecting, setGoogleRedirecting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -232,6 +222,85 @@ export default function CustomerPage() {
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  // Synchronize Push Subscription with backend and ensure valid keys
+  const syncPushSubscription = async (
+    reg: ServiceWorkerRegistration
+  ): Promise<boolean> => {
+    try {
+      if (!("PushManager" in window)) return false;
+
+      let sub = await reg.pushManager.getSubscription();
+
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_KEY),
+        });
+      }
+
+      if (!sub) return false;
+
+      const subJson = sub.toJSON ? sub.toJSON() : ({} as any);
+      const payload = {
+        endpoint: sub.endpoint,
+        keys: {
+          p256dh: subJson.keys?.p256dh || "",
+          auth: subJson.keys?.auth || "",
+        },
+        customerId:
+          customer?.id ||
+          (typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_ID_KEY) : undefined),
+      };
+
+      const headers = getAuthHeaders();
+      headers["Content-Type"] = "application/json";
+
+      const res = await fetch("/api/customer/push-subscription", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setPushSubscribed(true);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cove_push_subscribed", "true");
+        }
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      console.warn("syncPushSubscription notice:", err);
+      if (err.name === "InvalidStateError" || err.message?.includes("key") || err.message?.includes("applicationServerKey")) {
+        try {
+          const oldSub = await reg.pushManager.getSubscription();
+          if (oldSub) await oldSub.unsubscribe();
+          const newSub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_KEY),
+          });
+          if (newSub) {
+            const subJson = newSub.toJSON ? newSub.toJSON() : ({} as any);
+            await fetch("/api/customer/push-subscription", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                endpoint: newSub.endpoint,
+                keys: subJson.keys,
+                customerId: customer?.id || localStorage.getItem(CUSTOMER_ID_KEY),
+              }),
+            });
+            setPushSubscribed(true);
+            return true;
+          }
+        } catch (retryErr) {
+          console.error("Retry subscription error:", retryErr);
+        }
+      }
+      return false;
     }
   };
 
@@ -345,85 +414,6 @@ export default function CustomerPage() {
     );
   };
 
-  // Synchronize Push Subscription with backend and ensure valid keys
-  const syncPushSubscription = async (
-    reg: ServiceWorkerRegistration
-  ): Promise<boolean> => {
-    try {
-      if (!("PushManager" in window)) return false;
-
-      let sub = await reg.pushManager.getSubscription();
-
-      if (!sub) {
-        sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_KEY),
-        });
-      }
-
-      if (!sub) return false;
-
-      const subJson = sub.toJSON ? sub.toJSON() : ({} as any);
-      const payload = {
-        endpoint: sub.endpoint,
-        keys: {
-          p256dh: subJson.keys?.p256dh || "",
-          auth: subJson.keys?.auth || "",
-        },
-        customerId:
-          customer?.id ||
-          (typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_ID_KEY) : undefined),
-      };
-
-      const headers = getAuthHeaders();
-      headers["Content-Type"] = "application/json";
-
-      const res = await fetch("/api/customer/push-subscription", {
-        method: "POST",
-        headers,
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setPushSubscribed(true);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("cove_push_subscribed", "true");
-        }
-        return true;
-      }
-      return false;
-    } catch (err: any) {
-      console.warn("syncPushSubscription notice:", err);
-      // Key mismatch fallback: unsubscribe and re-subscribe cleanly if VAPID keys were rotated
-      if (err.name === "InvalidStateError" || err.message?.includes("key") || err.message?.includes("applicationServerKey")) {
-        try {
-          const oldSub = await reg.pushManager.getSubscription();
-          if (oldSub) await oldSub.unsubscribe();
-          const newSub = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_KEY),
-          });
-          if (newSub) {
-            const subJson = newSub.toJSON ? newSub.toJSON() : ({} as any);
-            await fetch("/api/customer/push-subscription", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                endpoint: newSub.endpoint,
-                keys: subJson.keys,
-                customerId: customer?.id || localStorage.getItem(CUSTOMER_ID_KEY),
-              }),
-            });
-            setPushSubscribed(true);
-            return true;
-          }
-        } catch (retryErr) {
-          console.error("Retry subscription error:", retryErr);
-        }
-      }
-      return false;
-    }
-  };
 
   const handleEnablePush = async () => {
     // If iOS and not running as standalone PWA on home screen, guide user first
@@ -546,34 +536,6 @@ export default function CustomerPage() {
     setActiveTab("card");
   };
 
-  // Redeem Reward
-  const handleRedeem = async (reward: RewardItem) => {
-    setRedeemError(null);
-    setRedeemLoading(true);
-    try {
-      const res = await fetch("/api/customer/rewards", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rewardId: reward._id }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setClaimedVoucher({ code: data.voucherCode, title: data.rewardTitle });
-        setRedeemingReward(null);
-        confetti({ particleCount: 60, spread: 55, origin: { y: 0.7 } });
-        await loadDashboard();
-        await loadRewards();
-        await loadNotifications();
-      } else {
-        setRedeemError(data.error || "Redemption failed");
-      }
-    } catch (e: any) {
-      setRedeemError(e.message || "Redemption error");
-    } finally {
-      setRedeemLoading(false);
-    }
-  };
-
   const markAllRead = async () => {
     try {
       const headers = getAuthHeaders();
@@ -659,7 +621,6 @@ export default function CustomerPage() {
                 type="button"
                 onClick={() => {
                   setShowGoogleModal(true);
-                  setShowNewAccountForm(true);
                 }}
                 className="text-xs text-neutral-600 hover:text-neutral-900 underline font-medium py-1 px-2 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer"
               >
@@ -1107,7 +1068,6 @@ export default function CustomerPage() {
                           <button
                             onClick={() => {
                               setRedeemingReward(reward);
-                              setRedeemError(null);
                             }}
                             className="w-full py-2.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                           >
@@ -1500,19 +1460,19 @@ export default function CustomerPage() {
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   1
                 </span>
-                <span>Tap the Share button <strong>⎋ (Share)</strong> in Safari's bottom toolbar.</span>
+                <span>Tap the Share button <strong>⎋ (Share)</strong> in Safari&apos;s bottom toolbar.</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   2
                 </span>
-                <span>Choose <strong>"Add to Home Screen"</strong>.</span>
+                <span>Choose <strong>&quot;Add to Home Screen&quot;</strong>.</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   3
                 </span>
-                <span>Open <strong>Cove</strong> from your home screen and tap "Enable".</span>
+                <span>Open <strong>Cove</strong> from your home screen and tap &quot;Enable&quot;.</span>
               </div>
             </div>
 

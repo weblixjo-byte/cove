@@ -26,7 +26,7 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(_req: Request) {
   return NextResponse.json(
     {
       error: "Direct client redemption is disabled. Please present your 6-digit PIN or QR code to the cashier at the counter to activate your discount.",

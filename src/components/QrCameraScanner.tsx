@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { Camera, X, AlertCircle, RefreshCw, Upload, CheckCircle2, Zap, ZapOff } from "lucide-react";
+import { Camera, X, AlertCircle, RefreshCw, Upload, CheckCircle2 } from "lucide-react";
 
 interface QrCameraScannerProps {
   onScan: (data: string) => void;
@@ -39,9 +39,14 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [scannedResult, setScannedResult] = useState<string | null>(null);
-  const [cameras, setCameras] = useState<{ id: string; label: string }[]>([]);
+  const [_cameras, setCameras] = useState<{ id: string; label: string }[]>([]);
   const [activeCameraId, setActiveCameraId] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
+
+  const onScanRef = useRef(onScan);
+  useEffect(() => {
+    onScanRef.current = onScan;
+  }, [onScan]);
 
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isHandlingScanRef = useRef(false);
@@ -127,7 +132,7 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
 
             // Stop scanner & propagate scan result
             stopScanner().finally(() => {
-              onScan(decodedText);
+              onScanRef.current(decodedText);
             });
           },
           () => {
@@ -188,7 +193,7 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
       }
       setScannedResult(decodedText);
       await stopScanner();
-      onScan(decodedText);
+      onScanRef.current(decodedText);
     } catch (err) {
       console.warn("File scan error:", err);
       setError("No valid QR code was detected in the uploaded image. Please ensure the QR is clear and well-lit.");

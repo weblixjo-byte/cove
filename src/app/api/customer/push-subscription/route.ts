@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid push subscription object" }, { status: 400 });
     }
 
-    let session = await getSession(req);
+    const session = await getSession(req);
     let userId = session?.userId || null;
 
     if (!userId) {
