@@ -17,16 +17,5 @@ export default function CustomerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Cove Pass" />
-        <meta name="application-name" content="Cove Pass" />
-      </head>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

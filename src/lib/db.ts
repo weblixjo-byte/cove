@@ -1,4 +1,3 @@
-import dns from "node:dns";
 import mongoose from "mongoose";
 import TenantConfig from "@/models/TenantConfig";
 import User from "@/models/User";
@@ -9,12 +8,7 @@ import PushSubscription from "@/models/PushSubscription";
 import { ITenantConfig, IUser, ITransaction, IReward, INotification, IPushSubscription } from "./types";
 import { seedInitialData } from "./seed-data";
 
-// Ensure Node.js can resolve MongoDB Atlas SRV records on Windows & servers
-try {
-  dns.setServers(["8.8.8.8", "1.1.1.1"]);
-} catch {
-  // Ignore in environments that disallow setting DNS servers
-}
+
 
 interface MongooseCache {
   conn: typeof mongoose | null;

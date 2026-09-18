@@ -7,16 +7,18 @@ interface RateLimitRecord {
 
 const rateLimitStore = new Map<string, RateLimitRecord>();
 
-// Clean up expired records every 5 minutes to prevent memory leaks
-if (typeof setInterval !== "undefined") {
-  setInterval(() => {
-    const now = Date.now();
+let lastCleanupTime = Date.now();
+
+function cleanupExpiredRecords(now: number) {
+  // Lazily purge expired records every 60 seconds without background timers
+  if (now - lastCleanupTime > 60 * 1000) {
+    lastCleanupTime = now;
     for (const [key, record] of rateLimitStore.entries()) {
       if (now > record.resetTime) {
         rateLimitStore.delete(key);
       }
     }
-  }, 5 * 60 * 1000);
+  }
 }
 
 export interface RateLimitOptions {
@@ -29,6 +31,7 @@ export function checkRateLimit(
   options: RateLimitOptions = { limit: 10, windowMs: 60 * 1000 }
 ): { success: boolean; limit: number; remaining: number; reset: number } {
   const now = Date.now();
+  cleanupExpiredRecords(now);
   const record = rateLimitStore.get(key);
 
   if (!record || now > record.resetTime) {

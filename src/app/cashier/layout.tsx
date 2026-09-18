@@ -17,16 +17,5 @@ export default function CashierLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <>
-      <head>
-        <link rel="manifest" href="/manifest-cashier.json" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Cove Cashier" />
-        <meta name="application-name" content="Cove Cashier POS" />
-      </head>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
