@@ -774,7 +774,7 @@ export default function CustomerPage() {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-md mx-auto w-full px-4 pt-4 flex-1">
+      <main className="max-w-md mx-auto w-full px-4 pt-4 pb-32 flex-1">
         {/* Real-time Notification Banner */}
         {unreadCount > 0 && notifications.length > 0 && !notifications[0].isRead && activeTab !== "notifications" && (
           <div
@@ -1254,61 +1254,43 @@ export default function CustomerPage() {
         )}
       </main>
 
-      {/* Sticky Bottom Glassmorphism Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 glass-panel border-x-0 border-b-0 rounded-none shadow-[0_-4px_25px_rgba(63,18,21,0.06)] px-4 py-2">
-        <div className="max-w-md mx-auto flex items-center justify-around">
+      {/* Floating Semi-Rounded Glassmorphism Navigation Bar */}
+      <nav className="fixed bottom-5 left-0 right-0 z-40 px-4 pointer-events-none flex justify-center">
+        <div className="w-full max-w-sm glass-nav rounded-full p-1.5 shadow-[0_16px_36px_-6px_rgba(63,18,21,0.18),0_4px_16px_rgba(0,0,0,0.06)] border border-white/85 pointer-events-auto flex items-center justify-between gap-1">
           <button
             onClick={() => setActiveTab("card")}
-            className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all cursor-pointer ${
+            className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all duration-300 cursor-pointer ${
               activeTab === "card"
-                ? "text-[#3F1215] font-bold"
-                : "text-neutral-400 hover:text-neutral-700 font-medium"
+                ? "bg-[#3F1215] text-[#FEECE2] shadow-sm font-semibold scale-102"
+                : "text-neutral-500 hover:text-neutral-900 hover:bg-white/40"
             }`}
           >
-            <div
-              className={`p-1.5 rounded-xl transition-all ${
-                activeTab === "card" ? "bg-[#FAF5F2] text-[#3F1215]" : ""
-              }`}
-            >
-              <QrCode className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] tracking-tight">Pass</span>
+            <QrCode className="w-4 h-4 mb-0.5" />
+            <span className="text-[10px] tracking-tight font-medium">Pass</span>
           </button>
 
           <button
             onClick={() => setActiveTab("rewards")}
-            className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all cursor-pointer ${
+            className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all duration-300 cursor-pointer ${
               activeTab === "rewards"
-                ? "text-[#3F1215] font-bold"
-                : "text-neutral-400 hover:text-neutral-700 font-medium"
+                ? "bg-[#3F1215] text-[#FEECE2] shadow-sm font-semibold scale-102"
+                : "text-neutral-500 hover:text-neutral-900 hover:bg-white/40"
             }`}
           >
-            <div
-              className={`p-1.5 rounded-xl transition-all ${
-                activeTab === "rewards" ? "bg-[#FAF5F2] text-[#3F1215]" : ""
-              }`}
-            >
-              <Gift className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] tracking-tight">Rewards</span>
+            <Gift className="w-4 h-4 mb-0.5" />
+            <span className="text-[10px] tracking-tight font-medium">Rewards</span>
           </button>
 
           <button
             onClick={() => setActiveTab("history")}
-            className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all cursor-pointer ${
+            className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all duration-300 cursor-pointer ${
               activeTab === "history"
-                ? "text-[#3F1215] font-bold"
-                : "text-neutral-400 hover:text-neutral-700 font-medium"
+                ? "bg-[#3F1215] text-[#FEECE2] shadow-sm font-semibold scale-102"
+                : "text-neutral-500 hover:text-neutral-900 hover:bg-white/40"
             }`}
           >
-            <div
-              className={`p-1.5 rounded-xl transition-all ${
-                activeTab === "history" ? "bg-[#FAF5F2] text-[#3F1215]" : ""
-              }`}
-            >
-              <History className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] tracking-tight">Activity</span>
+            <History className="w-4 h-4 mb-0.5" />
+            <span className="text-[10px] tracking-tight font-medium">Activity</span>
           </button>
 
           <button
@@ -1316,23 +1298,19 @@ export default function CustomerPage() {
               setActiveTab("notifications");
               markAllRead();
             }}
-            className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all cursor-pointer relative ${
+            className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all duration-300 cursor-pointer relative ${
               activeTab === "notifications"
-                ? "text-[#3F1215] font-bold"
-                : "text-neutral-400 hover:text-neutral-700 font-medium"
+                ? "bg-[#3F1215] text-[#FEECE2] shadow-sm font-semibold scale-102"
+                : "text-neutral-500 hover:text-neutral-900 hover:bg-white/40"
             }`}
           >
-            <div
-              className={`p-1.5 rounded-xl relative transition-all ${
-                activeTab === "notifications" ? "bg-[#FAF5F2] text-[#3F1215]" : ""
-              }`}
-            >
-              <Bell className="w-5 h-5" />
+            <div className="relative">
+              <Bell className="w-4 h-4 mb-0.5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#3F1215] ring-2 ring-white" />
+                <span className="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
               )}
             </div>
-            <span className="text-[10px] tracking-tight">Alerts</span>
+            <span className="text-[10px] tracking-tight font-medium">Alerts</span>
           </button>
         </div>
       </nav>

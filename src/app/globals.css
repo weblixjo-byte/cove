@@ -61,6 +61,14 @@ h1, h2, h3, h4, h5, h6, .font-serif, .font-brand, .font-subbrand {
   box-shadow: 0 12px 40px 0 rgba(63, 18, 21, 0.22);
 }
 
+.glass-nav {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 16px 40px -8px rgba(63, 18, 21, 0.16), 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
 .glass-input {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(12px);
