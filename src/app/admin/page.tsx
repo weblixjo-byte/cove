@@ -23,6 +23,7 @@ import {
   Search,
   Upload,
   Camera,
+  Smartphone,
 } from "lucide-react";
 import { IReward, IUser, ITransaction } from "@/lib/types";
 import CustomGlassSelect from "@/components/CustomGlassSelect";
@@ -317,6 +318,11 @@ export default function AdminPage() {
   const [broadcastSuccess, setBroadcastSuccess] = useState<string | null>(null);
   const [broadcastError, setBroadcastError] = useState<string | null>(null);
 
+  // Admin PWA Installation States
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandaloneApp, setIsStandaloneApp] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+
   // Admin Console is 100% English
   useEffect(() => {
     setLang("en");
@@ -324,6 +330,32 @@ export default function AdminPage() {
       localStorage.setItem("cove_admin_lang", "en");
     }
   }, []);
+
+  // Admin PWA Install Detection
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const standalone =
+      ("standalone" in window.navigator && (window.navigator as any).standalone) ||
+      window.matchMedia("(display-mode: standalone)").matches;
+    setIsStandaloneApp(Boolean(standalone));
+
+    const handleBeforeInstall = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") setDeferredPrompt(null);
+    } else {
+      setShowInstallGuide(true);
+    }
+  };
 
   const t = i18n.en;
 
@@ -628,6 +660,7 @@ export default function AdminPage() {
   // Admin Login Screen with Language Switcher
   if (!admin) {
     return (
+      <>
       <div
         dir="ltr"
         className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between p-4 sm:p-6 transition-all"
@@ -702,6 +735,56 @@ export default function AdminPage() {
           </Link>
         </div>
       </div>
+
+      {/* Install Guide Modal */}
+      {showInstallGuide && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="glass-panel rounded-3xl p-6 max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <button
+              type="button"
+              onClick={() => setShowInstallGuide(false)}
+              className="absolute top-4 end-4 p-1 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100/50 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-12 h-12 rounded-2xl bg-[#3F1215] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+              <Smartphone className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-base font-bold text-center text-[#2B0B0D] mb-1">
+              Install Admin Dashboard
+            </h3>
+            <p className="text-xs text-neutral-500 text-center mb-4">
+              Add a dedicated Admin icon that opens this dashboard directly:
+            </p>
+
+            <div className="space-y-3 glass-panel-subtle rounded-2xl p-4 text-xs text-[#2B0B0D]">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <span>Tap the <strong>Share</strong> button in Safari or <strong>Menu (⋮)</strong> in Chrome.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <span>Select <strong>&quot;Add to Home Screen&quot;</strong>.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <span>Tap <strong>Add</strong>. The icon will be named <strong>Cove Admin</strong> and will open the dashboard directly.</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowInstallGuide(false)}
+              className="w-full mt-4 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-colors cursor-pointer"
+            >
+              Got It
+            </button>
+          </div>
+        </div>
+      )}
+      </>
     );
   }
 
@@ -745,6 +828,18 @@ export default function AdminPage() {
               <Coffee className="w-3.5 h-3.5 text-[#3F1215]" />
               <span className="hidden sm:inline">{t.openCashier}</span>
             </Link>
+
+            {!isStandaloneApp && (
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className="px-2.5 py-1.5 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FDF4F0] text-xs font-semibold text-[#3F1215] flex items-center gap-1 transition-colors cursor-pointer"
+                title="Install Admin Dashboard"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Install</span>
+              </button>
+            )}
 
             <button
               onClick={handleLogout}
@@ -839,13 +934,26 @@ export default function AdminPage() {
               <Coffee className="w-3.5 h-3.5 text-[#3F1215]" />
               {t.openCashier}
             </Link>
-            <button
-              onClick={handleLogout}
-              className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer font-medium"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              {t.signOut}
-            </button>
+            <div className="flex items-center gap-2">
+              {!isStandaloneApp && (
+                <button
+                  type="button"
+                  onClick={handleInstallClick}
+                  className="text-xs text-[#3F1215] hover:text-[#2B0B0D] flex items-center gap-1 cursor-pointer font-medium"
+                  title="Install Admin App"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  Install
+                </button>
+              )}
+              <button
+                onClick={handleLogout}
+                className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer font-medium"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                {t.signOut}
+              </button>
+            </div>
           </div>
         </div>
       </aside>

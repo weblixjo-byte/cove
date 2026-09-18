@@ -1,10 +1,10 @@
-{
-  "id": "/cashier",
-  "name": "Cove Cashier POS",
-  "short_name": "Cashier POS",
-  "description": "Cove Coffee House Cashier POS Terminal & Scanner",
-  "start_url": "/cashier",
-  "scope": "/cashier",
+﻿{
+  "id": "/admin",
+  "name": "Cove Admin Dashboard",
+  "short_name": "Cove Admin",
+  "description": "Cove Coffee House Executive Admin Dashboard",
+  "start_url": "/admin",
+  "scope": "/admin",
   "display": "standalone",
   "background_color": "#3F1215",
   "theme_color": "#3F1215",

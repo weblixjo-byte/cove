@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     title: "Cove Cashier",
   },
   manifest: "/manifest-cashier.json",
+  other: {
+    "application-name": "Cove Cashier POS",
+  },
 };
 
 export default function CashierLayout({

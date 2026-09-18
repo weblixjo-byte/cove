@@ -39,7 +39,6 @@ export const metadata: Metadata = {
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
-  manifest: "/manifest.json",
   robots: {
     index: false,
     follow: false,
@@ -66,17 +65,15 @@ export default function RootLayout({
         <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
         <meta name="googlebot" content="noindex, nofollow" />
 
-        {/* PWA & iOS Mobile Home Screen App Icon Configuration */}
+        {/* Icons shared across all routes */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
         <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
-        <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Cove" />
-        <meta name="application-name" content="Cove Coffee House" />
         <meta name="theme-color" content="#3F1215" />
+        {/* manifest and apple-mobile-web-app-title are set per-route via child layouts */}
       </head>
       <body className={`${ibmPlexArabic.className} min-h-screen bg-[#FAF5F2] text-[#2B0B0D] antialiased selection:bg-[#3F1215] selection:text-[#FEECE2]`}>
         <BrandProvider>{children}</BrandProvider>
