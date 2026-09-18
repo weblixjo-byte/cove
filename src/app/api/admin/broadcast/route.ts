@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       const targetSubs = await dbService.getPushSubscriptionsForUser(targetUser._id);
       const pushDevicesSent = await sendWebPushToSubscriptions(targetSubs, {
         title: title.trim(),
-        body: bonus > 0 ? `${message.trim()} (تمت إضافة +${bonus} نقطة لرصيدك!)` : message.trim(),
+        body: bonus > 0 ? `${message.trim()} (+${bonus} bonus points added to your balance!)` : message.trim(),
         url: "/customer",
       });
 
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
     const allSubs = await dbService.getAllPushSubscriptions();
     const pushDevicesSent = await sendWebPushToSubscriptions(allSubs, {
       title: title.trim(),
-      body: bonus > 0 ? `${message.trim()} (تمت إضافة +${bonus} نقطة مجانية!)` : message.trim(),
+      body: bonus > 0 ? `${message.trim()} (+${bonus} bonus points added!)` : message.trim(),
       url: "/customer",
     });
 

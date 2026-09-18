@@ -91,7 +91,7 @@ export default function CashierPage() {
 
   // Redemption State
   const [redeemPoints, setRedeemPoints] = useState<string>("80");
-  const [rewardTitle, setRewardTitle] = useState<string>("فلات وايت فاخر");
+  const [rewardTitle, setRewardTitle] = useState<string>("Specialty Flat White / Latte");
   const [redeemLoading, setRedeemLoading] = useState(false);
   const [redeemError, setRedeemError] = useState<string | null>(null);
 
@@ -106,7 +106,7 @@ export default function CashierPage() {
           id: data.user.id,
           name: data.user.name,
           username: data.user.username || "sajji",
-          branchName: data.user.branchName || "الفرع الرئيسي",
+          branchName: data.user.branchName || "Main Roastery",
         });
       } else {
         setCashier(null);
@@ -142,10 +142,10 @@ export default function CashierPage() {
       if (res.ok && data.success) {
         setCashier(data.user);
       } else {
-        setLoginError(data.error || "اسم المستخدم أو كلمة المرور غير صحيحة");
+        setLoginError(data.error || "Invalid username or security PIN");
       }
     } catch (err: any) {
-      setLoginError(err.message || "حدث خطأ في الاتصال بالخادم");
+      setLoginError(err.message || "Server connection error");
     } finally {
       setLoginLoading(false);
     }
@@ -173,11 +173,11 @@ export default function CashierPage() {
       if (res.ok && data.success) {
         setIdentifiedCustomer(data.customer);
       } else {
-        setLookupError(data.error || "لم يتم العثور على الزبون. تأكد من صحة الرمز.");
+        setLookupError(data.error || "Customer not found. Please verify PIN or QR.");
         setIdentifiedCustomer(null);
       }
     } catch (e: any) {
-      setLookupError(e.message || "خطأ في البحث عن الزبون");
+      setLookupError(e.message || "Error looking up customer");
       setIdentifiedCustomer(null);
     } finally {
       setLookupLoading(false);
@@ -230,7 +230,7 @@ export default function CashierPage() {
 
     const amount = parseFloat(billAmount);
     if (isNaN(amount) || amount <= 0) {
-      setTransactError("يرجى إدخال قيمة فاتورة صحيحة أكبر من 0");
+      setTransactError("Please enter a valid bill amount greater than 0");
       return;
     }
 
@@ -251,10 +251,10 @@ export default function CashierPage() {
         setReceipt(data.receipt);
         confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
       } else {
-        setTransactError(data.error || "فشلت عملية إضافة النقاط");
+        setTransactError(data.error || "Failed to credit points");
       }
     } catch (err: any) {
-      setTransactError(err.message || "خطأ في الاتصال بالخادم");
+      setTransactError(err.message || "Server connection error");
     } finally {
       setTransactLoading(false);
     }
@@ -265,12 +265,12 @@ export default function CashierPage() {
     if (!identifiedCustomer) return;
     const pts = parseInt(redeemPoints);
     if (isNaN(pts) || pts <= 0) {
-      setRedeemError("يرجى تحديد عدد نقاط صحيح للاستبدال");
+      setRedeemError("Please enter a valid points amount to redeem");
       return;
     }
 
     if (pts > identifiedCustomer.pointsBalance) {
-      setRedeemError(`رصيد الزبون لا يكفي (${identifiedCustomer.pointsBalance} نقطة متوفرة)`);
+      setRedeemError(`Insufficient customer balance (${identifiedCustomer.pointsBalance} pts available)`);
       return;
     }
 
@@ -284,7 +284,7 @@ export default function CashierPage() {
         body: JSON.stringify({
           customerId: identifiedCustomer.id,
           pointsToRedeem: pts,
-          rewardTitle: rewardTitle || "خصم على الطلب",
+          rewardTitle: rewardTitle || "Order Discount",
         }),
       });
       const data = await res.json();
@@ -292,10 +292,10 @@ export default function CashierPage() {
         setReceipt(data.receipt);
         confetti({ particleCount: 40, spread: 50 });
       } else {
-        setRedeemError(data.error || "فشلت عملية استبدال المكافأة");
+        setRedeemError(data.error || "Failed to redeem reward");
       }
     } catch (e: any) {
-      setRedeemError(e.message || "خطأ في الاتصال بالخادم");
+      setRedeemError(e.message || "Server connection error");
     } finally {
       setRedeemLoading(false);
     }
@@ -320,17 +320,17 @@ export default function CashierPage() {
   // ==========================================
   if (!cashier) {
     return (
-      <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between p-4 sm:p-6 select-none font-sans" dir="rtl">
+      <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between p-4 sm:p-6 select-none font-sans">
         <div className="max-w-sm w-full mx-auto my-auto py-4">
           <div className="text-center mb-6">
             <div className="w-16 h-16 rounded-2xl bg-[#3F1215] flex items-center justify-center mx-auto mb-3 shadow-md border border-[#3F1215]/20 overflow-hidden p-0.5">
               <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
             </div>
             <h1 className="text-2xl font-bold text-[#2B0B0D] mb-1">
-              شاشة الكاشير
+              Cashier Terminal
             </h1>
             <p className="text-xs text-neutral-500 font-medium">
-              نظام نقاط البيع والولاء • Cove POS
+              Point of Sale & Loyalty • Cove POS
             </p>
           </div>
 
@@ -345,13 +345,13 @@ export default function CashierPage() {
             <form onSubmit={handleCashierLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-[#2B0B0D] mb-1.5">
-                  اسم المستخدم للكاشير
+                  Cashier Username
                 </label>
                 <input
                   type="text"
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="مثال: sajji"
+                  placeholder="e.g. sajji"
                   className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215] bg-[#FAF5F2]/40"
                   required
                 />
@@ -359,7 +359,7 @@ export default function CashierPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-[#2B0B0D] mb-1.5">
-                  رمز المرور السري
+                  Staff Security PIN
                 </label>
                 <input
                   type="password"
@@ -377,8 +377,8 @@ export default function CashierPage() {
                 disabled={loginLoading}
                 className="w-full py-3.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-sm font-bold hover:bg-[#2B0B0D] transition-all disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-98"
               >
-                {loginLoading ? "جاري تسجيل الدخول..." : "فتح نقطة البيع"}
-                <ArrowLeft className="w-4 h-4" />
+                {loginLoading ? "Signing in..." : "Open POS Terminal"}
+                <ArrowRight className="w-4 h-4" />
               </button>
             </form>
           </div>
@@ -386,11 +386,11 @@ export default function CashierPage() {
 
         <div className="text-center text-xs text-neutral-500 py-4 flex items-center justify-center gap-4">
           <Link href="/admin" className="hover:text-[#3F1215] font-medium transition-colors">
-            لوحة الإدارة
+            Admin Console
           </Link>
           <span className="text-neutral-300">•</span>
           <Link href="/customer" className="hover:text-[#3F1215] font-medium transition-colors">
-            بطاقة الزبون
+            Customer Pass
           </Link>
         </div>
       </div>
@@ -398,10 +398,10 @@ export default function CashierPage() {
   }
 
   // ==========================================
-  // Cashier POS Checkout Interface (Mobile-First Arabic)
+  // Cashier POS Checkout Interface (English)
   // ==========================================
   return (
-    <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between select-none font-sans" dir="rtl">
+    <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between select-none font-sans">
       {/* Top Header - Super Compact & Clean on Mobile */}
       <header className="bg-white/95 backdrop-blur-md border-b border-[#EBD3C8] px-3.5 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-20 shadow-xs">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-2">
@@ -413,12 +413,12 @@ export default function CashierPage() {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-xs sm:text-sm text-[#2B0B0D] truncate">
-                  كاشير {config.storeName}
+                  {config.storeName} Cashier
                 </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="متصل" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Online" />
               </div>
               <span className="text-[11px] text-neutral-500 block truncate">
-                الكاشير: {cashier.name}
+                Cashier: {cashier.name}
               </span>
             </div>
           </div>
@@ -430,13 +430,13 @@ export default function CashierPage() {
               className="px-2.5 sm:px-3 py-1.5 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FDF4F0] text-xs font-semibold text-[#2B0B0D] flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               <RefreshCw className="w-3.5 h-3.5 text-[#3F1215]" />
-              <span className="text-xs">تصفير</span>
+              <span className="text-xs">Reset</span>
             </button>
 
             <button
               onClick={handleLogout}
               className="p-1.5 sm:p-2 rounded-xl text-neutral-500 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all cursor-pointer"
-              title="تسجيل الخروج"
+              title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -466,7 +466,7 @@ export default function CashierPage() {
                 }`}
               >
                 <Hash className="w-4 h-4" />
-                <span>رمز الزبون (PIN)</span>
+                <span>Customer PIN</span>
               </button>
 
               <button
@@ -483,13 +483,13 @@ export default function CashierPage() {
                 }`}
               >
                 <Camera className="w-4 h-4" />
-                <span>مسح الـ QR للكاميرا</span>
+                <span>Scan QR with Camera</span>
               </button>
             </div>
 
             {/* Error Message */}
             {lookupError && (
-              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2 text-right">
+              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                 <span className="font-medium">{lookupError}</span>
               </div>
@@ -500,7 +500,7 @@ export default function CashierPage() {
               <div className="bg-white border border-[#EBD3C8] rounded-3xl p-4 sm:p-5 shadow-xs space-y-4">
                 <div className="text-center">
                   <span className="text-xs font-semibold text-neutral-500 block mb-1">
-                    أدخل رمز الزبون المكون من 6 أرقام
+                    Enter Customer 6-Digit PIN
                   </span>
 
                   {/* 6 Digit Display Boxes */}
@@ -543,7 +543,7 @@ export default function CashierPage() {
                     onClick={handleKeypadClear}
                     className="h-12 sm:h-13 rounded-2xl bg-[#FAF5F2] hover:bg-neutral-100 active:scale-95 border border-[#EBD3C8] text-neutral-500 font-semibold text-xs flex items-center justify-center transition-all cursor-pointer"
                   >
-                    تصفير
+                    Clear
                   </button>
                   <button
                     type="button"
@@ -572,12 +572,12 @@ export default function CashierPage() {
                   {lookupLoading ? (
                     <>
                       <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                      <span>جاري البحث عن الزبون...</span>
+                      <span>Searching customer...</span>
                     </>
                   ) : (
                     <>
-                      <span>البحث بالرمز</span>
-                      <ArrowLeft className="w-4 h-4" />
+                      <span>Search by PIN</span>
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
@@ -593,10 +593,10 @@ export default function CashierPage() {
 
                 <div>
                   <h3 className="font-bold text-[#2B0B0D] text-sm sm:text-base mb-1">
-                    مسح الرمز الشريطي QR
+                    Scan QR Code
                   </h3>
                   <p className="text-xs text-neutral-500 max-w-xs mx-auto">
-                    افتح كاميرا الهاتف لمسح بطاقة الزبون مباشرة أو أدخل الرمز يدوياً.
+                    Open camera to scan customer loyalty card directly or enter code manually.
                   </p>
                 </div>
 
@@ -606,12 +606,12 @@ export default function CashierPage() {
                   className="w-full py-4 px-4 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-sm font-bold flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-98 cursor-pointer"
                 >
                   <Camera className="w-5 h-5 text-[#FEECE2]" />
-                  <span>فتح الكاميرا للمسح المباشر</span>
+                  <span>Open Camera for Live Scan</span>
                 </button>
 
                 <div className="relative flex py-1 items-center">
                   <div className="flex-grow border-t border-[#EBD3C8]"></div>
-                  <span className="shrink mx-3 text-neutral-400 text-[11px]">أو لصق الرمز يدوياً</span>
+                  <span className="shrink mx-3 text-neutral-400 text-[11px]">Or enter code manually</span>
                   <div className="flex-grow border-t border-[#EBD3C8]"></div>
                 </div>
 
@@ -620,7 +620,7 @@ export default function CashierPage() {
                     type="text"
                     value={qrQuery}
                     onChange={(e) => setQrQuery(e.target.value)}
-                    placeholder="رمز الـ QR المكتوب..."
+                    placeholder="Customer QR code..."
                     className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   />
                   <button
@@ -629,7 +629,7 @@ export default function CashierPage() {
                     disabled={lookupLoading || !qrQuery}
                     className="px-4 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
                   >
-                    {lookupLoading ? "تحقق..." : "تأكيد"}
+                    {lookupLoading ? "Checking..." : "Confirm"}
                   </button>
                 </div>
               </div>
@@ -667,7 +667,7 @@ export default function CashierPage() {
                       </span>
                     </div>
                     <p className="text-xs text-neutral-500 font-mono mt-0.5 truncate">
-                      {identifiedCustomer.phone} • رمز: {identifiedCustomer.pin}
+                      {identifiedCustomer.phone} • PIN: {identifiedCustomer.pin}
                     </p>
                   </div>
                 </div>
@@ -675,7 +675,7 @@ export default function CashierPage() {
                 <button
                   onClick={resetPOS}
                   className="p-1.5 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-[#FAF5F2] transition-colors shrink-0"
-                  title="تغيير الزبون"
+                  title="Change Customer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -684,16 +684,16 @@ export default function CashierPage() {
               {/* Balance Bar */}
               <div className="bg-[#FAF5F2] border border-[#EBD3C8]/80 rounded-2xl p-3 flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-neutral-500 block">رصيد النقاط الحالي</span>
+                  <span className="text-[11px] text-neutral-500 block">Current Points Balance</span>
                   <div className="flex items-baseline gap-1">
                     <span className="text-2xl font-black text-[#3F1215] font-mono">
                       {identifiedCustomer.pointsBalance}
                     </span>
-                    <span className="text-xs text-neutral-500 font-semibold">نقطة</span>
+                    <span className="text-xs text-neutral-500 font-semibold">pts</span>
                   </div>
                 </div>
-                <div className="text-left bg-white px-3 py-1.5 rounded-xl border border-[#EBD3C8]/70 shadow-2xs">
-                  <span className="text-[10px] text-neutral-400 block font-medium">قيمة الخصم النقدي</span>
+                <div className="text-right bg-white px-3 py-1.5 rounded-xl border border-[#EBD3C8]/70 shadow-2xs">
+                  <span className="text-[10px] text-neutral-400 block font-medium">Cash Discount Value</span>
                   <span className="text-xs font-bold text-[#3F1215] font-mono">
                     {formatCurrency(identifiedCustomer.currencyValue)}
                   </span>
@@ -716,7 +716,7 @@ export default function CashierPage() {
                 }`}
               >
                 <CreditCard className="w-4 h-4" />
-                <span>إضافة نقاط (فاتورة)</span>
+                <span>Credit Points (Bill)</span>
               </button>
 
               <button
@@ -732,7 +732,7 @@ export default function CashierPage() {
                 }`}
               >
                 <Gift className="w-4 h-4" />
-                <span>استبدال مكافأة</span>
+                <span>Redeem Reward</span>
               </button>
             </div>
 
@@ -741,10 +741,10 @@ export default function CashierPage() {
               <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
                 <div>
                   <h4 className="text-sm font-bold text-[#2B0B0D] mb-1">
-                    قيمة الفاتورة الإجمالية
+                    Total Bill Amount
                   </h4>
                   <p className="text-[11px] text-neutral-500">
-                    يحصل الزبون على {config.pointsPerUnit || 10} نقاط مقابل كل 1.000 {config.currency}.
+                    Customer earns {config.pointsPerUnit || 10} points per 1.000 {config.currency}.
                   </p>
                 </div>
 
@@ -756,10 +756,10 @@ export default function CashierPage() {
                 )}
 
                 <form onSubmit={handleCreditPoints} className="space-y-4">
-                  {/* Bill Amount Input with clean embedded RTL currency */}
+                  {/* Bill Amount Input with clean embedded currency */}
                   <div>
                     <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
-                      المبلغ المطلوب ({config.currency})
+                      Bill Amount ({config.currency})
                     </label>
                     <div className="relative flex items-center">
                       <input
@@ -770,11 +770,11 @@ export default function CashierPage() {
                         value={billAmount}
                         onChange={(e) => setBillAmount(e.target.value)}
                         placeholder="0.000"
-                        className="w-full pl-16 pr-4 py-3.5 rounded-2xl border-2 border-[#EBD3C8] text-2xl font-bold font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215] bg-[#FAF5F2]/30 text-left dir-ltr"
+                        className="w-full pr-16 pl-4 py-3.5 rounded-2xl border-2 border-[#EBD3C8] text-2xl font-bold font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215] bg-[#FAF5F2]/30 text-left"
                         autoFocus
                         required
                       />
-                      <span className="absolute left-3 px-2.5 py-1 rounded-xl bg-[#FAF5F2] border border-[#EBD3C8] text-xs font-bold text-[#3F1215] font-mono pointer-events-none">
+                      <span className="absolute right-3 px-2.5 py-1 rounded-xl bg-[#FAF5F2] border border-[#EBD3C8] text-xs font-bold text-[#3F1215] font-mono pointer-events-none">
                         {config.currency}
                       </span>
                     </div>
@@ -799,7 +799,7 @@ export default function CashierPage() {
                         onClick={() => setBillAmount("")}
                         className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-red-50 text-neutral-600 hover:text-red-600 border border-neutral-200 text-xs font-bold transition-all cursor-pointer"
                       >
-                        مسح
+                        Clear
                       </button>
                     </div>
                   </div>
@@ -808,10 +808,10 @@ export default function CashierPage() {
                   <div className="p-3.5 bg-[#FDF4F0] border border-[#EBD3C8] rounded-2xl flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-[#2B0B0D]">
                       <Sparkles className="w-4 h-4 text-[#3F1215]" />
-                      <span>النقاط المكتسبة للزبون:</span>
+                      <span>Points to be Earned:</span>
                     </div>
                     <span className="text-base font-black font-mono text-[#3F1215]">
-                      +{calculatedPoints} نقطة
+                      +{calculatedPoints} pts
                     </span>
                   </div>
 
@@ -822,7 +822,7 @@ export default function CashierPage() {
                       onClick={resetPOS}
                       className="px-4 py-3 rounded-2xl border border-[#EBD3C8] text-neutral-600 hover:bg-[#FAF5F2] text-xs font-bold transition-colors cursor-pointer"
                     >
-                      إلغاء
+                      Cancel
                     </button>
 
                     <button
@@ -833,11 +833,11 @@ export default function CashierPage() {
                       {transactLoading ? (
                         <>
                           <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                          <span>جاري تسجيل العملية...</span>
+                          <span>Processing transaction...</span>
                         </>
                       ) : (
                         <>
-                          <span>تأكيد وإضافة النقاط</span>
+                          <span>Confirm & Credit Points</span>
                           <Check className="w-4 h-4" />
                         </>
                       )}
@@ -852,10 +852,10 @@ export default function CashierPage() {
               <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
                 <div>
                   <h4 className="text-sm font-bold text-[#2B0B0D] mb-1">
-                    استبدال مكافأة أو خصم مباشر
+                    Redeem Reward or Instant Discount
                   </h4>
                   <p className="text-[11px] text-neutral-500">
-                    خصم نقاط من رصيد الزبون مقابل مشروب أو خصم على الفاتورة.
+                    Deduct points from customer balance for a beverage, treat, or bill discount.
                   </p>
                 </div>
 
@@ -869,30 +869,30 @@ export default function CashierPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
-                      اختر المكافأة أو سبب الخصم
+                      Select Reward or Discount Reason
                     </label>
                     <select
                       value={rewardTitle}
                       onChange={(e) => {
                         setRewardTitle(e.target.value);
-                        if (e.target.value === "فلات وايت فاخر") setRedeemPoints("80");
-                        if (e.target.value === "كيوتو كولد برو") setRedeemPoints("120");
-                        if (e.target.value === "كرواسون فستق طازج") setRedeemPoints("90");
-                        if (e.target.value === `خصم نقدي بقيمة 1.000 ${config.currency}`) setRedeemPoints("100");
+                        if (e.target.value === "Specialty Flat White / Latte") setRedeemPoints("80");
+                        if (e.target.value === "Kyoto Cold Brew") setRedeemPoints("120");
+                        if (e.target.value === "Fresh French Pistachio Croissant") setRedeemPoints("90");
+                        if (e.target.value === `Cash Discount 1.000 ${config.currency}`) setRedeemPoints("100");
                       }}
                       className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 bg-[#FAF5F2]/40"
                     >
-                      <option value="فلات وايت فاخر">فلات وايت / لاتيه فاخر (80 نقطة)</option>
-                      <option value="كيوتو كولد برو">كيوتو كولد برو بارد (120 نقطة)</option>
-                      <option value="كرواسون فستق طازج">كرواسون فستق طازج (90 نقطة)</option>
-                      <option value={`خصم نقدي بقيمة 1.000 ${config.currency}`}>خصم نقدي 1.000 {config.currency} (100 نقطة)</option>
-                      <option value="خصم مخصص">خصم نقاط يدوي مخصص</option>
+                      <option value="Specialty Flat White / Latte">Specialty Flat White / Latte (80 pts)</option>
+                      <option value="Kyoto Cold Brew">Kyoto Cold Brew (120 pts)</option>
+                      <option value="Fresh French Pistachio Croissant">Fresh French Pistachio Croissant (90 pts)</option>
+                      <option value={`Cash Discount 1.000 ${config.currency}`}>Cash Discount 1.000 ${config.currency} (100 pts)</option>
+                      <option value="Custom Points Deduction">Custom Points Deduction</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
-                      النقاط المراد خصمها
+                      Points to Deduct
                     </label>
                     <input
                       type="number"
@@ -909,7 +909,7 @@ export default function CashierPage() {
                       onClick={resetPOS}
                       className="px-4 py-3 rounded-2xl border border-[#EBD3C8] text-neutral-600 hover:bg-[#FAF5F2] text-xs font-bold transition-colors cursor-pointer"
                     >
-                      إلغاء
+                      Cancel
                     </button>
 
                     <button
@@ -926,11 +926,11 @@ export default function CashierPage() {
                       {redeemLoading ? (
                         <>
                           <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                          <span>جاري الخصم...</span>
+                          <span>Deducting points...</span>
                         </>
                       ) : (
                         <>
-                          <span>تأكيد استبدال المكافأة</span>
+                          <span>Confirm Reward Redemption</span>
                           <Gift className="w-4 h-4" />
                         </>
                       )}
@@ -953,21 +953,21 @@ export default function CashierPage() {
               </div>
 
               <h3 className="text-lg sm:text-xl font-bold text-[#2B0B0D] mb-1">
-                تمت العملية بنجاح!
+                Transaction Successful!
               </h3>
               <p className="text-xs text-neutral-500 mb-4 font-mono">
-                رقم الإيصال: #{receipt.referenceCode}
+                Receipt #: #{receipt.referenceCode}
               </p>
 
-              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 mb-5 text-right space-y-2 text-xs">
+              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 mb-5 text-left space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-neutral-500">الزبون:</span>
+                  <span className="text-neutral-500">Customer:</span>
                   <span className="font-bold text-[#2B0B0D]">{receipt.customerName}</span>
                 </div>
 
                 {receipt.billAmount && (
                   <div className="flex justify-between">
-                    <span className="text-neutral-500">قيمة الفاتورة:</span>
+                    <span className="text-neutral-500">Bill Amount:</span>
                     <span className="font-mono font-bold text-[#2B0B0D]">
                       {receipt.billAmount.toFixed(3)} {receipt.currency}
                     </span>
@@ -976,24 +976,24 @@ export default function CashierPage() {
 
                 {receipt.pointsEarned ? (
                   <div className="flex justify-between text-emerald-800 font-bold bg-emerald-50 px-2 py-1 rounded-lg">
-                    <span>النقاط المضافة:</span>
-                    <span className="font-mono">+{receipt.pointsEarned} نقطة</span>
+                    <span>Points Added:</span>
+                    <span className="font-mono">+{receipt.pointsEarned} pts</span>
                   </div>
                 ) : (
                   <div className="flex justify-between text-neutral-800 font-bold bg-neutral-100 px-2 py-1 rounded-lg">
-                    <span>النقاط المخصومة:</span>
-                    <span className="font-mono">-{receipt.pointsRedeemed} نقطة</span>
+                    <span>Points Redeemed:</span>
+                    <span className="font-mono">-{receipt.pointsRedeemed} pts</span>
                   </div>
                 )}
 
                 <div className="pt-2 border-t border-[#EBD3C8] flex justify-between font-extrabold text-sm">
-                  <span className="text-[#2B0B0D]">الرصيد الجديد:</span>
-                  <span className="font-mono text-[#3F1215]">{receipt.newBalance} نقطة</span>
+                  <span className="text-[#2B0B0D]">New Balance:</span>
+                  <span className="font-mono text-[#3F1215]">{receipt.newBalance} pts</span>
                 </div>
 
                 {receipt.tierUpgraded && (
                   <div className="p-2 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-center font-bold mt-2">
-                    🌟 تمت ترقية فئة الزبون إلى {receipt.tier}!
+                    🌟 Customer tier upgraded to {receipt.tier}!
                   </div>
                 )}
               </div>
@@ -1002,8 +1002,8 @@ export default function CashierPage() {
                 onClick={resetPOS}
                 className="w-full py-3.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-sm font-bold transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>الزبون التالي في الدور</span>
-                <ArrowLeft className="w-4 h-4" />
+                <span>Next Customer</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -1020,7 +1020,7 @@ export default function CashierPage() {
 
       {/* Mobile-Friendly Footer */}
       <footer className="border-t border-[#EBD3C8]/60 bg-white py-2.5 px-4 text-center text-[11px] text-neutral-400">
-        نظام كوف لنقاط البيع • مزامنة فورية مع تطبيق الزبون
+        Cove POS Terminal • Real-Time Sync with Customer Pass
       </footer>
     </div>
   );

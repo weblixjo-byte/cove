@@ -43,22 +43,22 @@ export async function POST(req: Request) {
     if (targetSubs.length === 0) {
       return NextResponse.json(
         {
-          error: "لم يتم العثور على اشتراك مسجل لهذا الجهاز. اضغط زر 'تفعيل' أولاً للسماح بالإشعارات.",
+          error: "No active push subscription found for this device. Click 'Enable' first to allow notifications.",
         },
         { status: 404 }
       );
     }
 
     const sent = await sendWebPushToSubscriptions(targetSubs, {
-      title: "☕ كوف كافيه - فحص الإشعارات بنجاح!",
-      body: "تهانينا! الإشعارات المباشرة تعمل الآن بكفاءة وتصلك حتى والتطبيق مغلق وشاشة الهاتف مقفلة.",
+      title: "☕ Cove Specialty Coffee - Push Test Successful!",
+      body: "Congratulations! Direct push notifications are active and will reach your lock screen even when the app is closed.",
       url: "/customer",
     });
 
     return NextResponse.json({
       success: true,
       sentDevices: sent,
-      message: "تم إرسال إشعار فحص تجريبي لجهازك بنجاح!",
+      message: "Test push notification sent successfully to your device!",
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

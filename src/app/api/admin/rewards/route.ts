@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const { title, description, pointsRequired, category, stock, isActive, imageUrl } = body;
 
     if (!title || !pointsRequired) {
-      return NextResponse.json({ error: "يرجى كتابة اسم المكافأة وعدد النقاط المطلوبة" }, { status: 400 });
+      return NextResponse.json({ error: "Reward title and points required are needed" }, { status: 400 });
     }
 
     const reward = await dbService.createReward({

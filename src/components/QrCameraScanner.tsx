@@ -72,7 +72,7 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
       // Check if secure context
       if (typeof window !== "undefined" && !window.isSecureContext && window.location.hostname !== "localhost") {
         setError(
-          "يتطلب الوصول للكاميرا اتصالاً آمناً (HTTPS). يرجى فتح الموقع عبر رابط https:// أو استخدام خيار تحميل صورة الـ QR أدناه."
+          "Camera access requires a secure connection (HTTPS). Please open via https:// or upload a QR image below."
         );
         setIsInitializing(false);
         return;
@@ -145,13 +145,13 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
           const errString = String(err).toLowerCase();
           if (errString.includes("notallowed") || errString.includes("permission")) {
             setError(
-              "تم رفض إذن الوصول للكاميرا. يرجى السماح للمتصفح باستخدام الكاميرا من إعدادات الموقع، أو استخدام خيار صورة الـ QR أدناه."
+              "Camera access permission was denied. Please enable camera permission in your browser settings, or upload a QR image below."
             );
           } else if (errString.includes("notfound") || errString.includes("devices")) {
-            setError("لم يتم العثور على كاميرا في هذا الجهاز.");
+            setError("No camera device was detected on this hardware.");
           } else {
             setError(
-              "تعذر فتح الكاميرا المباشرة في المتصفح. يمكنك استخدام خيار (مسح من صورة) أدناه أو إدخال الرمز PIN المكون من 6 أرقام."
+              "Unable to start live camera stream. You can upload a QR image below or enter the 6-digit counter PIN."
             );
           }
         }
@@ -191,14 +191,14 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
       onScan(decodedText);
     } catch (err) {
       console.warn("File scan error:", err);
-      setError("لم يتم العثور على رمز QR صالح في الصورة المرفوعة. يرجى التأكد من وضوح الرمز.");
+      setError("No valid QR code was detected in the uploaded image. Please ensure the QR is clear and well-lit.");
       setIsInitializing(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="w-full max-w-sm sm:max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+      <div className="w-full max-w-sm sm:max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col mx-auto">
         {/* Header */}
         <div className="px-4 py-3.5 border-b border-neutral-800 flex items-center justify-between text-white">
           <div className="flex items-center gap-2.5">
@@ -206,8 +206,8 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
               <Camera className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold font-serif text-[#FEECE2]">قارئ رمز الزبون (QR Scanner)</h3>
-              <p className="text-[10px] text-neutral-400">وجه الكاميرا نحو شاشة الزبون</p>
+              <h3 className="text-sm font-semibold font-serif text-[#FEECE2]">Customer QR Scanner</h3>
+              <p className="text-[10px] text-neutral-400">Point camera at customer digital pass</p>
             </div>
           </div>
 
@@ -215,8 +215,8 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
             onClick={() => {
               stopScanner().finally(() => onClose());
             }}
-            className="p-1.5 rounded-xl bg-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-700 transition-colors"
-            title="إغلاق"
+            className="p-1.5 rounded-xl bg-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-700 transition-colors cursor-pointer"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -251,7 +251,7 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
           {isInitializing && !error && (
             <div className="absolute inset-0 bg-neutral-950/80 flex flex-col items-center justify-center gap-3 text-white">
               <div className="w-8 h-8 rounded-full border-2 border-[#FEECE2] border-t-transparent animate-spin" />
-              <span className="text-xs font-mono text-[#FEECE2]">جاري تشغيل الكاميرا...</span>
+              <span className="text-xs font-mono text-[#FEECE2]">Starting camera stream...</span>
             </div>
           )}
 
@@ -259,7 +259,7 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
           {scannedResult && (
             <div className="absolute inset-0 bg-[#3F1215]/95 flex flex-col items-center justify-center gap-2 text-[#FEECE2] p-4 text-center animate-in zoom-in-95 duration-150">
               <CheckCircle2 className="w-12 h-12 text-[#FEECE2] animate-pulse" />
-              <span className="text-sm font-semibold font-serif">تم التعرف على رمز الزبون بنجاح!</span>
+              <span className="text-sm font-semibold font-serif">Customer pass identified!</span>
               <span className="text-xs font-mono text-[#FEECE2]/80 truncate max-w-xs">{scannedResult}</span>
             </div>
           )}
@@ -277,17 +277,17 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
                   className="w-full py-2.5 px-4 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer border border-[#52181C]"
                 >
                   <Upload className="w-4 h-4" />
-                  <span>مسح من صورة / لقطة شاشة للـ QR</span>
+                  <span>Upload QR Screenshot / Image</span>
                 </button>
                 <button
                   onClick={() => {
                     setError(null);
                     setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
                   }}
-                  className="w-full py-2 px-3 rounded-xl border border-neutral-700 hover:bg-neutral-800 text-xs text-neutral-300 flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-2 px-3 rounded-xl border border-neutral-700 hover:bg-neutral-800 text-xs text-neutral-300 flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
-                  <span>إعادة المحاولة للكاميرا</span>
+                  <span>Retry Camera</span>
                 </button>
               </div>
             </div>
@@ -300,19 +300,19 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
             <button
               onClick={toggleFacingMode}
               className="px-3 py-1.5 rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="تبديل الكاميرا (أمامية / خلفية)"
+              title="Flip Camera (Front / Rear)"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>تبديل الكاميرا</span>
+              <span>Flip Camera</span>
             </button>
 
             <button
               onClick={() => fileInputRef.current?.click()}
               className="px-3 py-1.5 rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="مسح من صورة"
+              title="Upload QR Image"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>صورة</span>
+              <span>Upload</span>
             </button>
 
             {/* Hidden file upload input */}
@@ -327,9 +327,9 @@ export default function QrCameraScanner({ onScan, onClose }: QrCameraScannerProp
 
           <button
             onClick={() => stopScanner().finally(() => onClose())}
-            className="px-3 py-1.5 rounded-xl text-neutral-400 hover:text-white transition-colors"
+            className="px-3 py-1.5 rounded-xl text-neutral-400 hover:text-white transition-colors cursor-pointer"
           >
-            إلغاء
+            Cancel
           </button>
         </div>
       </div>

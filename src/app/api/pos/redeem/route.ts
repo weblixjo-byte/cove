@@ -72,8 +72,8 @@ export async function POST(req: Request) {
 
     // Dispatch instant Web Push to customer's phone
     sendWebPushToUser(customer._id, {
-      title: `تم استبدال مكافأة! -${points} نقطة 🎁`,
-      body: `تم استبدال ${points} نقطة بنجاح مقابل ${rewardTitle || "مكافأة"}. رصيدك المتبقي: ${newBalance} نقطة.`,
+      title: `Reward Redeemed! -${points} pts 🎁`,
+      body: `Successfully redeemed ${points} points for ${rewardTitle || "Reward"}. Remaining balance: ${newBalance} pts.`,
       url: "/customer",
     }).catch((err) => console.warn("Push delivery error:", err));
 

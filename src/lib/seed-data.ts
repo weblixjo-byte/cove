@@ -53,8 +53,8 @@ export function seedInitialData() {
   const rewards: IReward[] = [
     {
       _id: "rew_01",
-      title: "فلات وايت أو لاتيه مختص",
-      description: "أي مشروب إسبريسو بالحليب من اختيارك باستخدام حبوب القهوة المختصة.",
+      title: "Flat White or Specialty Latte",
+      description: "Your choice of handcrafted espresso beverage made with specialty grade beans.",
       pointsRequired: 50,
       category: "Drinks",
       imageUrl: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&auto=format&fit=crop&q=80",
@@ -65,8 +65,8 @@ export function seedInitialData() {
     },
     {
       _id: "rew_02",
-      title: "كولد برو مثلج منعش (16oz)",
-      description: "مستخلص بالتقطير البطيء لمدة 18 ساعة ومقدم فوق مكعبات ثلج نقية.",
+      title: "Refreshing Iced Cold Brew (16oz)",
+      description: "Slow-dripped for 18 hours and served over crystal clear ice.",
       pointsRequired: 80,
       category: "Drinks",
       imageUrl: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop&q=80",
@@ -77,8 +77,8 @@ export function seedInitialData() {
     },
     {
       _id: "rew_03",
-      title: "كرواسون فرنسي طازج بالفستق",
-      description: "كرواسون زبدة فرنسي مخبوز طازجاً محشو بكريمة الفستق الإيراني الفاخرة.",
+      title: "Fresh French Pistachio Croissant",
+      description: "All-butter artisanal French croissant stuffed with rich Iranian pistachio cream.",
       pointsRequired: 70,
       category: "Food",
       imageUrl: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop&q=80",
@@ -89,8 +89,8 @@ export function seedInitialData() {
     },
     {
       _id: "rew_04",
-      title: "دونوت الشوكولاتة البلجيكية",
-      description: "دونوت مخبوز طري ومغطى بطبقة غنية من الشوكولاتة البلجيكية الفاخرة.",
+      title: "Belgian Chocolate Glazed Doughnut",
+      description: "Freshly baked soft brioche doughnut dipped in rich Belgian chocolate glaze.",
       pointsRequired: 60,
       category: "Food",
       imageUrl: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80",
@@ -101,8 +101,8 @@ export function seedInitialData() {
     },
     {
       _id: "rew_05",
-      title: "كيس حبوب قهوة مختصة 250 جرام",
-      description: "خلطة كوف الخاصة بأسلوب التحميص المتوسط بنكهات الشوكولاتة والبندق والتين.",
+      title: "Specialty Coffee Beans Bag (250g)",
+      description: "Cove signature medium roast blend with tasting notes of chocolate, hazelnut, and figs.",
       pointsRequired: 150,
       category: "Beans",
       imageUrl: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=800&auto=format&fit=crop&q=80",
@@ -113,8 +113,8 @@ export function seedInitialData() {
     },
     {
       _id: "rew_06",
-      title: "كوب سيراميك حافظ للحرارة أنيق",
-      description: "كوب حراري مزدوج الجدران بحجم مثالي للقهوة والمشروبات الساخنة والباردة.",
+      title: "Insulated Ceramic Travel Tumbler",
+      description: "Double-walled thermal ceramic tumbler crafted for hot and iced brews.",
       pointsRequired: 250,
       category: "Merchandise",
       imageUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80",

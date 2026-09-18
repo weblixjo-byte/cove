@@ -182,7 +182,7 @@ export default function CustomerPage() {
         if (prevPointsRef.current !== null && data.customer.pointsBalance > prevPointsRef.current) {
           const diff = data.customer.pointsBalance - prevPointsRef.current;
           confetti({ particleCount: 45, spread: 65 });
-          setPushSuccessToast(`🎉 رائع! تمت إضافة +${diff} نقطة جديدة لرصيدك في Cove!`);
+          setPushSuccessToast(`🎉 Awesome! +${diff} new points added to your Cove balance!`);
           setTimeout(() => setPushSuccessToast(null), 5000);
         }
         prevPointsRef.current = data.customer.pointsBalance;
@@ -280,17 +280,17 @@ export default function CustomerPage() {
       const err = params.get("error");
       if (err) {
         if (err === "google_not_configured") {
-          setAuthError("لم يتم ضبط مفتاح GOOGLE_CLIENT_ID في متغيرات بيئة Vercel أو الخادم. يرجى إضافته في إعدادات البيئة بالاستضافة، أو تسجيل الدخول المباشر بالأسفل.");
+          setAuthError("GOOGLE_CLIENT_ID is not configured in server environment variables. Please configure it or sign in directly below.");
         } else if (err === "token_exchange_failed") {
-          setAuthError("فشل استبدال رمز تسجيل الدخول مع Google (Token Exchange). تأكد من صحة GOOGLE_CLIENT_SECRET ومطابقة Redirect URI.");
+          setAuthError("Google token exchange failed. Please verify GOOGLE_CLIENT_SECRET and redirect URI match.");
         } else if (err === "missing_credentials") {
-          setAuthError("بيانات Google OAuth غير مكتملة في الاستضافة (GOOGLE_CLIENT_ID أو GOOGLE_CLIENT_SECRET).");
+          setAuthError("Google OAuth configuration is incomplete (GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET missing).");
         } else if (err === "redirect_uri_mismatch") {
-          setAuthError("رابط إعادة التوجيه Redirect URI غير مسجل في Google Cloud Console. أضف رابط موقعك + /api/auth/google/callback.");
+          setAuthError("Redirect URI is not registered in Google Cloud Console. Add your site URL + /api/auth/google/callback.");
         } else if (err === "access_denied") {
-          setAuthError("تم إلغاء عملية تسجيل الدخول من شاشة Google.");
+          setAuthError("Google sign-in was cancelled.");
         } else {
-          setAuthError(`ملاحظة تسجيل الدخول مع Google: ${err}`);
+          setAuthError(`Google sign-in notice: ${err}`);
         }
       }
     }
@@ -433,7 +433,7 @@ export default function CustomerPage() {
     }
 
     if (!("Notification" in window) || !("serviceWorker" in navigator)) {
-      alert("متصفحك الحالي لا يدعم الإشعارات المباشرة");
+      alert("Your current browser does not support push notifications.");
       return;
     }
 
@@ -443,7 +443,7 @@ export default function CustomerPage() {
       setPushPermission(permission);
 
       if (permission === "granted") {
-        // Immediately eliminate hanging "تفعيل" state for instant responsive UI
+        // Immediately update state for instant responsive UI
         setPushSubscribed(true);
         if (typeof window !== "undefined") {
           localStorage.setItem("cove_push_subscribed", "true");
@@ -452,7 +452,7 @@ export default function CustomerPage() {
         const reg = await navigator.serviceWorker.ready;
         await syncPushSubscription(reg);
 
-        setPushSuccessToast("🎉 تم تفعيل الإشعارات بنجاح! جاري إرسال إشعار فحص لهاتفك...");
+        setPushSuccessToast("🎉 Notifications enabled successfully! Sending a test push to your device...");
 
         // Fire direct test push so user gets instant confirmation
         try {
@@ -476,11 +476,11 @@ export default function CustomerPage() {
         setTimeout(() => setPushSuccessToast(null), 6000);
       } else if (permission === "denied") {
         setPushSubscribed(false);
-        alert("تم رفض إذن الإشعارات من إعدادات المتصفح. يرجى تفعيل الإشعارات من إعدادات الموقع بالمتصفح.");
+        alert("Notification permission was denied in browser settings. Please allow notifications in site settings.");
       }
     } catch (err: any) {
       console.error("Push subscription error:", err);
-      alert("تعذر تفعيل الإشعارات: " + (err.message || "خطأ غير متوقع"));
+      alert("Unable to enable notifications: " + (err.message || "Unexpected error"));
     } finally {
       setPushLoading(false);
     }
@@ -509,13 +509,13 @@ export default function CustomerPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setPushSuccessToast("🚀 تم إرسال الإشعار بنجاح! تفقد أعلى شاشة هاتفك الآن.");
+        setPushSuccessToast("🚀 Test notification sent successfully! Check your lock screen / notification tray.");
         setTimeout(() => setPushSuccessToast(null), 5000);
       } else {
-        alert(data.error || "تعذر إرسال الإشعار التجريبي");
+        alert(data.error || "Unable to send test push notification");
       }
     } catch (err: any) {
-      alert("خطأ في الاتصال: " + err.message);
+      alert("Connection error: " + err.message);
     } finally {
       setTestPushLoading(false);
     }
@@ -683,7 +683,7 @@ export default function CustomerPage() {
               <div className="mb-5 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex flex-col gap-1.5 text-start">
                 <div className="flex items-center gap-2 font-medium">
                   <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0" />
-                  <span>تنبيه تسجيل الدخول / Notice</span>
+                  <span>Notice</span>
                 </div>
                 <p className="text-amber-800 leading-relaxed text-[11px]">{authError}</p>
               </div>
@@ -699,12 +699,12 @@ export default function CustomerPage() {
               {googleRedirecting ? (
                 <>
                   <div className="w-4 h-4 rounded-full border-2 border-neutral-400 border-t-neutral-900 animate-spin" />
-                  <span className="font-medium">جاري التحويل إلى Google...</span>
+                  <span className="font-medium">Connecting to Google...</span>
                 </>
               ) : (
                 <>
                   <GoogleIcon className="w-5 h-5" />
-                  <span className="font-medium">تسجيل الدخول باستخدام Google</span>
+                  <span className="font-medium">Sign in with Google</span>
                 </>
               )}
             </button>
@@ -718,7 +718,7 @@ export default function CustomerPage() {
                 }}
                 className="text-xs text-neutral-600 hover:text-neutral-900 underline font-medium py-1 px-2 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer"
               >
-                أو تسجيل الدخول بالاسم والبريد الإلكتروني مباشرة
+                Or sign in with Name and Email directly
               </button>
             </div>
 
@@ -744,7 +744,7 @@ export default function CustomerPage() {
                     C
                   </div>
                   <span className="text-sm font-semibold text-neutral-800">
-                    بطاقة العضوية الرقمية
+                    Digital Membership Pass
                   </span>
                 </div>
                 <button
@@ -760,10 +760,10 @@ export default function CustomerPage() {
 
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-neutral-900 font-serif">
-                  تسجيل الدخول / فتح بطاقة ولاء
+                  Sign In / Open Loyalty Pass
                 </h3>
                 <p className="text-xs text-neutral-500 mt-0.5">
-                  برنامج ولاء ومكافآت <strong className="text-neutral-800">{config.storeName}</strong>
+                  Loyalty & Rewards Program <strong className="text-neutral-800">{config.storeName}</strong>
                 </p>
               </div>
 
@@ -777,18 +777,18 @@ export default function CustomerPage() {
               {/* Clean Account Form */}
               <form onSubmit={handleCustomGoogleSubmit} className="space-y-4 mb-4">
                 <div className="p-3 rounded-2xl bg-[#FAF5F2] border border-[#EBD3C8] text-xs text-neutral-700 mb-2">
-                  أدخل الاسم والبريد الإلكتروني للوصول إلى بطاقة الولاء الخاصة بك فوراً وحفظ نقاطك:
+                  Enter your name and email to access your loyalty card instantly and save your points:
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-neutral-700 mb-1">
-                    الاسم الكامل
+                    Full Name
                   </label>
                   <input
                     type="text"
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
-                    placeholder="الاسم الكامل"
+                    placeholder="Full Name"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                     required
                     autoFocus
@@ -797,7 +797,7 @@ export default function CustomerPage() {
 
                 <div>
                   <label className="block text-xs font-medium text-neutral-700 mb-1">
-                    البريد الإلكتروني
+                    Email Address
                   </label>
                   <input
                     type="email"
@@ -815,20 +815,20 @@ export default function CustomerPage() {
                     onClick={() => setShowGoogleModal(false)}
                     className="px-4 py-2.5 rounded-xl border border-[#EBD3C8] text-xs text-neutral-600 hover:bg-neutral-50 cursor-pointer"
                   >
-                    إلغاء
+                    Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={googleLoading}
                     className="flex-1 py-2.5 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
                   >
-                    {googleLoading ? "جاري الدخول..." : "متابعة الدخول للبطاقة"}
+                    {googleLoading ? "Signing in..." : "Continue to Loyalty Pass"}
                   </button>
                 </div>
               </form>
 
               <p className="text-center text-[11px] text-neutral-400">
-                بطاقتك الرقمية تظل محفوظة ومسجلة بشكل دائم على هذا الجهاز.
+                Your digital loyalty pass remains saved and registered permanently on this device.
               </p>
             </div>
           </div>
@@ -907,13 +907,13 @@ export default function CustomerPage() {
               </div>
             </div>
             <span className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-white/15 text-[#FEECE2] flex-shrink-0">
-              عرض
+              View
             </span>
           </div>
         )}
 
         {/* Web Push Notification Status & Prompts */}
-        {/* State 1: Permission has NOT been granted yet -> Show Enable banner with "تفعيل" */}
+        {/* State 1: Permission has NOT been granted yet -> Show Enable banner */}
         {pushPermission === "default" && !pushSubscribed && (
           <div className="mb-4 bg-gradient-to-r from-[#3F1215] to-[#52181C] text-[#FEECE2] rounded-3xl p-4 shadow-md border border-[#3F1215] flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -921,9 +921,9 @@ export default function CustomerPage() {
                 <Bell className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold leading-tight">تفعيل إشعارات العروض والنقاط 🔔</h4>
+                <h4 className="text-xs font-bold leading-tight">Enable Push Notifications 🔔</h4>
                 <p className="text-[10px] text-[#FEECE2]/80 mt-0.5 leading-snug">
-                  استقبل نقاطك وعروضك كإشعار خارجي حتى والتطبيق مغلق
+                  Receive instant balance updates and rewards even when closed
                 </p>
               </div>
             </div>
@@ -932,7 +932,7 @@ export default function CustomerPage() {
               disabled={pushLoading}
               className="px-4 py-2 rounded-xl bg-[#FEECE2] text-[#3F1215] text-xs font-bold hover:bg-white transition-all shadow-xs cursor-pointer active:scale-95 flex-shrink-0"
             >
-              {pushLoading ? "جاري..." : "تفعيل"}
+              {pushLoading ? "Enabling..." : "Enable"}
             </button>
           </div>
         )}
@@ -946,18 +946,18 @@ export default function CustomerPage() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
               <div>
-                <span className="font-bold text-[#2B0B0D] text-xs block leading-tight">إشعارات الهاتف الخارجية مفعلة 🔔</span>
-                <span className="text-[10px] text-neutral-400">ستصلك التنبيهات حتى والتطبيق مغلق</span>
+                <span className="font-bold text-[#2B0B0D] text-xs block leading-tight">Push Notifications Active 🔔</span>
+                <span className="text-[10px] text-neutral-400">You'll receive alerts even when the app is closed</span>
               </div>
             </div>
             <button
               onClick={handleSendTestPush}
               disabled={testPushLoading}
               className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-[11px] transition-all cursor-pointer active:scale-95 shrink-0 flex items-center gap-1"
-              title="إرسال إشعار تجريبي للتأكد"
+              title="Send test push notification to verify"
             >
               <Send className="w-3 h-3" />
-              <span>{testPushLoading ? "جاري الإرسال..." : "إشعار فحص"}</span>
+              <span>{testPushLoading ? "Sending..." : "Test Push"}</span>
             </button>
           </div>
         )}
@@ -967,7 +967,7 @@ export default function CustomerPage() {
           <div className="mb-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
             <span className="text-[11px]">
-              الإشعارات محظورة من إعدادات المتصفح. اضغط على رمز القفل 🔒 أعلى المتصفح واختر السماح بالإشعارات.
+              Notifications are blocked in your browser settings. Tap the lock 🔒 icon in the URL bar and allow notifications.
             </span>
           </div>
         )}
@@ -1162,16 +1162,16 @@ export default function CustomerPage() {
             <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-xs flex items-center justify-between">
               <div>
                 <span className="text-[11px] text-neutral-500 font-medium block">
-                  رصيد نقاطك الحالي
+                  Current Points Balance
                 </span>
                 <span className="text-2xl font-bold text-[#3F1215] font-mono" dir="ltr">
                   {customer.pointsBalance.toLocaleString()}{" "}
-                  <span className="text-xs font-normal text-neutral-500">نقطة</span>
+                  <span className="text-xs font-normal text-neutral-500">pts</span>
                 </span>
               </div>
               <div className="text-end">
                 <span className="text-xs text-emerald-800 font-medium bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full block">
-                  = {formatCurrency(customer.currencyValue)} خصم مباشر
+                  = {formatCurrency(customer.currencyValue)} instant discount
                 </span>
               </div>
             </div>
@@ -1203,26 +1203,26 @@ export default function CustomerPage() {
                         </div>
                       )}
 
-                      {/* Points Badge (Inspired by McDonald's McCafé circle style) */}
+                      {/* Points Badge */}
                       <div className="absolute top-3.5 end-3.5 w-14 h-14 rounded-full bg-[#3F1215] text-[#FEECE2] border-2 border-white shadow-lg flex flex-col items-center justify-center">
                         <span className="text-base font-extrabold font-mono leading-none">
                           {reward.pointsRequired}
                         </span>
                         <span className="text-[9px] font-semibold leading-none mt-0.5 opacity-90">
-                          نقطة
+                          pts
                         </span>
                       </div>
 
                       {/* Category Tag */}
                       <div className="absolute top-3.5 start-3.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/95 backdrop-blur-xs text-[#3F1215] shadow-xs border border-white/80">
                         {reward.category === "Drinks"
-                          ? "مشروبات"
+                          ? "Beverages"
                           : reward.category === "Food"
-                          ? "مأكولات ومخبوزات"
+                          ? "Food & Pastries"
                           : reward.category === "Beans"
-                          ? "حبوب قهوة"
+                          ? "Specialty Beans"
                           : reward.category === "Merchandise"
-                          ? "أكواب ومنتجات"
+                          ? "Merchandise"
                           : reward.category}
                       </div>
                     </div>
@@ -1246,12 +1246,12 @@ export default function CustomerPage() {
                             className="w-full py-2.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                           >
                             <Gift className="w-4 h-4" />
-                            <span>استبدال المكافأة الآن</span>
+                            <span>Redeem Reward Now</span>
                           </button>
                         ) : (
                           <div className="space-y-1.5 py-1">
                             <div className="flex items-center justify-between text-[11px] text-neutral-500 font-mono">
-                              <span>باقي {reward.pointsRequired - customer.pointsBalance} نقطة للحصول عليها</span>
+                              <span>{reward.pointsRequired - customer.pointsBalance} pts needed to unlock</span>
                               <span className="font-semibold text-[#3F1215]">{progressPercent}%</span>
                             </div>
                             <div className="w-full h-2 bg-[#FAF5F2] border border-[#EBD3C8] rounded-full overflow-hidden">
@@ -1378,7 +1378,7 @@ export default function CustomerPage() {
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#2B0B0D]">تأكيد استبدال المكافأة</h3>
+              <h3 className="text-base font-semibold text-[#2B0B0D]">Confirm Reward Redemption</h3>
               <button
                 onClick={() => setRedeemingReward(null)}
                 className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 cursor-pointer"
@@ -1404,8 +1404,8 @@ export default function CustomerPage() {
                 <h4 className="text-sm font-bold text-[#2B0B0D]">{redeemingReward.title}</h4>
                 <p className="text-xs text-neutral-500 mt-1">{redeemingReward.description}</p>
                 <div className="mt-3 pt-3 border-t border-[#EBD3C8] flex justify-between items-center text-xs font-mono">
-                  <span>تكلفة المكافأة:</span>
-                  <span className="font-bold text-[#3F1215]">{redeemingReward.pointsRequired} نقطة</span>
+                  <span>Reward Cost:</span>
+                  <span className="font-bold text-[#3F1215]">{redeemingReward.pointsRequired} pts</span>
                 </div>
               </div>
             </div>
@@ -1422,13 +1422,13 @@ export default function CustomerPage() {
                 disabled={redeemLoading}
                 className="w-full py-3 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-98"
               >
-                {redeemLoading ? "جاري إنشاء رمز القسيمة..." : "تأكيد واستبدال النقاط"}
+                {redeemLoading ? "Generating voucher code..." : "Confirm & Redeem Points"}
               </button>
               <button
                 onClick={() => setRedeemingReward(null)}
                 className="w-full py-2 rounded-xl text-neutral-500 hover:bg-[#FAF5F2] text-xs transition-colors cursor-pointer"
               >
-                إلغاء
+                Cancel
               </button>
             </div>
           </div>
@@ -1477,10 +1477,10 @@ export default function CustomerPage() {
               <Bell className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-[#2B0B0D] mb-1">
-              تفعيل الإشعارات على أجهزة iPhone
+              Enable Notifications on iPhone
             </h3>
             <p className="text-xs text-neutral-500 mb-5 leading-relaxed">
-              تشترط شركة Apple إضافة التطبيق لشاشتك الرئيسية أولاً لتتمكن من استقبال الإشعارات:
+              Apple requires adding the app to your Home Screen first to receive lock screen notifications:
             </p>
 
             <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-start space-y-3 mb-5 text-xs text-[#2B0B0D]">
@@ -1488,19 +1488,19 @@ export default function CustomerPage() {
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   1
                 </span>
-                <span>اضغط على زر المشاركة <strong>⎋ (Share)</strong> في شريط متصفح Safari بالأسفل.</span>
+                <span>Tap the Share button <strong>⎋ (Share)</strong> in Safari's bottom toolbar.</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   2
                 </span>
-                <span>اختر <strong>"إضافة إلى الصفحة الرئيسية"</strong> (Add to Home Screen).</span>
+                <span>Choose <strong>"Add to Home Screen"</strong>.</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   3
                 </span>
-                <span>افتح تطبيق <strong>Cove</strong> من شاشة هاتفك واضغط "تفعيل الإشعارات".</span>
+                <span>Open <strong>Cove</strong> from your home screen and tap "Enable".</span>
               </div>
             </div>
 
@@ -1508,7 +1508,7 @@ export default function CustomerPage() {
               onClick={() => setShowIosInstallModal(false)}
               className="w-full py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors cursor-pointer"
             >
-              فهمت، حسناً
+              Got it, thanks
             </button>
           </div>
         </div>

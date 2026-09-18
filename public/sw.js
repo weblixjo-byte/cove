@@ -22,14 +22,14 @@ self.addEventListener('push', (event) => {
       } catch (err) {
         data = {
           title: 'Cove Coffee House',
-          body: 'لديك إشعار جديد في حسابك!',
+          body: 'You have a new update in your account!',
         };
       }
     }
   } else {
     data = {
       title: 'Cove Coffee House',
-      body: 'لديك إشعار جديد من كوف!',
+      body: 'You have a new notification from Cove!',
     };
   }
 
@@ -38,7 +38,7 @@ self.addEventListener('push', (event) => {
 
   // Enhanced options compatible across Android Chrome, iOS Safari PWA, and Desktop
   const options = {
-    body: data.body || data.message || 'لديك تحديث جديد في رصيد نقاطك ومكافآتك!',
+    body: data.body || data.message || 'You have an update on your loyalty balance and rewards!',
     icon: data.icon || '/icon-192.png',
     badge: data.badge || '/icon-192.png',
     vibrate: [200, 100, 200],

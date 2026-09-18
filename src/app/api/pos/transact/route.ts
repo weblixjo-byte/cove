@@ -80,8 +80,8 @@ export async function POST(req: Request) {
 
     // Dispatch instant Web Push to customer's phone
     sendWebPushToUser(customer._id, {
-      title: `نقاط جديدة من كوف! +${pointsEarned} نقطة 🎉`,
-      body: `تمت إضافة +${pointsEarned} نقطة لحسابك. رصيدك الآن: ${newBalance} نقطة.`,
+      title: `New Points at Cove! +${pointsEarned} pts 🎉`,
+      body: `+${pointsEarned} points added to your balance. Current balance: ${newBalance} pts.`,
       url: "/customer",
     }).catch((err) => console.warn("Push delivery error:", err));
 

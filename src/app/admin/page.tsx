@@ -35,7 +35,7 @@ import { ITenantConfig, IReward, IUser, ITransaction } from "@/lib/types";
 // Bilingual Dictionary for Admin Console
 const i18n = {
   en: {
-    langToggle: "العربية",
+    langToggle: "English",
     superAdmin: "Super Admin",
     portalSubtitle: "Executive Portal",
     adminEmail: "Administrator Email",
@@ -141,107 +141,107 @@ const i18n = {
   },
   ar: {
     langToggle: "English",
-    superAdmin: "المدير العام",
-    portalSubtitle: "البوابة الإدارية التنفيذية",
-    adminEmail: "البريد الإلكتروني للمسؤول",
-    password: "كلمة المرور",
-    signIn: "تسجيل الدخول للوحة التحكم",
-    authenticating: "جاري التحقق...",
-    defaultCredentials: "بيانات الدخول الإدارية:",
-    openCashier: "شاشة الكاشير (POS)",
-    openCustomer: "بطاقة الزبون الرقمية",
-    returnHome: "فتح شاشة الكاشير",
-    navAnalytics: "التحليلات والمؤشرات",
-    navCustomers: "العملاء",
-    navRewards: "كتالوج المكافآت",
-    navCashiers: "طاقم الكاشير",
-    navBroadcast: "مركز الإشعارات",
-    signOut: "تسجيل الخروج",
-    home: "شاشة الكاشير",
-    analyticsTitle: "لوحة التحليلات والمؤشرات الرئيسية",
-    analyticsSubtitle: "متابعة فورية للحجم المالي الإجمالي وحركة النقاط ونشاط الزبائن بأسلوب تنفيذي دقيق.",
-    refreshData: "تحديث البيانات",
-    cardRevenue: "الحجم المالي للمبيعات",
-    cardRevenueSub: (txs: number) => `من إجمالي ${txs} عملية شراء`,
-    cardIssued: "مجموع النقاط المكتسبة",
-    cardIssuedSub: "أُضيفت لحسابات الزبائن",
-    cardRedeemed: "مجموع النقاط المستبدلة",
-    cardRedeemedSub: "تم استبدالها بقهوة ومكافآت",
-    cardMembers: "العملاء النشطين",
-    cardMembersSub: "أعضاء مسجلين في البرنامج",
-    topCustomers: "العملاء الأكثر ولاءً",
-    byLifetime: "ترتيب حسب النقاط التراكمية",
-    liveActivity: "سجل العمليات المباشرة",
-    auditTrail: "سجل التدقيق المالي",
-    noTransactions: "لا توجد عمليات مسجلة حتى الآن.",
-    pts: "نقطة",
-    bal: "الرصيد",
-    customersTitle: "قاعدة بيانات الأعضاء والعملاء",
-    customersSubtitle: "عرض تفصيلي لكافة الزبائن المسجلين في برنامج الولاء ومتابعة رصيدهم وإرسال الإشعارات.",
-    searchPlaceholder: "ابحث بالاسم، أو رقم الهاتف، أو البريد الإلكتروني...",
-    totalCustomers: "إجمالي الأعضاء",
-    totalPointsHeld: "مجموع النقاط بحوزة الزبائن",
-    tblCustomer: "العميل",
-    tblPhoneEmail: "بيانات الاتصال",
-    tblTier: "الفئة",
-    tblBalance: "الرصيد الحالي",
-    tblLifetime: "النقاط التراكمية",
-    tblJoined: "تاريخ التسجيل",
-    tblSendNotif: "إرسال إشعار",
-    rewardsTitle: "كتالوج المكافآت والعروض",
-    rewardsSubtitle: "إدارة عناصر المكافآت القابلة للاستبدال وصورها وتكلفة النقاط لكل منها.",
-    addReward: "إضافة مكافأة جديدة",
-    tblRewardTitle: "اسم المكافأة",
-    tblCategory: "التصنيف",
-    tblPointsCost: "تكلفة النقاط",
-    tblRedemptions: "مرات الاستبدال",
-    tblStatus: "الحالة",
-    tblActions: "الإجراءات",
-    active: "مفعل",
-    disabled: "معطل",
-    addRewardModalTitle: "إضافة مكافأة جديدة للكتالوج",
-    titleLabel: "اسم المكافأة",
-    descriptionLabel: "الوصف",
-    rewardImage: "رابط صورة المكافأة",
-    rewardImageHelp: "اختر صورة جاهزة من النماذج بالأسفل أو الصق رابط صورة خارجية",
-    presets: "نماذج صور جاهزة:",
-    cancel: "إلغاء",
-    createReward: "حفظ المكافأة",
-    deleteConfirm: "هل أنت متأكد من رغبتك في حذف هذه المكافأة؟",
-    cashiersTitle: "حسابات طاقم الكاشير ونقاط البيع",
-    cashiersSubtitle: "إدارة صلاحيات موظفي الصندوق وتعيين الرموز السرية (PIN) لأجهزة الـ POS.",
-    addCashier: "إضافة كاشير جديد",
-    tblStaffMember: "اسم الموظف",
-    tblUsername: "اسم المستخدم",
-    tblBranch: "الفرع",
-    tblPin: "رمز الدخول (PIN)",
-    authorized: "مفعل",
-    suspended: "موقوف",
-    deactivate: "إيقاف",
-    reactivate: "إعادة تفعيل",
-    addCashierModalTitle: "إنشاء حساب كاشير جديد",
-    fullName: "الاسم الكامل",
-    usernameForPOS: "اسم المستخدم (لتسجيل الدخول في الكاشير)",
-    createAccount: "إنشاء الحساب",
-    broadcastTitle: "مركز الإرسال والإشعارات للزبائن",
-    broadcastSubtitle: "إرسال إشعارات مباشرة داخل التطبيق لجميع الأعضاء أو لزبون محدد، مع إمكانية منح نقاط مجانية فوراً.",
-    announcementTitle: "عنوان الإشعار أو العرض",
-    notificationMessage: "نص الرسالة أو الإشعار",
-    optionalBonus: "منحة نقاط ولاء مجانية إضافية (تُضاف لحساب الزبون)",
-    bonusHelp: "اتركها 0 لإرسال إشعار عادي بدون إضافة نقاط مجانية.",
-    audienceLabel: "الجمهور المستهدف",
-    audienceAll: "جميع الأعضاء (إشعار عام)",
-    audienceSingle: "زبون محدد (إشعار مخصص)",
-    selectCustomer: "اختر الزبون",
-    noCustomersFound: "لا يوجد زبائن مسجلين حالياً",
-    sendBroadcast: "إرسال الإشعار لجميع الزبائن",
-    sendToSingle: "إرسال الإشعار للزبون المحدد",
-    sendingBroadcast: "جاري إرسال الإشعار والمنحة...",
+    superAdmin: "Super Admin",
+    portalSubtitle: "Executive Portal",
+    adminEmail: "Administrator Email",
+    password: "Password",
+    signIn: "Sign In to Admin",
+    authenticating: "Authenticating...",
+    defaultCredentials: "Administrator Credentials:",
+    openCashier: "Cashier POS Terminal",
+    openCustomer: "Customer Pass",
+    returnHome: "Open Cashier Terminal",
+    navAnalytics: "Analytics & KPIs",
+    navCustomers: "Customers",
+    navRewards: "Rewards Catalogue",
+    navCashiers: "POS Cashiers",
+    navBroadcast: "Notifications",
+    signOut: "Sign Out",
+    home: "Cashier POS",
+    analyticsTitle: "Executive Analytics & Metrics",
+    analyticsSubtitle: "Real-time overview of loyalty performance, financial volume, and member activity.",
+    refreshData: "Refresh Data",
+    cardRevenue: "Total Revenue Volume",
+    cardRevenueSub: (txs: number) => `From ${txs} total transactions`,
+    cardIssued: "Points Issued",
+    cardIssuedSub: "Credited for store purchases",
+    cardRedeemed: "Points Redeemed",
+    cardRedeemedSub: "Claimed for rewards & perks",
+    cardMembers: "Active Members",
+    cardMembersSub: "Registered loyalty customers",
+    topCustomers: "Top Loyal Members",
+    byLifetime: "Ranked by Lifetime Points",
+    liveActivity: "Recent Activity Log",
+    auditTrail: "Financial & Loyalty Audit",
+    noTransactions: "No recorded transactions yet.",
+    pts: "pts",
+    bal: "Bal",
+    customersTitle: "Customer Directory",
+    customersSubtitle: "Complete overview of all registered members, points balances, and quick actions.",
+    searchPlaceholder: "Search by name, phone, or email...",
+    totalCustomers: "Total Registered Members",
+    totalPointsHeld: "Points in Circulation",
+    tblCustomer: "Member",
+    tblPhoneEmail: "Contact",
+    tblTier: "Tier",
+    tblBalance: "Current Balance",
+    tblLifetime: "Lifetime Points",
+    tblJoined: "Joined Date",
+    tblSendNotif: "Send Notice",
+    rewardsTitle: "Rewards Catalogue",
+    rewardsSubtitle: "Manage redeemable items, images, and point costs.",
+    addReward: "Add New Reward",
+    tblRewardTitle: "Reward Title",
+    tblCategory: "Category",
+    tblPointsCost: "Points Cost",
+    tblRedemptions: "Redemptions",
+    tblStatus: "Status",
+    tblActions: "Actions",
+    active: "Active",
+    disabled: "Disabled",
+    addRewardModalTitle: "Add New Reward",
+    titleLabel: "Reward Title",
+    descriptionLabel: "Description",
+    rewardImage: "Image URL",
+    rewardImageHelp: "Paste an image URL or choose a preset below",
+    presets: "Quick Presets:",
+    cancel: "Cancel",
+    createReward: "Save Reward",
+    deleteConfirm: "Are you sure you want to remove this reward?",
+    cashiersTitle: "Cashier Accounts & POS Terminals",
+    cashiersSubtitle: "Manage authorized staff and POS access PINs.",
+    addCashier: "Add Cashier",
+    tblStaffMember: "Staff Name",
+    tblUsername: "Username",
+    tblBranch: "Branch",
+    tblPin: "PIN",
+    authorized: "Active",
+    suspended: "Suspended",
+    deactivate: "Deactivate",
+    reactivate: "Activate",
+    addCashierModalTitle: "Create Cashier Account",
+    fullName: "Full Name",
+    usernameForPOS: "Username",
+    createAccount: "Create Account",
+    broadcastTitle: "Customer Broadcast & Notification Center",
+    broadcastSubtitle: "Dispatch in-app notifications and promotional loyalty points boosts.",
+    announcementTitle: "Announcement Title",
+    notificationMessage: "Notification Message",
+    optionalBonus: "Optional Bonus Points Gift",
+    bonusHelp: "Set to 0 for a standard notification without a points grant.",
+    audienceLabel: "Target Audience",
+    audienceAll: "All Members (Broadcast)",
+    audienceSingle: "Specific Member (Direct)",
+    selectCustomer: "Select Customer",
+    noCustomersFound: "No registered customers found",
+    sendBroadcast: "Send Broadcast to All Members",
+    sendToSingle: "Send Direct Notification",
+    sendingBroadcast: "Dispatching Notification...",
     broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string, pushDevices?: number) => {
-      const pushNote = pushDevices && pushDevices > 0 ? ` (وتم بث إشعار حقيقي لـ ${pushDevices} جهاز)` : "";
+      const pushNote = pushDevices && pushDevices > 0 ? ` (Real push delivered to ${pushDevices} device${pushDevices > 1 ? "s" : ""})` : "";
       return recipientName
-        ? `تم إرسال الإشعار بنجاح للزبون (${recipientName})! ${bonusCount ? `وتمت إضافة +${bonus} نقطة لحسابه.` : ""}${pushNote}`
-        : `تم إرسال الإشعار بنجاح! ${bonusCount ? `وتمت إضافة +${bonus} نقطة مجانية لـ ${bonusCount} زبون.` : ""}${pushNote}`;
+        ? `Notification sent to ${recipientName}! ${bonusCount ? `+${bonus} bonus points credited.` : ""}${pushNote}`
+        : `Broadcast sent successfully! ${bonusCount ? `+${bonus} points credited to ${bonusCount} members.` : ""}${pushNote}`;
     },
   },
 };
@@ -261,8 +261,8 @@ interface MetricsData {
 export default function AdminPage() {
   const { config, refreshConfig, formatCurrency } = useBrand();
 
-  // Language State: 'ar' or 'en'
-  const [lang, setLang] = useState<"en" | "ar">("ar");
+  // Language State: English by default
+  const [lang, setLang] = useState<"en" | "ar">("en");
 
   // Authentication State
   const [admin, setAdmin] = useState<{ id: string; name: string; email: string } | null>(null);
@@ -322,21 +322,15 @@ export default function AdminPage() {
   const [broadcastSuccess, setBroadcastSuccess] = useState<string | null>(null);
   const [broadcastError, setBroadcastError] = useState<string | null>(null);
 
-  // Load saved language preference
+  // Admin Console is 100% English
   useEffect(() => {
-    const saved = localStorage.getItem("cove_admin_lang") as "en" | "ar" | null;
-    if (saved) {
-      setLang(saved);
+    setLang("en");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cove_admin_lang", "en");
     }
   }, []);
 
-  const toggleLanguage = () => {
-    const next = lang === "ar" ? "en" : "ar";
-    setLang(next);
-    localStorage.setItem("cove_admin_lang", next);
-  };
-
-  const t = i18n[lang];
+  const t = i18n.en;
 
   // Check Admin Session
   const checkAdminSession = async () => {
@@ -488,7 +482,7 @@ export default function AdminPage() {
         setNewReward((prev) => ({ ...prev, imageUrl: compressedBase64 }));
       };
       img.onerror = () => {
-        setCreateRewardError("تعذر قراءة ملف الصورة المختارة");
+        setCreateRewardError("Unable to read selected image file");
       };
       img.src = readerEvent.target?.result as string;
     };
@@ -512,11 +506,11 @@ export default function AdminPage() {
         setNewReward({ title: "", description: "", pointsRequired: 100, category: "Drinks", imageUrl: "", stock: 999 });
         await loadRewards();
       } else {
-        setCreateRewardError(data.error || "فشل حفظ المكافأة. يرجى التأكد من ملء الحقول.");
+        setCreateRewardError(data.error || "Failed to save reward. Please check required fields.");
       }
     } catch (e: any) {
       console.error(e);
-      setCreateRewardError(e.message || "حدث خطأ في الاتصال بالخادم");
+      setCreateRewardError(e.message || "Server connection error");
     } finally {
       setCreateRewardLoading(false);
     }
@@ -584,7 +578,7 @@ export default function AdminPage() {
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     if (broadcastAudience === "single" && !selectedCustomerId) {
-      setBroadcastError(lang === "ar" ? "يرجى اختيار الزبون المستهدف" : "Please select target customer");
+      setBroadcastError("Please select a target customer");
       return;
     }
 
@@ -636,20 +630,9 @@ export default function AdminPage() {
   if (!admin) {
     return (
       <div
-        dir={lang === "ar" ? "rtl" : "ltr"}
+        dir="ltr"
         className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between p-4 sm:p-6 transition-all"
       >
-        {/* Language Toggle Top Bar */}
-        <div className="max-w-sm w-full mx-auto flex justify-end">
-          <button
-            onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FDF4F0] text-xs font-medium text-[#2B0B0D] transition-colors shadow-2xs"
-          >
-            <Languages className="w-3.5 h-3.5 text-[#3F1215]" />
-            <span>{t.langToggle}</span>
-          </button>
-        </div>
-
         <div className="max-w-sm w-full mx-auto my-auto py-4">
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-[#3F1215] text-white flex items-center justify-center mx-auto mb-4 shadow-md overflow-hidden p-0.5 border border-[#3F1215]">
@@ -731,10 +714,10 @@ export default function AdminPage() {
     { id: "broadcast", label: t.navBroadcast, icon: Send },
   ] as const;
 
-  // Super Admin Layout (Bilingual RTL / LTR Supported with full Mobile & iPad Landscape Optimization)
+  // Super Admin Layout (100% English, Centered & Balanced Layout)
   return (
     <div
-      dir={lang === "ar" ? "rtl" : "ltr"}
+      dir="ltr"
       className="min-h-screen bg-[#FAF5F2] flex flex-col lg:flex-row transition-all text-[#2B0B0D]"
     >
       {/* MOBILE & IPAD PORTRAIT TOP HEADER (< lg: 1024px) */}
@@ -755,14 +738,6 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={toggleLanguage}
-              className="px-2.5 py-1.5 rounded-xl border border-[#EBD3C8] bg-[#FDF4F0] hover:bg-[#EBD3C8]/40 text-xs font-medium text-[#3F1215] transition-colors flex items-center gap-1.5"
-            >
-              <Languages className="w-3.5 h-3.5 text-[#3F1215]" />
-              <span>{t.langToggle}</span>
-            </button>
-
             <Link
               href="/cashier"
               title={t.openCashier}
@@ -823,20 +798,17 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Language Switcher Pill */}
+          {/* Active Locale */}
           <div className="mb-4 px-1">
-            <button
-              onClick={toggleLanguage}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-[#EBD3C8] bg-[#FDF4F0] hover:bg-[#EBD3C8]/40 text-xs font-medium text-[#2B0B0D] transition-colors cursor-pointer"
-            >
+            <div className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-[#EBD3C8] bg-[#FDF4F0] text-xs font-medium text-[#2B0B0D]">
               <div className="flex items-center gap-2">
                 <Languages className="w-3.5 h-3.5 text-[#3F1215]" />
-                <span>{lang === "ar" ? "اللغة: العربية" : "Language: English"}</span>
+                <span>Language</span>
               </div>
-              <span className="text-[11px] font-semibold text-[#3F1215] underline">
-                {t.langToggle}
+              <span className="text-[11px] font-bold text-[#3F1215]">
+                English (US)
               </span>
-            </button>
+            </div>
           </div>
 
           {/* Navigation Links */}
@@ -997,7 +969,7 @@ export default function AdminPage() {
                     onClick={() => setActiveTab("customers")}
                     className="text-xs text-[#3F1215] hover:underline font-medium cursor-pointer"
                   >
-                    عرض كل العملاء ←
+                    View All Members →
                   </button>
                 </div>
 
@@ -1059,7 +1031,7 @@ export default function AdminPage() {
                                   : "bg-amber-50 text-amber-800 border-amber-200"
                               }`}
                             >
-                              {tx.type === "EARN" ? "كسب نقاط" : "استبدال"}
+                              {tx.type === "EARN" ? "Earned" : "Redeemed"}
                             </span>
                             <span className="font-semibold text-[#2B0B0D]">{tx.customerName}</span>
                           </div>
@@ -1451,7 +1423,7 @@ export default function AdminPage() {
                     {t.selectCustomer}
                   </label>
                   {loadingCustomers ? (
-                    <div className="p-3 text-xs text-neutral-400 font-mono">جاري تحميل قائمة الزبائن...</div>
+                    <div className="p-3 text-xs text-neutral-400 font-mono">Loading customers directory...</div>
                   ) : customersList.length === 0 ? (
                     <div className="p-3 text-xs text-amber-800 bg-amber-50 rounded-xl border border-amber-200">
                       {t.noCustomersFound}
@@ -1466,7 +1438,7 @@ export default function AdminPage() {
                       <option value="">-- {t.selectCustomer} --</option>
                       {customersList.map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.name} {c.phone ? `(${c.phone})` : c.email ? `(${c.email})` : ""} — {c.pointsBalance} نقطة
+                          {c.name} {c.phone ? `(${c.phone})` : c.email ? `(${c.email})` : ""} — {c.pointsBalance} pts
                         </option>
                       ))}
                     </select>
@@ -1482,7 +1454,7 @@ export default function AdminPage() {
                   type="text"
                   value={broadcastTitle}
                   onChange={(e) => setBroadcastTitle(e.target.value)}
-                  placeholder={lang === "ar" ? "عنوان الإشعار أو العرض" : "Notification Title"}
+                  placeholder="Notification title or offer announcement"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
@@ -1496,7 +1468,7 @@ export default function AdminPage() {
                   rows={4}
                   value={broadcastMessage}
                   onChange={(e) => setBroadcastMessage(e.target.value)}
-                  placeholder={lang === "ar" ? "اكتب تفاصيل الإشعار أو الرسالة هنا..." : "Write notification message here..."}
+                  placeholder="Write notification message details here..."
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
@@ -1565,19 +1537,19 @@ export default function AdminPage() {
                   type="text"
                   value={newReward.title}
                   onChange={(e) => setNewReward({ ...newReward, title: e.target.value })}
-                  placeholder={lang === "ar" ? "اسم المكافأة (مثال: فلات وايت، كرواسون...)" : "Reward Title"}
+                  placeholder="Reward title (e.g. Flat White, Croissant...)"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.descriptionLabel} (اختياري)</label>
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">{t.descriptionLabel} (Optional)</label>
                 <input
                   type="text"
                   value={newReward.description}
                   onChange={(e) => setNewReward({ ...newReward, description: e.target.value })}
-                  placeholder={lang === "ar" ? "تفاصيل إضافية أو وصف المشروب" : "Reward description"}
+                  placeholder="Additional details or beverage tasting notes"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                 />
               </div>
@@ -1585,7 +1557,7 @@ export default function AdminPage() {
               {/* Reward Image (File upload, live preview, presets, or URL) */}
               <div className="space-y-2">
                 <label className="block text-xs font-semibold text-[#2B0B0D]">
-                  صورة المكافأة
+                  Reward Image
                 </label>
 
                 {/* Current Image Preview */}
@@ -1600,7 +1572,7 @@ export default function AdminPage() {
                       type="button"
                       onClick={() => setNewReward({ ...newReward, imageUrl: "" })}
                       className="absolute top-2 end-2 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-xl shadow-md transition-all cursor-pointer"
-                      title="حذف الصورة"
+                      title="Delete Image"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1610,10 +1582,10 @@ export default function AdminPage() {
                   <label className="w-full py-4 px-3 rounded-2xl border-2 border-dashed border-[#EBD3C8] hover:border-[#3F1215] bg-[#FAF5F2]/50 hover:bg-[#FDF4F0] flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all">
                     <Upload className="w-6 h-6 text-[#3F1215]" />
                     <span className="text-xs font-bold text-[#2B0B0D]">
-                      اضغط هنا لرفع صورة من هاتفك أو جهازك
+                      Click here to upload image from your device
                     </span>
                     <span className="text-[10px] text-neutral-400">
-                      JPG أو PNG (يتم تجهيزها وضغطها تلقائياً)
+                      JPG or PNG (Auto-compressed and optimized)
                     </span>
                     <input
                       type="file"
@@ -1630,18 +1602,18 @@ export default function AdminPage() {
                 {/* Ready Presets */}
                 <div>
                   <span className="text-[11px] font-bold text-neutral-600 block mb-1">
-                    أو اختر صورة جاهزة بنقرة واحدة:
+                    Or choose a preset with one tap:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {[
-                      { label: "☕ فلات وايت", url: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🧊 كولد برو", url: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🥛 سبانش لاتيه", url: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🥐 كرواسون", url: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🍰 تشيزكيك", url: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🍩 دونوت", url: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🍪 كوكيز", url: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&auto=format&fit=crop&q=80" },
-                      { label: "🫘 حبوب قهوة", url: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=800&auto=format&fit=crop&q=80" },
+                      { label: "☕ Flat White", url: "https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🧊 Cold Brew", url: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🥛 Spanish Latte", url: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🥐 Croissant", url: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🍰 Cheesecake", url: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🍩 Doughnut", url: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🍪 Cookies", url: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&auto=format&fit=crop&q=80" },
+                      { label: "🫘 Coffee Beans", url: "https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=800&auto=format&fit=crop&q=80" },
                     ].map((preset) => (
                       <button
                         key={preset.label}
@@ -1661,7 +1633,7 @@ export default function AdminPage() {
 
                 {/* Manual Image URL */}
                 <div>
-                  <span className="text-[10px] text-neutral-400 block mb-1">أو أدخل رابط صورة من الإنترنت:</span>
+                  <span className="text-[10px] text-neutral-400 block mb-1">Or enter an image URL:</span>
                   <input
                     type="text"
                     value={newReward.imageUrl.startsWith("data:") ? "" : newReward.imageUrl}
@@ -1694,11 +1666,11 @@ export default function AdminPage() {
                     onChange={(e) => setNewReward({ ...newReward, category: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   >
-                    <option value="Drinks">{lang === "ar" ? "مشروبات" : "Drinks"}</option>
-                    <option value="Food">{lang === "ar" ? "مأكولات ومخبوزات" : "Food"}</option>
-                    <option value="Beans">{lang === "ar" ? "حبوب قهوة" : "Beans"}</option>
-                    <option value="Merchandise">{lang === "ar" ? "أكواب ومنتجات" : "Merchandise"}</option>
-                    <option value="Special">{lang === "ar" ? "عروض خاصة" : "Special"}</option>
+                    <option value="Drinks">Beverages</option>
+                    <option value="Food">Food & Pastries</option>
+                    <option value="Beans">Specialty Beans</option>
+                    <option value="Merchandise">Merchandise</option>
+                    <option value="Special">Special Offers</option>
                   </select>
                 </div>
               </div>
@@ -1719,7 +1691,7 @@ export default function AdminPage() {
                   {createRewardLoading ? (
                     <>
                       <div className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      <span>جاري حفظ المكافأة...</span>
+                      <span>Saving reward...</span>
                     </>
                   ) : (
                     <span>{t.createReward}</span>
@@ -1735,7 +1707,6 @@ export default function AdminPage() {
       {showAddCashierModal && (
         <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div
-            dir={lang === "ar" ? "rtl" : "ltr"}
             className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-md w-full shadow-2xl"
           >
             <div className="flex items-center justify-between mb-4">
@@ -1752,7 +1723,7 @@ export default function AdminPage() {
                   type="text"
                   value={newCashier.name}
                   onChange={(e) => setNewCashier({ ...newCashier, name: e.target.value })}
-                  placeholder={lang === "ar" ? "الاسم الكامل للموظف" : "Staff Full Name"}
+                  placeholder="Staff Full Name"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
