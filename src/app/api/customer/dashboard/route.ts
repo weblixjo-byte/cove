@@ -2,16 +2,30 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { dbService } from "@/lib/db";
 
-export async function GET() {
+import { signToken, TOKEN_COOKIE_NAME } from "@/lib/auth";
+
+export async function GET(req: Request) {
   try {
-    const session = await getSession();
-    if (!session || session.role !== "customer") {
-      return NextResponse.json({ error: "Customer authentication required" }, { status: 401 });
+    let session = await getSession(req);
+    let user = null;
+
+    if (session && session.role === "customer") {
+      user = await dbService.findUserById(session.userId);
     }
 
-    const user = await dbService.findUserById(session.userId);
+    // Fallback: If cookie is missing on iOS Safari PWA, check persistent header
     if (!user) {
-      return NextResponse.json({ error: "Customer not found" }, { status: 404 });
+      const fallbackCustomerId = req.headers.get("x-customer-id");
+      if (fallbackCustomerId) {
+        const candidate = await dbService.findUserById(fallbackCustomerId);
+        if (candidate && candidate.role === "customer") {
+          user = candidate;
+        }
+      }
+    }
+
+    if (!user) {
+      return NextResponse.json({ error: "Customer authentication required" }, { status: 401 });
     }
 
     const config = await dbService.getConfig();
@@ -30,8 +44,19 @@ export async function GET() {
       ? `${user.pin.slice(0, 3)} - ${user.pin.slice(3, 6)}`
       : "000 - 000";
 
-    return NextResponse.json({
+    // Ensure 1-year persistent token
+    const token = signToken({
+      userId: user._id,
+      role: "customer",
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      tier: user.tier,
+    });
+
+    const response = NextResponse.json({
       success: true,
+      token,
       customer: {
         id: user._id,
         name: user.name,
@@ -58,6 +83,18 @@ export async function GET() {
       transactions: transactions.slice(0, 10),
       unreadNotificationsCount: unreadCount,
     });
+
+    response.cookies.set({
+      name: TOKEN_COOKIE_NAME,
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 365 * 24 * 60 * 60, // 1 year
+      path: "/",
+    });
+
+    return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

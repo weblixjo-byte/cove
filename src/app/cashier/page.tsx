@@ -63,8 +63,8 @@ export default function CashierPage() {
   const [loadingSession, setLoadingSession] = useState(true);
 
   // Cashier login form state
-  const [usernameInput, setUsernameInput] = useState("sajji");
-  const [pinInput, setPinInput] = useState("2026");
+  const [usernameInput, setUsernameInput] = useState("");
+  const [pinInput, setPinInput] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
 
@@ -308,13 +308,13 @@ export default function CashierPage() {
             <form onSubmit={handleCashierLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-[#2B0B0D] mb-1.5">
-                  Cashier Username / اسم المستخدم
+                  اسم المستخدم / Cashier Username
                 </label>
                 <input
                   type="text"
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="sajji or ahmad"
+                  placeholder="اسم المستخدم"
                   className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
@@ -322,7 +322,7 @@ export default function CashierPage() {
 
               <div>
                 <label className="block text-xs font-medium text-[#2B0B0D] mb-1.5">
-                  4-Digit Terminal PIN / رمز الدخول
+                  رمز الدخول (4 أرقام) / Terminal PIN
                 </label>
                 <input
                   type="password"
@@ -342,40 +342,10 @@ export default function CashierPage() {
                 disabled={loginLoading}
                 className="w-full py-3.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-sm font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
               >
-                {loginLoading ? "Verifying PIN..." : "Open POS Terminal"}
+                {loginLoading ? "جاري التحقق..." : "دخول نقطة البيع / Open POS"}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
-
-            <div className="mt-6 pt-5 border-t border-[#EBD3C8]/60">
-              <span className="text-[11px] uppercase tracking-wider font-mono text-neutral-400 block mb-2">
-                Authorized Cashiers / حسابات الكاشير:
-              </span>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUsernameInput("sajji");
-                    setPinInput("2026");
-                  }}
-                  className="p-2.5 rounded-xl border border-[#EBD3C8] text-left hover:bg-[#FDF4F0] transition-colors cursor-pointer"
-                >
-                  <span className="font-semibold block text-[#2B0B0D]">Sajji</span>
-                  <span className="text-neutral-500 font-mono text-[11px]">PIN: 2026</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setUsernameInput("ahmad");
-                    setPinInput("1111");
-                  }}
-                  className="p-2.5 rounded-xl border border-[#EBD3C8] text-left hover:bg-[#FDF4F0] transition-colors cursor-pointer"
-                >
-                  <span className="font-semibold block text-[#2B0B0D]">Ahmad</span>
-                  <span className="text-neutral-500 font-mono text-[11px]">PIN: 1111</span>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -522,7 +492,7 @@ export default function CashierPage() {
                           performLookup(val);
                         }
                       }}
-                      placeholder="482910"
+                      placeholder="••••••"
                       className="flex-1 px-3 sm:px-4 py-3 sm:py-3.5 rounded-2xl border border-[#EBD3C8] text-center font-pin text-xl sm:text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                       autoFocus
                     />
@@ -562,7 +532,7 @@ export default function CashierPage() {
                         type="text"
                         value={qrQuery}
                         onChange={(e) => setQrQuery(e.target.value)}
-                        placeholder="Paste or type QR token (e.g. cove_token_...)"
+                        placeholder="رمز الـ QR"
                         className="flex-1 px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                       />
                       <button

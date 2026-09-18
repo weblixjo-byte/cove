@@ -9,13 +9,64 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized: Super Admin access required" }, { status: 403 });
     }
 
-    const { title, message, bonusPoints } = await req.json();
+    const { title, message, bonusPoints, audience = "all", targetCustomerId } = await req.json();
 
     if (!title || !message) {
       return NextResponse.json({ error: "Notification title and message are required" }, { status: 400 });
     }
 
-    // 1. Create broadcast notification
+    if (audience === "single" && !targetCustomerId) {
+      return NextResponse.json({ error: "Target customer must be selected" }, { status: 400 });
+    }
+
+    const bonus = Number(bonusPoints) || 0;
+    let bonusCreditedCount = 0;
+
+    if (audience === "single") {
+      const targetUser = await dbService.findUserById(targetCustomerId);
+      if (!targetUser) {
+        return NextResponse.json({ error: "Target customer not found" }, { status: 404 });
+      }
+
+      const notif = await dbService.createNotification({
+        customerId: targetUser._id,
+        title: title.trim(),
+        message: message.trim(),
+        type: bonus > 0 ? "POINTS_EARNED" : "BROADCAST",
+      });
+
+      if (bonus > 0) {
+        const newBalance = (targetUser.pointsBalance || 0) + bonus;
+        const newLifetime = (targetUser.lifetimePoints || 0) + bonus;
+        await dbService.updateUser(targetUser._id, {
+          pointsBalance: newBalance,
+          lifetimePoints: newLifetime,
+        });
+
+        await dbService.createTransaction({
+          type: "EARN",
+          customerId: targetUser._id,
+          customerName: targetUser.name,
+          customerPhone: targetUser.phone,
+          billAmount: 0,
+          points: bonus,
+          balanceAfter: newBalance,
+          referenceCode: `NOTIF-${Math.floor(100000 + Math.random() * 900000)}`,
+          notes: `Targeted Promo: ${title}`,
+        });
+        bonusCreditedCount = 1;
+      }
+
+      return NextResponse.json({
+        success: true,
+        audience: "single",
+        recipientName: targetUser.name,
+        notification: notif,
+        bonusCreditedTo: bonusCreditedCount,
+      });
+    }
+
+    // Default: Broadcast to all
     const notif = await dbService.createNotification({
       customerId: "all",
       title: title.trim(),
@@ -23,10 +74,7 @@ export async function POST(req: Request) {
       type: "BROADCAST",
     });
 
-    // 2. If bonus points are included, credit them to all customers
-    let bonusCreditedCount = 0;
-    const bonus = Number(bonusPoints);
-    if (!isNaN(bonus) && bonus > 0) {
+    if (bonus > 0) {
       const customers = await dbService.getTopCustomers(500);
       for (const cust of customers) {
         const newBalance = cust.pointsBalance + bonus;
@@ -53,6 +101,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
+      audience: "all",
       notification: notif,
       bonusCreditedTo: bonusCreditedCount,
     });

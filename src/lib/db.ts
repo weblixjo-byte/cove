@@ -335,6 +335,24 @@ export const dbService = {
       .slice(0, limit);
   },
 
+  async getAllCustomers(limit: number = 200): Promise<IUser[]> {
+    const { isMongoose } = await connectDB();
+    if (isMongoose) {
+      try {
+        const list = await User.find({ role: "customer" })
+          .sort({ createdAt: -1 })
+          .limit(limit)
+          .lean();
+        return JSON.parse(JSON.stringify(list));
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    return [...memoryStore.users.filter((u) => u.role === "customer")]
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+      .slice(0, limit);
+  },
+
   // Transactions
   async createTransaction(data: Omit<ITransaction, "_id" | "createdAt">): Promise<ITransaction> {
     const { isMongoose } = await connectDB();

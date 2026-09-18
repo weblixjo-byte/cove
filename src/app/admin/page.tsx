@@ -76,9 +76,9 @@ const i18n = {
     currency: "Store Currency Symbol",
     welcomeBonus: "Signup Welcome Bonus (Points)",
     pointsPerUnit: "Earning Ratio (Points per 1.000 Currency)",
-    pointsPerUnitHelp: (curr: string) => `e.g. 10 means spending 1 ${curr} earns 10 points.`,
+    pointsPerUnitHelp: (curr: string) => `Points awarded per 1.000 ${curr} spent.`,
     discountPer100: (curr: string) => `Redemption Rate (${curr} discount per 100 pts)`,
-    discountPer100Help: (curr: string) => `e.g. 1.00 means 100 points = 1.000 ${curr} discount.`,
+    discountPer100Help: (curr: string) => `Discount value per 100 points redeemed.`,
     themePalette: "Theme Palette (Editorial Minimalist)",
     primaryColor: "Primary Color",
     accentColor: "Action Accent Color",
@@ -117,15 +117,23 @@ const i18n = {
     usernameForPOS: "Username (for POS login)",
     createAccount: "Create Account",
     broadcastTitle: "Customer Broadcast Center",
-    broadcastSubtitle: "Send in-app notifications and promotional loyalty points boosts to all members.",
+    broadcastSubtitle: "Send in-app notifications and promotional loyalty points boosts to all members or a specific member.",
     announcementTitle: "Announcement Title",
     notificationMessage: "Notification Message",
-    optionalBonus: "Optional Bonus Points Gift (Points credited to every member)",
-    bonusHelp: "Set to 0 for a standard announcement without a points grant.",
+    optionalBonus: "Optional Bonus Points Gift",
+    bonusHelp: "Set to 0 for a standard notification without a points grant.",
+    audienceLabel: "Target Audience",
+    audienceAll: "All Members (Broadcast)",
+    audienceSingle: "Specific Member (Direct)",
+    selectCustomer: "Select Customer",
+    noCustomersFound: "No registered customers found",
     sendBroadcast: "Send Broadcast to All Members",
-    sendingBroadcast: "Dispatching Broadcast...",
-    broadcastSuccessMsg: (bonusCount?: number, bonus?: string) =>
-      `Broadcast sent successfully! ${bonusCount ? `+${bonus} points credited to ${bonusCount} members.` : ""}`,
+    sendToSingle: "Send Direct Notification",
+    sendingBroadcast: "Dispatching Notification...",
+    broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string) =>
+      recipientName
+        ? `Notification sent to ${recipientName}! ${bonusCount ? `+${bonus} bonus points credited.` : ""}`
+        : `Broadcast sent successfully! ${bonusCount ? `+${bonus} points credited to ${bonusCount} members.` : ""}`,
   },
   ar: {
     langToggle: "English",
@@ -172,9 +180,9 @@ const i18n = {
     currency: "رمز العملة",
     welcomeBonus: "نقاط الترحيب عند تسجيل زبون جديد",
     pointsPerUnit: "معامل كسب النقاط (نقاط لكل 1 وحدة نقدية)",
-    pointsPerUnitHelp: (curr: string) => `مثال: 10 تعني أن إنفاق 1 ${curr} يمنح الزبون 10 نقاط.`,
+    pointsPerUnitHelp: (curr: string) => `النقاط الممنوحة للزبون لكل 1.000 ${curr} من قيمة الطلب.`,
     discountPer100: (curr: string) => `قيمة الخصم بالـ (${curr}) لكل 100 نقطة`,
-    discountPer100Help: (curr: string) => `مثال: 1.00 تعني أن 100 نقطة تمنح خصماً بقيمة 1.000 ${curr}.`,
+    discountPer100Help: (curr: string) => `قيمة الخصم المالي الفعلي لكل 100 نقطة مستبدلة.`,
     themePalette: "لوحة ألوان الهوية البصرية (Editorial Minimalist)",
     primaryColor: "اللون الأساسي (Primary)",
     accentColor: "لون التفاعل والإبراز (Accent)",
@@ -212,16 +220,24 @@ const i18n = {
     fullName: "الاسم الكامل",
     usernameForPOS: "اسم المستخدم (لتسجيل الدخول في الكاشير)",
     createAccount: "إنشاء الحساب",
-    broadcastTitle: "مركز الإرسال والإعلانات العامة للزبائن",
-    broadcastSubtitle: "إرسال إشعارات مباشرة داخل التطبيق مع إمكانية منح نقاط ولاء مجانية لكافة الأعضاء فوراً.",
+    broadcastTitle: "مركز الإرسال والإشعارات للزبائن",
+    broadcastSubtitle: "إرسال إشعارات مباشرة داخل التطبيق لجميع الأعضاء أو لزبون محدد، مع إمكانية منح نقاط مجانية فوراً.",
     announcementTitle: "عنوان الإشعار أو العرض",
     notificationMessage: "نص الرسالة أو الإشعار",
-    optionalBonus: "منحة نقاط ولاء مجانية إضافية (تُضاف تلقائياً لكل زبون مسجل)",
+    optionalBonus: "منحة نقاط ولاء مجانية إضافية (تُضاف لحساب الزبون)",
     bonusHelp: "اتركها 0 لإرسال إشعار عادي بدون إضافة نقاط مجانية.",
+    audienceLabel: "الجمهور المستهدف",
+    audienceAll: "جميع الأعضاء (إشعار عام)",
+    audienceSingle: "زبون محدد (إشعار مخصص)",
+    selectCustomer: "اختر الزبون",
+    noCustomersFound: "لا يوجد زبائن مسجلين حالياً",
     sendBroadcast: "إرسال الإشعار لجميع الزبائن",
+    sendToSingle: "إرسال الإشعار للزبون المحدد",
     sendingBroadcast: "جاري إرسال الإشعار والمنحة...",
-    broadcastSuccessMsg: (bonusCount?: number, bonus?: string) =>
-      `تم إرسال الإشعار بنجاح! ${bonusCount ? `وتمت إضافة +${bonus} نقطة مجانية لـ ${bonusCount} زبون.` : ""}`,
+    broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string) =>
+      recipientName
+        ? `تم إرسال الإشعار بنجاح للزبون (${recipientName})! ${bonusCount ? `وتمت إضافة +${bonus} نقطة لحسابه.` : ""}`
+        : `تم إرسال الإشعار بنجاح! ${bonusCount ? `وتمت إضافة +${bonus} نقطة مجانية لـ ${bonusCount} زبون.` : ""}`,
   },
 };
 
@@ -248,8 +264,8 @@ export default function AdminPage() {
   const [loadingSession, setLoadingSession] = useState(true);
 
   // Login Form State
-  const [emailInput, setEmailInput] = useState("admin@covecoffee.com");
-  const [passwordInput, setPasswordInput] = useState("CoveCoffee#2026");
+  const [emailInput, setEmailInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
 
@@ -283,15 +299,22 @@ export default function AdminPage() {
     name: "",
     username: "",
     branchName: "Downtown Flagship",
-    staffPin: "1234",
+    staffPin: "",
   });
 
-  // Broadcast State
+  // Customer List for Targeted Notifications
+  const [customersList, setCustomersList] = useState<{ id: string; name: string; email?: string; phone?: string; pointsBalance: number }[]>([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
+
+  // Broadcast & Targeted Notification State
+  const [broadcastAudience, setBroadcastAudience] = useState<"all" | "single">("all");
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
   const [broadcastBonus, setBroadcastBonus] = useState<string>("0");
   const [broadcastSending, setBroadcastSending] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState<string | null>(null);
+  const [broadcastError, setBroadcastError] = useState<string | null>(null);
 
   // Load saved language preference
   useEffect(() => {
@@ -365,6 +388,20 @@ export default function AdminPage() {
     }
   };
 
+  // Load Customers for targeted broadcast
+  const loadCustomers = async () => {
+    try {
+      setLoadingCustomers(true);
+      const res = await fetch("/api/admin/customers");
+      const data = await res.json();
+      if (data.success) setCustomersList(data.customers);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingCustomers(false);
+    }
+  };
+
   useEffect(() => {
     checkAdminSession();
   }, []);
@@ -374,6 +411,7 @@ export default function AdminPage() {
       loadMetrics();
       loadRewards();
       loadCashiers();
+      loadCustomers();
       setBrandForm({
         storeName: config.storeName,
         tagline: config.tagline,
@@ -523,11 +561,17 @@ export default function AdminPage() {
     }
   };
 
-  // Send Broadcast Notification
+  // Send Broadcast / Targeted Notification
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (broadcastAudience === "single" && !selectedCustomerId) {
+      setBroadcastError(lang === "ar" ? "يرجى اختيار الزبون المستهدف" : "Please select target customer");
+      return;
+    }
+
     setBroadcastSending(true);
     setBroadcastSuccess(null);
+    setBroadcastError(null);
 
     try {
       const res = await fetch("/api/admin/broadcast", {
@@ -537,18 +581,25 @@ export default function AdminPage() {
           title: broadcastTitle,
           message: broadcastMessage,
           bonusPoints: parseInt(broadcastBonus) || 0,
+          audience: broadcastAudience,
+          targetCustomerId: broadcastAudience === "single" ? selectedCustomerId : undefined,
         }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setBroadcastSuccess(t.broadcastSuccessMsg(data.bonusCreditedTo, broadcastBonus));
+        setBroadcastSuccess(
+          t.broadcastSuccessMsg(data.bonusCreditedTo, broadcastBonus, data.recipientName)
+        );
         setBroadcastTitle("");
         setBroadcastMessage("");
         setBroadcastBonus("0");
         await loadMetrics();
+        await loadCustomers();
+      } else {
+        setBroadcastError(data.error || "Failed to send notification");
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      setBroadcastError(e.message || "Network error");
     } finally {
       setBroadcastSending(false);
     }
@@ -636,15 +687,6 @@ export default function AdminPage() {
                 {loginLoading ? t.authenticating : t.signIn}
               </button>
             </form>
-
-            <div className="mt-6 pt-5 border-t border-[#EBD3C8]/60 text-center">
-              <span className="text-[11px] font-mono text-neutral-400 block mb-1">
-                {t.defaultCredentials}
-              </span>
-              <p className="text-xs font-mono font-medium text-[#3F1215]" dir="ltr">
-                admin@covecoffee.com / CoveCoffee#2026
-              </p>
-            </div>
           </div>
         </div>
 
@@ -1066,7 +1108,7 @@ export default function AdminPage() {
                     type="text"
                     value={brandForm.currency || ""}
                     onChange={(e) => setBrandForm({ ...brandForm, currency: e.target.value })}
-                    placeholder="e.g. KWD, USD, SAR, AED"
+                    placeholder="JOD"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm font-mono focus:ring-2 focus:ring-neutral-900/10"
                     required
                   />
@@ -1331,7 +1373,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 5: BROADCAST CENTER */}
+        {/* TAB 5: BROADCAST / NOTIFICATION CENTER */}
         {activeTab === "broadcast" && (
           <div className="max-w-xl space-y-6">
             <div>
@@ -1351,6 +1393,74 @@ export default function AdminPage() {
                 </div>
               )}
 
+              {broadcastError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{broadcastError}</span>
+                </div>
+              )}
+
+              {/* Audience Selector */}
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2">
+                  {t.audienceLabel}
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setBroadcastAudience("all")}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-medium text-center transition-all cursor-pointer ${
+                      broadcastAudience === "all"
+                        ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs font-semibold"
+                        : "bg-[#FAF5F2] text-neutral-600 border-[#EBD3C8] hover:bg-white"
+                    }`}
+                  >
+                    {t.audienceAll}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBroadcastAudience("single")}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-medium text-center transition-all cursor-pointer ${
+                      broadcastAudience === "single"
+                        ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs font-semibold"
+                        : "bg-[#FAF5F2] text-neutral-600 border-[#EBD3C8] hover:bg-white"
+                    }`}
+                  >
+                    {t.audienceSingle}
+                  </button>
+                </div>
+              </div>
+
+              {/* Single Customer Selection Dropdown */}
+              {broadcastAudience === "single" && (
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
+                    {t.selectCustomer}
+                  </label>
+                  {loadingCustomers ? (
+                    <div className="p-3 text-xs text-neutral-400 font-mono">جاري تحميل قائمة الزبائن...</div>
+                  ) : customersList.length === 0 ? (
+                    <div className="p-3 text-xs text-amber-800 bg-amber-50 rounded-xl border border-amber-200">
+                      {t.noCustomersFound}
+                    </div>
+                  ) : (
+                    <select
+                      value={selectedCustomerId}
+                      onChange={(e) => setSelectedCustomerId(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
+                      required
+                    >
+                      <option value="">-- {t.selectCustomer} --</option>
+                      {customersList.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} {c.phone ? `(${c.phone})` : c.email ? `(${c.email})` : ""} — {c.pointsBalance} نقطة
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
                   {t.announcementTitle}
@@ -1359,7 +1469,7 @@ export default function AdminPage() {
                   type="text"
                   value={broadcastTitle}
                   onChange={(e) => setBroadcastTitle(e.target.value)}
-                  placeholder={lang === "ar" ? "مثال: خصم مضاعف لنهاية الأسبوع بفرع المارينا" : "e.g. Weekend Double Points Weekend at Marina Branch"}
+                  placeholder={lang === "ar" ? "عنوان الإشعار أو العرض" : "Notification Title"}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
@@ -1373,7 +1483,7 @@ export default function AdminPage() {
                   rows={4}
                   value={broadcastMessage}
                   onChange={(e) => setBroadcastMessage(e.target.value)}
-                  placeholder={lang === "ar" ? "اكتب تفاصيل الإعلان هنا..." : "Write your customer announcement here..."}
+                  placeholder={lang === "ar" ? "اكتب تفاصيل الإشعار أو الرسالة هنا..." : "Write notification message here..."}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
@@ -1402,7 +1512,11 @@ export default function AdminPage() {
                   className="px-6 py-2.5 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 flex items-center gap-2 shadow-xs cursor-pointer active:scale-98"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  {broadcastSending ? t.sendingBroadcast : t.sendBroadcast}
+                  {broadcastSending
+                    ? t.sendingBroadcast
+                    : broadcastAudience === "single"
+                    ? t.sendToSingle
+                    : t.sendBroadcast}
                 </button>
               </div>
             </form>
@@ -1431,7 +1545,7 @@ export default function AdminPage() {
                   type="text"
                   value={newReward.title}
                   onChange={(e) => setNewReward({ ...newReward, title: e.target.value })}
-                  placeholder={lang === "ar" ? "مثال: قهوة مقطرة كيمكس" : "e.g. Single Origin Pour-Over"}
+                  placeholder={lang === "ar" ? "اسم المكافأة" : "Reward Title"}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
@@ -1443,7 +1557,7 @@ export default function AdminPage() {
                   type="text"
                   value={newReward.description}
                   onChange={(e) => setNewReward({ ...newReward, description: e.target.value })}
-                  placeholder={lang === "ar" ? "إيحاءات الفواكه والمكسرات" : "Notes of jasmine and peach"}
+                  placeholder={lang === "ar" ? "تفاصيل المكافأة أو المشروب" : "Reward description"}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                 />
               </div>
@@ -1519,7 +1633,7 @@ export default function AdminPage() {
                   type="text"
                   value={newCashier.name}
                   onChange={(e) => setNewCashier({ ...newCashier, name: e.target.value })}
-                  placeholder="e.g. Abdullah Al-Ghanim"
+                  placeholder={lang === "ar" ? "الاسم الكامل للموظف" : "Staff Full Name"}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
@@ -1531,7 +1645,7 @@ export default function AdminPage() {
                   type="text"
                   value={newCashier.username}
                   onChange={(e) => setNewCashier({ ...newCashier, username: e.target.value })}
-                  placeholder="e.g. cashier3"
+                  placeholder="cashier"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   dir="ltr"
                   required
@@ -1557,7 +1671,7 @@ export default function AdminPage() {
                     maxLength={4}
                     value={newCashier.staffPin}
                     onChange={(e) => setNewCashier({ ...newCashier, staffPin: e.target.value })}
-                    placeholder="1234"
+                    placeholder="••••"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                     required
                   />

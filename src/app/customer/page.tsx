@@ -96,6 +96,11 @@ interface NotificationItem {
   createdAt: string;
 }
 
+const CUSTOMER_CACHE_KEY = "cove_customer_cached";
+const CUSTOMER_ID_KEY = "cove_customer_id";
+const CUSTOMER_TOKEN_KEY = "cove_customer_token";
+const TRANSACTIONS_CACHE_KEY = "cove_transactions_cached";
+
 export default function CustomerPage() {
   const { config, formatCurrency } = useBrand();
 
@@ -126,21 +131,41 @@ export default function CustomerPage() {
   const [googleRedirecting, setGoogleRedirecting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Fetch Dashboard Data
+  // Helper for dual persistence headers
+  const getAuthHeaders = (): Record<string, string> => {
+    const headers: Record<string, string> = {};
+    if (typeof window !== "undefined") {
+      const savedToken = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+      const savedId = localStorage.getItem(CUSTOMER_ID_KEY);
+      if (savedToken) headers["x-customer-auth"] = savedToken;
+      if (savedId) headers["x-customer-id"] = savedId;
+    }
+    return headers;
+  };
+
+  // Fetch Dashboard Data with dual persistence fallback
   const loadDashboard = async () => {
     try {
-      setLoading(true);
-      const res = await fetch("/api/customer/dashboard");
+      const headers = getAuthHeaders();
+      const res = await fetch("/api/customer/dashboard", { headers });
       const data = await res.json();
       if (res.ok && data.success) {
         setCustomer(data.customer);
         setTransactions(data.transactions || []);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(CUSTOMER_CACHE_KEY, JSON.stringify(data.customer));
+          localStorage.setItem(CUSTOMER_ID_KEY, data.customer.id);
+          if (data.transactions) {
+            localStorage.setItem(TRANSACTIONS_CACHE_KEY, JSON.stringify(data.transactions));
+          }
+        }
       } else {
-        setCustomer(null);
+        if (typeof window !== "undefined" && !localStorage.getItem(CUSTOMER_ID_KEY)) {
+          setCustomer(null);
+        }
       }
     } catch (e) {
       console.error(e);
-      setCustomer(null);
     } finally {
       setLoading(false);
     }
@@ -149,7 +174,8 @@ export default function CustomerPage() {
   // Fetch Rewards
   const loadRewards = async () => {
     try {
-      const res = await fetch("/api/customer/rewards");
+      const headers = getAuthHeaders();
+      const res = await fetch("/api/customer/rewards", { headers });
       const data = await res.json();
       if (data.success) {
         setRewards(data.rewards || []);
@@ -162,7 +188,8 @@ export default function CustomerPage() {
   // Fetch Notifications
   const loadNotifications = async () => {
     try {
-      const res = await fetch("/api/customer/notifications");
+      const headers = getAuthHeaders();
+      const res = await fetch("/api/customer/notifications", { headers });
       const data = await res.json();
       if (data.success) {
         setNotifications(data.notifications || []);
@@ -173,9 +200,29 @@ export default function CustomerPage() {
   };
 
   useEffect(() => {
+    // 1. Instant Cache Retrieval for 0ms render & permanent login preservation
+    try {
+      if (typeof window !== "undefined") {
+        const cachedCustomer = localStorage.getItem(CUSTOMER_CACHE_KEY);
+        const cachedTxs = localStorage.getItem(TRANSACTIONS_CACHE_KEY);
+        if (cachedCustomer) {
+          setCustomer(JSON.parse(cachedCustomer));
+          if (cachedTxs) setTransactions(JSON.parse(cachedTxs));
+          setLoading(false);
+        }
+      }
+    } catch (e) {
+      console.warn("Cache load failed", e);
+    }
+
     loadDashboard();
     loadRewards();
     loadNotifications();
+
+    // Auto-poll for live notifications every 20 seconds
+    const interval = setInterval(() => {
+      loadNotifications();
+    }, 20000);
 
     // Check if redirected with OAuth error parameter
     if (typeof window !== "undefined") {
@@ -183,7 +230,7 @@ export default function CustomerPage() {
       const err = params.get("error");
       if (err) {
         if (err === "google_not_configured") {
-          setAuthError("لم يتم ضبط مفتاح GOOGLE_CLIENT_ID في متغيرات بيئة Vercel أو الخادم. يرجى إضافته في إعدادات البيئة بالاستضافة، أو تجربة الحسابات التجريبية بالأسفل فوراً.");
+          setAuthError("لم يتم ضبط مفتاح GOOGLE_CLIENT_ID في متغيرات بيئة Vercel أو الخادم. يرجى إضافته في إعدادات البيئة بالاستضافة، أو تسجيل الدخول المباشر بالأسفل.");
         } else if (err === "token_exchange_failed") {
           setAuthError("فشل استبدال رمز تسجيل الدخول مع Google (Token Exchange). تأكد من صحة GOOGLE_CLIENT_SECRET ومطابقة Redirect URI.");
         } else if (err === "missing_credentials") {
@@ -197,6 +244,8 @@ export default function CustomerPage() {
         }
       }
     }
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleGoogleRedirect = () => {
@@ -232,6 +281,12 @@ export default function CustomerPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
+        if (typeof window !== "undefined") {
+          if (data.token) localStorage.setItem(CUSTOMER_TOKEN_KEY, data.token);
+          if (data.user?._id || data.user?.id) {
+            localStorage.setItem(CUSTOMER_ID_KEY, data.user._id || data.user.id);
+          }
+        }
         setShowGoogleModal(false);
         if (data.isNewUser) {
           confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
@@ -263,6 +318,12 @@ export default function CustomerPage() {
   // Logout
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(CUSTOMER_CACHE_KEY);
+      localStorage.removeItem(CUSTOMER_ID_KEY);
+      localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+      localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
+    }
     setCustomer(null);
     setActiveTab("card");
   };
@@ -297,7 +358,8 @@ export default function CustomerPage() {
 
   const markAllRead = async () => {
     try {
-      await fetch("/api/customer/notifications", { method: "POST" });
+      const headers = getAuthHeaders();
+      await fetch("/api/customer/notifications", { method: "POST", headers });
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (e) {
       console.error(e);
@@ -383,13 +445,13 @@ export default function CustomerPage() {
                 }}
                 className="text-xs text-neutral-600 hover:text-neutral-900 underline font-medium py-1 px-2 rounded-lg hover:bg-neutral-50 transition-colors cursor-pointer"
               >
-                أو تجربة التسجيل بحساب Google يدوياً (للاختبار السريع)
+                أو تسجيل الدخول بالاسم والبريد الإلكتروني مباشرة
               </button>
             </div>
 
             <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center justify-center gap-2 text-xs text-neutral-400 font-mono">
               <ShieldCheck className="w-4 h-4 text-emerald-700" />
-              <span>Secure Google Single Sign-On</span>
+              <span>Secure Digital Pass Authentication</span>
             </div>
           </div>
         </div>
@@ -398,16 +460,18 @@ export default function CustomerPage() {
           © 2026 {config.storeName} • Digital Member Pass
         </div>
 
-        {/* MODAL: Google Account Selector / Direct Registration */}
+        {/* MODAL: Direct Account Sign-In / Registration */}
         {showGoogleModal && (
           <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-neutral-200 rounded-3xl p-7 max-w-md w-full shadow-2xl">
-              {/* Google Modal Header */}
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-7 max-w-md w-full shadow-2xl">
+              {/* Modal Header */}
               <div className="flex items-center justify-between pb-4 mb-4 border-b border-neutral-100">
                 <div className="flex items-center gap-2.5">
-                  <GoogleIcon className="w-5 h-5" />
+                  <div className="w-6 h-6 rounded-lg bg-[#3F1215] flex items-center justify-center text-white text-[10px] font-bold">
+                    C
+                  </div>
                   <span className="text-sm font-semibold text-neutral-800">
-                    تسجيل الدخول بحساب Google
+                    بطاقة العضوية الرقمية
                   </span>
                 </div>
                 <button
@@ -415,18 +479,18 @@ export default function CustomerPage() {
                     setShowGoogleModal(false);
                     setGoogleError(null);
                   }}
-                  className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 transition-colors"
+                  className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="mb-4">
-                <h3 className="text-sm font-semibold text-neutral-900">
-                  فتح حساب زبون جديد عبر Google
+                <h3 className="text-sm font-semibold text-neutral-900 font-serif">
+                  تسجيل الدخول / فتح بطاقة ولاء
                 </h3>
-                <p className="text-xs text-neutral-500">
-                  للانضمام إلى برنامج ولاء <strong className="text-neutral-700">{config.storeName}</strong>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  برنامج ولاء ومكافآت <strong className="text-neutral-800">{config.storeName}</strong>
                 </p>
               </div>
 
@@ -437,22 +501,22 @@ export default function CustomerPage() {
                 </div>
               )}
 
-              {/* Clean Google Account Form */}
+              {/* Clean Account Form */}
               <form onSubmit={handleCustomGoogleSubmit} className="space-y-4 mb-4">
-                <div className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 text-xs text-neutral-600 mb-2">
-                  أدخل اسمك وبريدك الإلكتروني على Google لفتح بطاقة ولاء رقمية جديدة وحفظها في قاعدة البيانات السحابية:
+                <div className="p-3 rounded-2xl bg-[#FAF5F2] border border-[#EBD3C8] text-xs text-neutral-700 mb-2">
+                  أدخل الاسم والبريد الإلكتروني للوصول إلى بطاقة الولاء الخاصة بك فوراً وحفظ نقاطك:
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-neutral-700 mb-1">
-                    الاسم الكامل / Full Name
+                    الاسم الكامل
                   </label>
                   <input
                     type="text"
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
-                    placeholder="مثال: يوسف الشمري"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-xs focus:ring-2 focus:ring-neutral-900/10"
+                    placeholder="الاسم الكامل"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                     required
                     autoFocus
                   />
@@ -460,14 +524,14 @@ export default function CustomerPage() {
 
                 <div>
                   <label className="block text-xs font-medium text-neutral-700 mb-1">
-                    بريد Google الإلكتروني / Google Email
+                    البريد الإلكتروني
                   </label>
                   <input
                     type="email"
                     value={customEmail}
                     onChange={(e) => setCustomEmail(e.target.value)}
-                    placeholder="name@gmail.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-xs font-mono focus:ring-2 focus:ring-neutral-900/10"
+                    placeholder="name@domain.com"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                     required
                   />
                 </div>
@@ -476,22 +540,22 @@ export default function CustomerPage() {
                   <button
                     type="button"
                     onClick={() => setShowGoogleModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-neutral-200 text-xs text-neutral-600 hover:bg-neutral-50"
+                    className="px-4 py-2.5 rounded-xl border border-[#EBD3C8] text-xs text-neutral-600 hover:bg-neutral-50 cursor-pointer"
                   >
                     إلغاء
                   </button>
                   <button
                     type="submit"
                     disabled={googleLoading}
-                    className="flex-1 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-2.5 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
                   >
-                    {googleLoading ? "جاري فتح الحساب..." : "تسجيل / فتح الحساب"}
+                    {googleLoading ? "جاري الدخول..." : "متابعة الدخول للبطاقة"}
                   </button>
                 </div>
               </form>
 
               <p className="text-center text-[11px] text-neutral-400">
-                To continue, Google will share your name and email address with {config.storeName}.
+                بطاقتك الرقمية تظل محفوظة ومسجلة بشكل دائم على هذا الجهاز.
               </p>
             </div>
           </div>
@@ -547,6 +611,34 @@ export default function CustomerPage() {
 
       {/* Main Container */}
       <main className="max-w-md mx-auto w-full px-4 pt-4 flex-1">
+        {/* Real-time Notification Banner */}
+        {unreadCount > 0 && notifications.length > 0 && !notifications[0].isRead && activeTab !== "notifications" && (
+          <div
+            onClick={() => {
+              setActiveTab("notifications");
+              markAllRead();
+            }}
+            className="mb-4 p-3.5 rounded-2xl bg-[#3F1215] text-[#FEECE2] shadow-md flex items-center justify-between gap-3 cursor-pointer hover:bg-[#2B0B0D] transition-all border border-[#3F1215] animate-pulse"
+          >
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <div className="w-8 h-8 rounded-xl bg-[#FEECE2]/20 flex items-center justify-center flex-shrink-0">
+                <Bell className="w-4 h-4 text-[#FEECE2]" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-xs font-semibold truncate text-[#FEECE2]">
+                  {notifications[0].title}
+                </p>
+                <p className="text-[11px] text-[#FEECE2]/80 truncate">
+                  {notifications[0].message}
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-white/15 text-[#FEECE2] flex-shrink-0">
+              عرض
+            </span>
+          </div>
+        )}
+
         {/* Navigation Pills */}
         <div className="flex bg-[#EED9D1]/50 p-1 rounded-xl mb-4 text-xs font-medium border border-[#EBD3C8]">
           <button

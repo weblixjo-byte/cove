@@ -89,6 +89,7 @@ export async function POST(req: Request) {
     const response = NextResponse.json({
       success: true,
       isNewUser,
+      token,
       user: {
         id: user._id,
         name: user.name,
@@ -100,14 +101,14 @@ export async function POST(req: Request) {
       },
     });
 
-    // Set secure HTTP-only session cookie
+    // Set permanent 1-year secure session cookie
     response.cookies.set({
       name: TOKEN_COOKIE_NAME,
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 30 * 24 * 60 * 60, // 30 days
+      maxAge: 365 * 24 * 60 * 60, // 1 year
       path: "/",
     });
 
