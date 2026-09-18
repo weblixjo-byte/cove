@@ -19,11 +19,11 @@ import {
   Camera,
   Delete,
   Check,
-  ChevronDown,
   Smartphone,
   Share2,
 } from "lucide-react";
 import QrCameraScanner from "@/components/QrCameraScanner";
+import CustomGlassSelect from "@/components/CustomGlassSelect";
 
 interface POSCustomer {
   id: string;
@@ -1002,36 +1002,32 @@ export default function CashierPage() {
                     <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
                       Select Reward or Discount Reason
                     </label>
-                    <div className="relative">
-                      <select
-                        value={rewardTitle}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setRewardTitle(val);
-                          const matched = activeRewards.find((r) => r.title === val);
-                          if (matched) {
-                            setRedeemPoints(matched.pointsRequired.toString());
-                          }
-                        }}
-                        className="glass-select w-full pr-10"
-                      >
-                        {activeRewards.length > 0 ? (
-                          activeRewards.map((r) => (
-                            <option key={r._id} value={r.title}>
-                              {r.title} ({r.pointsRequired} pts)
-                            </option>
-                          ))
-                        ) : (
-                          <>
-                            <option value="Specialty Flat White / Latte">Specialty Flat White / Latte (80 pts)</option>
-                            <option value="Kyoto Cold Brew">Kyoto Cold Brew (120 pts)</option>
-                            <option value="Fresh French Pistachio Croissant">Fresh French Pistachio Croissant (90 pts)</option>
-                          </>
-                        )}
-                        <option value="Custom Bill Discount">Custom Bill Discount</option>
-                      </select>
-                      <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
+                    <CustomGlassSelect
+                      value={rewardTitle}
+                      onChange={(val) => {
+                        setRewardTitle(val);
+                        const matched = activeRewards.find((r) => r.title === val);
+                        if (matched) {
+                          setRedeemPoints(matched.pointsRequired.toString());
+                        }
+                      }}
+                      placeholder="Select Reward or Reason..."
+                      options={[
+                        ...(activeRewards.length > 0
+                          ? activeRewards.map((r) => ({
+                              value: r.title,
+                              label: r.title,
+                              badge: `${r.pointsRequired} pts`,
+                              subtitle: r.category,
+                            }))
+                          : [
+                              { value: "Specialty Flat White / Latte", label: "Specialty Flat White / Latte", badge: "80 pts" },
+                              { value: "Kyoto Cold Brew", label: "Kyoto Cold Brew", badge: "120 pts" },
+                              { value: "Fresh French Pistachio Croissant", label: "Fresh French Pistachio Croissant", badge: "90 pts" },
+                            ]),
+                        { value: "Custom Bill Discount", label: "Custom Bill Discount", subtitle: "Manual adjustment" },
+                      ]}
+                    />
                   </div>
 
                   <div>

@@ -20,12 +20,12 @@ import {
   ShieldCheck,
   RefreshCw,
   X,
-  ChevronDown,
   Search,
   Upload,
   Camera,
 } from "lucide-react";
 import { IReward, IUser, ITransaction } from "@/lib/types";
+import CustomGlassSelect from "@/components/CustomGlassSelect";
 
 // Bilingual Dictionary for Admin Console
 const i18n = {
@@ -1444,22 +1444,18 @@ export default function AdminPage() {
                       {t.noCustomersFound}
                     </div>
                   ) : (
-                    <div className="relative">
-                      <select
-                        value={selectedCustomerId}
-                        onChange={(e) => setSelectedCustomerId(e.target.value)}
-                        className="glass-select w-full pr-10"
-                        required
-                      >
-                        <option value="">-- {t.selectCustomer} --</option>
-                        {customersList.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name} {c.phone ? `(${c.phone})` : c.email ? `(${c.email})` : ""} — {c.pointsBalance} pts
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
+                    <CustomGlassSelect
+                      value={selectedCustomerId}
+                      onChange={setSelectedCustomerId}
+                      placeholder={`-- ${t.selectCustomer} --`}
+                      searchable={true}
+                      options={customersList.map((c) => ({
+                        value: c.id,
+                        label: c.name,
+                        subtitle: c.phone || c.email || undefined,
+                        badge: `${c.pointsBalance} pts`,
+                      }))}
+                    />
                   )}
                 </div>
               )}
@@ -1707,20 +1703,17 @@ export default function AdminPage() {
                   <label className="block text-xs font-semibold text-[#2B0B0D] mb-1">
                     {t.tblCategory} *
                   </label>
-                  <div className="relative">
-                    <select
-                      value={newReward.category}
-                      onChange={(e) => setNewReward({ ...newReward, category: e.target.value })}
-                      className="glass-select w-full pr-10"
-                    >
-                      <option value="Drinks">Beverages</option>
-                      <option value="Food">Food & Pastries</option>
-                      <option value="Beans">Specialty Beans</option>
-                      <option value="Merchandise">Merchandise</option>
-                      <option value="Special">Special Offers</option>
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
+                  <CustomGlassSelect
+                    value={newReward.category}
+                    onChange={(cat) => setNewReward({ ...newReward, category: cat })}
+                    options={[
+                      { value: "Drinks", label: "Beverages" },
+                      { value: "Food", label: "Food & Pastries" },
+                      { value: "Beans", label: "Specialty Beans" },
+                      { value: "Merchandise", label: "Merchandise" },
+                      { value: "Special", label: "Special Offers" },
+                    ]}
+                  />
                 </div>
               </div>
 
