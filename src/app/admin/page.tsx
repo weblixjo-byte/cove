@@ -130,10 +130,12 @@ const i18n = {
     sendBroadcast: "Send Broadcast to All Members",
     sendToSingle: "Send Direct Notification",
     sendingBroadcast: "Dispatching Notification...",
-    broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string) =>
-      recipientName
-        ? `Notification sent to ${recipientName}! ${bonusCount ? `+${bonus} bonus points credited.` : ""}`
-        : `Broadcast sent successfully! ${bonusCount ? `+${bonus} points credited to ${bonusCount} members.` : ""}`,
+    broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string, pushDevices?: number) => {
+      const pushNote = pushDevices && pushDevices > 0 ? ` (Real push delivered to ${pushDevices} device${pushDevices > 1 ? "s" : ""})` : "";
+      return recipientName
+        ? `Notification sent to ${recipientName}! ${bonusCount ? `+${bonus} bonus points credited.` : ""}${pushNote}`
+        : `Broadcast sent successfully! ${bonusCount ? `+${bonus} points credited to ${bonusCount} members.` : ""}${pushNote}`;
+    },
   },
   ar: {
     langToggle: "English",
@@ -233,10 +235,12 @@ const i18n = {
     sendBroadcast: "إرسال الإشعار لجميع الزبائن",
     sendToSingle: "إرسال الإشعار للزبون المحدد",
     sendingBroadcast: "جاري إرسال الإشعار والمنحة...",
-    broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string) =>
-      recipientName
-        ? `تم إرسال الإشعار بنجاح للزبون (${recipientName})! ${bonusCount ? `وتمت إضافة +${bonus} نقطة لحسابه.` : ""}`
-        : `تم إرسال الإشعار بنجاح! ${bonusCount ? `وتمت إضافة +${bonus} نقطة مجانية لـ ${bonusCount} زبون.` : ""}`,
+    broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string, pushDevices?: number) => {
+      const pushNote = pushDevices && pushDevices > 0 ? ` (وتم بث إشعار حقيقي لـ ${pushDevices} جهاز)` : "";
+      return recipientName
+        ? `تم إرسال الإشعار بنجاح للزبون (${recipientName})! ${bonusCount ? `وتمت إضافة +${bonus} نقطة لحسابه.` : ""}${pushNote}`
+        : `تم إرسال الإشعار بنجاح! ${bonusCount ? `وتمت إضافة +${bonus} نقطة مجانية لـ ${bonusCount} زبون.` : ""}${pushNote}`;
+    },
   },
 };
 
@@ -553,7 +557,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setBroadcastSuccess(
-          t.broadcastSuccessMsg(data.bonusCreditedTo, broadcastBonus, data.recipientName)
+          t.broadcastSuccessMsg(data.bonusCreditedTo, broadcastBonus, data.recipientName, data.pushDevicesSent)
         );
         setBroadcastTitle("");
         setBroadcastMessage("");

@@ -20,6 +20,7 @@ import {
   ChevronRight,
   X,
   AlertCircle,
+  CheckCircle2,
   User,
   Plus,
 } from "lucide-react";
@@ -102,6 +103,17 @@ const CUSTOMER_ID_KEY = "cove_customer_id";
 const CUSTOMER_TOKEN_KEY = "cove_customer_token";
 const TRANSACTIONS_CACHE_KEY = "cove_transactions_cached";
 
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 export default function CustomerPage() {
   const { config, formatCurrency } = useBrand();
 
@@ -113,6 +125,13 @@ export default function CustomerPage() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [activeTab, setActiveTab] = useState<"card" | "rewards" | "history" | "notifications">("card");
   const [copied, setCopied] = useState(false);
+
+  // Web Push Notification State
+  const [pushPermission, setPushPermission] = useState<"default" | "granted" | "denied" | "unsupported">("default");
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+  const [showIosInstallModal, setShowIosInstallModal] = useState(false);
+  const [pushSuccessToast, setPushSuccessToast] = useState<string | null>(null);
 
   // Google Authentication State
   const [showGoogleModal, setShowGoogleModal] = useState(false);
@@ -246,8 +265,101 @@ export default function CustomerPage() {
       }
     }
 
+    // Register Service Worker for PWA & Web Push
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => {
+          if ("PushManager" in window) {
+            reg.pushManager.getSubscription().then((sub) => {
+              if (sub) {
+                setPushSubscribed(true);
+              }
+            });
+          }
+        })
+        .catch((err) => console.warn("SW register warning:", err));
+
+      if (!("Notification" in window) || !("PushManager" in window)) {
+        setPushPermission("unsupported");
+      } else {
+        setPushPermission(Notification.permission);
+      }
+    } else {
+      setPushPermission("unsupported");
+    }
+
     return () => clearInterval(interval);
   }, []);
+
+  const isIosDevice = (): boolean => {
+    if (typeof window === "undefined") return false;
+    const ua = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(ua);
+  };
+
+  const isStandalone = (): boolean => {
+    if (typeof window === "undefined") return false;
+    return (
+      ("standalone" in window.navigator && (window.navigator as any).standalone) ||
+      window.matchMedia("(display-mode: standalone)").matches
+    );
+  };
+
+  const handleEnablePush = async () => {
+    // If iOS and not running as standalone PWA on home screen, guide user first
+    if (isIosDevice() && !isStandalone()) {
+      setShowIosInstallModal(true);
+      return;
+    }
+
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+      alert("متصفحك لا يدعم الإشعارات المباشرة");
+      return;
+    }
+
+    try {
+      setPushLoading(true);
+      const permission = await Notification.requestPermission();
+      setPushPermission(permission);
+
+      if (permission === "granted") {
+        const reg = await navigator.serviceWorker.ready;
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        if (!vapidPublicKey) {
+          console.warn("Missing NEXT_PUBLIC_VAPID_PUBLIC_KEY");
+          return;
+        }
+
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+          });
+        }
+
+        const headers = getAuthHeaders();
+        headers["Content-Type"] = "application/json";
+
+        const res = await fetch("/api/customer/push-subscription", {
+          method: "POST",
+          headers,
+          body: JSON.stringify(sub),
+        });
+
+        if (res.ok) {
+          setPushSubscribed(true);
+          setPushSuccessToast("تم تفعيل الإشعارات بنجاح على هاتفك! 🔔");
+          setTimeout(() => setPushSuccessToast(null), 4000);
+        }
+      }
+    } catch (err: any) {
+      console.error("Push subscription error:", err);
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   const handleGoogleRedirect = () => {
     setGoogleRedirecting(true);
@@ -637,6 +749,38 @@ export default function CustomerPage() {
             <span className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-white/15 text-[#FEECE2] flex-shrink-0">
               عرض
             </span>
+          </div>
+        )}
+
+        {/* Web Push Notification Opt-in Prompt */}
+        {!pushSubscribed && pushPermission !== "denied" && pushPermission !== "unsupported" && (
+          <div className="mb-4 bg-gradient-to-r from-[#3F1215] to-[#52181C] text-[#FEECE2] rounded-3xl p-4 shadow-md border border-[#3F1215] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#FEECE2]/15 flex items-center justify-center flex-shrink-0 text-[#FEECE2]">
+                <Bell className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold leading-tight">تفعيل إشعارات العروض والنقاط 🔔</h4>
+                <p className="text-[10px] text-[#FEECE2]/80 mt-0.5 leading-snug">
+                  استقبل نقاطك والعروض الحصرية مباشرة كإشعار فوري على هاتفك
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleEnablePush}
+              disabled={pushLoading}
+              className="px-3.5 py-2 rounded-xl bg-[#FEECE2] text-[#3F1215] text-xs font-bold hover:bg-white transition-all shadow-xs cursor-pointer active:scale-95 flex-shrink-0"
+            >
+              {pushLoading ? "جاري..." : "تفعيل"}
+            </button>
+          </div>
+        )}
+
+        {/* Push Activation Success Toast */}
+        {pushSuccessToast && (
+          <div className="mb-4 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 shadow-xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <span className="font-medium">{pushSuccessToast}</span>
           </div>
         )}
 
@@ -1124,6 +1268,51 @@ export default function CustomerPage() {
               className="w-full py-3 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors shadow-xs cursor-pointer"
             >
               Done & Return to Pass
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: iOS Add to Home Screen Guidance */}
+      {showIosInstallModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <div className="w-12 h-12 rounded-full bg-[#FAF5F2] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center mx-auto mb-3">
+              <Bell className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-[#2B0B0D] mb-1">
+              تفعيل الإشعارات على أجهزة iPhone
+            </h3>
+            <p className="text-xs text-neutral-500 mb-5 leading-relaxed">
+              تشترط شركة Apple إضافة التطبيق لشاشتك الرئيسية أولاً لتتمكن من استقبال الإشعارات:
+            </p>
+
+            <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-start space-y-3 mb-5 text-xs text-[#2B0B0D]">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  1
+                </span>
+                <span>اضغط على زر المشاركة <strong>⎋ (Share)</strong> في شريط متصفح Safari بالأسفل.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  2
+                </span>
+                <span>اختر <strong>"إضافة إلى الصفحة الرئيسية"</strong> (Add to Home Screen).</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  3
+                </span>
+                <span>افتح تطبيق <strong>Cove</strong> من شاشة هاتفك واضغط "تفعيل الإشعارات".</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowIosInstallModal(false)}
+              className="w-full py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors cursor-pointer"
+            >
+              فهمت، حسناً
             </button>
           </div>
         </div>

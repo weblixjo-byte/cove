@@ -4,7 +4,8 @@ import User from "@/models/User";
 import Transaction from "@/models/Transaction";
 import Reward from "@/models/Reward";
 import Notification from "@/models/Notification";
-import { ITenantConfig, IUser, ITransaction, IReward, INotification } from "./types";
+import PushSubscription from "@/models/PushSubscription";
+import { ITenantConfig, IUser, ITransaction, IReward, INotification, IPushSubscription } from "./types";
 import { seedInitialData } from "./seed-data";
 
 interface MongooseCache {
@@ -35,6 +36,7 @@ class MemoryStore {
   transactions: ITransaction[] = [];
   rewards: IReward[] = [];
   notifications: INotification[] = [];
+  pushSubscriptions: IPushSubscription[] = [];
   seeded: boolean = false;
 
   constructor() {
@@ -620,5 +622,76 @@ export const dbService = {
       topCustomers: topUsers,
       recentTransactions: txs.slice(0, 10),
     };
+  },
+
+  // Web Push Subscriptions
+  async savePushSubscription(data: {
+    userId: string;
+    endpoint: string;
+    keys: { p256dh: string; auth: string };
+    userAgent?: string;
+  }): Promise<IPushSubscription> {
+    const { isMongoose } = await connectDB();
+    if (isMongoose) {
+      try {
+        const doc = await PushSubscription.findOneAndUpdate(
+          { endpoint: data.endpoint },
+          { ...data },
+          { upsert: true, new: true }
+        ).lean();
+        return JSON.parse(JSON.stringify(doc));
+      } catch (e) {
+        console.warn("Mongo savePushSubscription error:", e);
+      }
+    }
+    const idx = memoryStore.pushSubscriptions.findIndex((s) => s.endpoint === data.endpoint);
+    const sub: IPushSubscription = { ...data, _id: "push_" + Date.now() };
+    if (idx >= 0) {
+      memoryStore.pushSubscriptions[idx] = sub;
+    } else {
+      memoryStore.pushSubscriptions.push(sub);
+    }
+    return sub;
+  },
+
+  async getPushSubscriptionsForUser(userId: string): Promise<IPushSubscription[]> {
+    const { isMongoose } = await connectDB();
+    if (isMongoose) {
+      try {
+        const docs = await PushSubscription.find({ userId }).lean();
+        return JSON.parse(JSON.stringify(docs));
+      } catch (e) {
+        console.warn("Mongo getPushSubscriptionsForUser error:", e);
+      }
+    }
+    return memoryStore.pushSubscriptions.filter((s) => s.userId === userId);
+  },
+
+  async getAllPushSubscriptions(): Promise<IPushSubscription[]> {
+    const { isMongoose } = await connectDB();
+    if (isMongoose) {
+      try {
+        const docs = await PushSubscription.find().lean();
+        return JSON.parse(JSON.stringify(docs));
+      } catch (e) {
+        console.warn("Mongo getAllPushSubscriptions error:", e);
+      }
+    }
+    return [...memoryStore.pushSubscriptions];
+  },
+
+  async deletePushSubscription(endpoint: string): Promise<void> {
+    const { isMongoose } = await connectDB();
+    if (isMongoose) {
+      try {
+        await PushSubscription.deleteOne({ endpoint });
+      } catch (e) {
+        console.warn("Mongo deletePushSubscription error:", e);
+      }
+    }
+    const idx = memoryStore.pushSubscriptions.findIndex((s) => s.endpoint === endpoint);
+    if (idx >= 0) {
+      memoryStore.pushSubscriptions.splice(idx, 1);
+    }
   },
 };

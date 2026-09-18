@@ -98,3 +98,15 @@ export interface AuthSession {
   avatarUrl?: string;
   googleId?: string;
 }
+
+export interface IPushSubscription {
+  _id?: string;
+  userId: string;
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+  userAgent?: string;
+  createdAt?: string | Date;
+}
