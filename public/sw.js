@@ -36,11 +36,13 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Cove Coffee House';
   const targetUrl = data.url || '/customer';
 
-  // Safe options compatible across Android Chrome, iOS Safari PWA, and Desktop
+  // Enhanced options compatible across Android Chrome, iOS Safari PWA, and Desktop
   const options = {
     body: data.body || data.message || 'لديك تحديث جديد في رصيد نقاطك ومكافآتك!',
     icon: data.icon || '/icon-192.png',
     badge: data.badge || '/icon-192.png',
+    vibrate: [200, 100, 200],
+    renotify: true,
     data: {
       url: targetUrl,
       time: Date.now(),
@@ -49,11 +51,14 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(title, options).catch(() => {
-      // Fallback for strict browser engines (like early iOS Safari PWA)
+    self.registration.showNotification(title, options).catch((err) => {
+      console.warn('[SW] Full showNotification failed, falling back to minimal options:', err);
       return self.registration.showNotification(title, {
         body: options.body,
         icon: '/icon-192.png',
+      }).catch((minimalErr) => {
+        // Ultimate fallback: plain title and body
+        return self.registration.showNotification(title, { body: options.body });
       });
     })
   );

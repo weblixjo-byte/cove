@@ -5,7 +5,7 @@ import { sendWebPushToUser } from "@/lib/push";
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession();
+    const session = await getSession(req);
     if (!session || (session.role !== "cashier" && session.role !== "super_admin")) {
       return NextResponse.json({ error: "Unauthorized: Cashier access required" }, { status: 403 });
     }

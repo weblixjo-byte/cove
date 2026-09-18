@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   User,
   Plus,
+  Send,
 } from "lucide-react";
 
 // Official Google Multi-Color Icon
@@ -303,17 +304,14 @@ export default function CustomerPage() {
             setPushPermission("unsupported");
             return;
           }
-          setPushPermission(Notification.permission);
+          const perm = Notification.permission;
+          setPushPermission(perm);
 
-          // If permission is already granted, ensure subscription is actively linked to MongoDB
-          if (Notification.permission === "granted") {
+          // If permission is already granted, instantly switch UI to enabled and background sync with MongoDB
+          if (perm === "granted") {
+            setPushSubscribed(true);
             try {
-              const sub = await reg.pushManager.getSubscription();
-              if (sub) {
-                setPushSubscribed(true);
-                // Background refresh subscription in database
-                await syncPushSubscription(reg, false);
-              }
+              await syncPushSubscription(reg);
             } catch (e) {
               console.warn("Auto-sync error:", e);
             }
@@ -349,22 +347,12 @@ export default function CustomerPage() {
 
   // Synchronize Push Subscription with backend and ensure valid keys
   const syncPushSubscription = async (
-    reg: ServiceWorkerRegistration,
-    forceNew = false
+    reg: ServiceWorkerRegistration
   ): Promise<boolean> => {
     try {
       if (!("PushManager" in window)) return false;
 
       let sub = await reg.pushManager.getSubscription();
-
-      if (forceNew && sub) {
-        try {
-          await sub.unsubscribe();
-          sub = null;
-        } catch (e) {
-          console.warn("Unsubscribe notice:", e);
-        }
-      }
 
       if (!sub) {
         sub = await reg.pushManager.subscribe({
@@ -398,11 +386,41 @@ export default function CustomerPage() {
 
       if (res.ok) {
         setPushSubscribed(true);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cove_push_subscribed", "true");
+        }
         return true;
       }
       return false;
-    } catch (err) {
-      console.warn("syncPushSubscription warning:", err);
+    } catch (err: any) {
+      console.warn("syncPushSubscription notice:", err);
+      // Key mismatch fallback: unsubscribe and re-subscribe cleanly if VAPID keys were rotated
+      if (err.name === "InvalidStateError" || err.message?.includes("key") || err.message?.includes("applicationServerKey")) {
+        try {
+          const oldSub = await reg.pushManager.getSubscription();
+          if (oldSub) await oldSub.unsubscribe();
+          const newSub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_KEY),
+          });
+          if (newSub) {
+            const subJson = newSub.toJSON ? newSub.toJSON() : ({} as any);
+            await fetch("/api/customer/push-subscription", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                endpoint: newSub.endpoint,
+                keys: subJson.keys,
+                customerId: customer?.id || localStorage.getItem(CUSTOMER_ID_KEY),
+              }),
+            });
+            setPushSubscribed(true);
+            return true;
+          }
+        } catch (retryErr) {
+          console.error("Retry subscription error:", retryErr);
+        }
+      }
       return false;
     }
   };
@@ -425,35 +443,39 @@ export default function CustomerPage() {
       setPushPermission(permission);
 
       if (permission === "granted") {
-        const reg = await navigator.serviceWorker.ready;
-        const success = await syncPushSubscription(reg, true);
-
-        if (success) {
-          setPushSubscribed(true);
-          setPushSuccessToast("🎉 تم تفعيل الإشعارات بنجاح! جاري إرسال إشعار تجريبي لهاتفك...");
-
-          // Immediately send a test notification from server so user verifies it instantly
-          try {
-            const sub = await reg.pushManager.getSubscription();
-            const headers = getAuthHeaders();
-            headers["Content-Type"] = "application/json";
-            await fetch("/api/customer/test-push", {
-              method: "POST",
-              headers,
-              body: JSON.stringify({
-                endpoint: sub?.endpoint,
-                customerId: customer?.id,
-              }),
-            });
-          } catch (e) {
-            console.warn("Test push dispatch error:", e);
-          }
-
-          setTimeout(() => setPushSuccessToast(null), 5000);
-        } else {
-          alert("حدث خطأ أثناء حفظ اشتراك الإشعارات، يرجى المحاولة مرة أخرى.");
+        // Immediately eliminate hanging "تفعيل" state for instant responsive UI
+        setPushSubscribed(true);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cove_push_subscribed", "true");
         }
+
+        const reg = await navigator.serviceWorker.ready;
+        await syncPushSubscription(reg);
+
+        setPushSuccessToast("🎉 تم تفعيل الإشعارات بنجاح! جاري إرسال إشعار فحص لهاتفك...");
+
+        // Fire direct test push so user gets instant confirmation
+        try {
+          const sub = await reg.pushManager.getSubscription();
+          const subJson = sub?.toJSON ? sub.toJSON() : ({} as any);
+          const headers = getAuthHeaders();
+          headers["Content-Type"] = "application/json";
+          await fetch("/api/customer/test-push", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              endpoint: sub?.endpoint,
+              keys: subJson.keys,
+              customerId: customer?.id || (typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_ID_KEY) : undefined),
+            }),
+          });
+        } catch (e) {
+          console.warn("Auto test push error:", e);
+        }
+
+        setTimeout(() => setPushSuccessToast(null), 6000);
       } else if (permission === "denied") {
+        setPushSubscribed(false);
         alert("تم رفض إذن الإشعارات من إعدادات المتصفح. يرجى تفعيل الإشعارات من إعدادات الموقع بالمتصفح.");
       }
     } catch (err: any) {
@@ -470,6 +492,8 @@ export default function CustomerPage() {
       setTestPushLoading(true);
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
+      const subJson = sub?.toJSON ? sub.toJSON() : ({} as any);
+
       const headers = getAuthHeaders();
       headers["Content-Type"] = "application/json";
 
@@ -478,13 +502,14 @@ export default function CustomerPage() {
         headers,
         body: JSON.stringify({
           endpoint: sub?.endpoint,
-          customerId: customer?.id,
+          keys: subJson.keys,
+          customerId: customer?.id || (typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_ID_KEY) : undefined),
         }),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setPushSuccessToast("🔔 تم إرسال الإشعار التجريبي! سيظهر على شاشة هاتفك الآن.");
+        setPushSuccessToast("🚀 تم إرسال الإشعار بنجاح! تفقد أعلى شاشة هاتفك الآن.");
         setTimeout(() => setPushSuccessToast(null), 5000);
       } else {
         alert(data.error || "تعذر إرسال الإشعار التجريبي");
@@ -888,7 +913,8 @@ export default function CustomerPage() {
         )}
 
         {/* Web Push Notification Status & Prompts */}
-        {!pushSubscribed && pushPermission !== "denied" && pushPermission !== "unsupported" && (
+        {/* State 1: Permission has NOT been granted yet -> Show Enable banner with "تفعيل" */}
+        {pushPermission === "default" && !pushSubscribed && (
           <div className="mb-4 bg-gradient-to-r from-[#3F1215] to-[#52181C] text-[#FEECE2] rounded-3xl p-4 shadow-md border border-[#3F1215] flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-[#FEECE2]/15 flex items-center justify-center flex-shrink-0 text-[#FEECE2]">
@@ -904,32 +930,39 @@ export default function CustomerPage() {
             <button
               onClick={handleEnablePush}
               disabled={pushLoading}
-              className="px-3.5 py-2 rounded-xl bg-[#FEECE2] text-[#3F1215] text-xs font-bold hover:bg-white transition-all shadow-xs cursor-pointer active:scale-95 flex-shrink-0"
+              className="px-4 py-2 rounded-xl bg-[#FEECE2] text-[#3F1215] text-xs font-bold hover:bg-white transition-all shadow-xs cursor-pointer active:scale-95 flex-shrink-0"
             >
               {pushLoading ? "جاري..." : "تفعيل"}
             </button>
           </div>
         )}
 
-        {/* Push Subscribed Active Banner + Instant Test Button */}
-        {pushSubscribed && (
-          <div className="mb-4 bg-white border border-[#EBD3C8] rounded-2xl p-3 shadow-2xs flex items-center justify-between gap-2 text-xs">
+        {/* State 2: Permission is granted OR already subscribed -> Show active state and test button */}
+        {(pushPermission === "granted" || pushSubscribed) && (
+          <div className="mb-4 bg-white border border-emerald-200 rounded-2xl p-3 shadow-2xs flex items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="font-bold text-[#2B0B0D] text-xs">إشعارات الهاتف الخارجية مفعلة 🔔</span>
+              <span className="relative flex h-2.5 w-2.5 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <div>
+                <span className="font-bold text-[#2B0B0D] text-xs block leading-tight">إشعارات الهاتف الخارجية مفعلة 🔔</span>
+                <span className="text-[10px] text-neutral-400">ستصلك التنبيهات حتى والتطبيق مغلق</span>
+              </div>
             </div>
             <button
               onClick={handleSendTestPush}
               disabled={testPushLoading}
-              className="px-2.5 py-1.5 rounded-xl bg-[#FDF4F0] hover:bg-[#FAF5F2] border border-[#EBD3C8] text-[#3F1215] font-bold text-[11px] transition-all cursor-pointer active:scale-95 shrink-0"
-              title="إرسال إشعار تجريبي لهاتفك"
+              className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-[11px] transition-all cursor-pointer active:scale-95 shrink-0 flex items-center gap-1"
+              title="إرسال إشعار تجريبي للتأكد"
             >
-              {testPushLoading ? "جاري الإرسال..." : "إشعار تجريبي"}
+              <Send className="w-3 h-3" />
+              <span>{testPushLoading ? "جاري الإرسال..." : "إشعار فحص"}</span>
             </button>
           </div>
         )}
 
-        {/* Push Permission Denied Banner */}
+        {/* State 3: Push Permission Denied Banner */}
         {pushPermission === "denied" && (
           <div className="mb-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />

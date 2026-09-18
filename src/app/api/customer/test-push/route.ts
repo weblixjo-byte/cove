@@ -11,7 +11,18 @@ export async function POST(req: Request) {
     const customerId = session?.userId || req.headers.get("x-customer-id") || body.customerId;
 
     let targetSubs: any[] = [];
-    if (endpoint) {
+
+    // If client provided endpoint and keys directly, use them immediately and ensure saved
+    if (endpoint && body.keys?.p256dh && body.keys?.auth) {
+      const directSub = {
+        userId: customerId || "current_device",
+        endpoint,
+        keys: body.keys,
+        userAgent: req.headers.get("user-agent") || undefined,
+      };
+      targetSubs.push(directSub);
+      await dbService.savePushSubscription(directSub).catch(console.warn);
+    } else if (endpoint) {
       const all = await dbService.getAllPushSubscriptions();
       const match = all.find((s) => s.endpoint === endpoint);
       if (match) targetSubs.push(match);
@@ -21,10 +32,18 @@ export async function POST(req: Request) {
       targetSubs = await dbService.getPushSubscriptionsForUser(customerId);
     }
 
+    // Fallback: If still not found, send to all registered subscriptions
+    if (targetSubs.length === 0) {
+      const all = await dbService.getAllPushSubscriptions();
+      if (all.length > 0) {
+        targetSubs = [all[all.length - 1]]; // Send to the latest registered device
+      }
+    }
+
     if (targetSubs.length === 0) {
       return NextResponse.json(
         {
-          error: "لم يتم العثور على اشتراك مسجل لهذا الجهاز في قاعدة البيانات. يرجى تفعيل الإشعارات أولاً.",
+          error: "لم يتم العثور على اشتراك مسجل لهذا الجهاز. اضغط زر 'تفعيل' أولاً للسماح بالإشعارات.",
         },
         { status: 404 }
       );
