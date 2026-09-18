@@ -379,9 +379,13 @@ export default function CashierPage() {
           </div>
         </div>
 
-        <div className="text-center text-xs text-neutral-400 py-4">
-          <Link href="/" className="hover:text-neutral-700 underline">
-            Return to Homepage Overview
+        <div className="text-center text-xs text-neutral-500 py-4 flex items-center justify-center gap-4">
+          <Link href="/admin" className="hover:text-[#3F1215] underline">
+            لوحة الإدارة / Admin Console
+          </Link>
+          <span className="text-neutral-300">•</span>
+          <Link href="/customer" className="hover:text-[#3F1215] underline">
+            بطاقة الزبون / Customer Pass
           </Link>
         </div>
       </div>

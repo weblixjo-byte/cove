@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { ITenantConfig, IUser, ITransaction, IReward, INotification } from "./types";
 
 export function seedInitialData() {
-  const adminPasswordHash = bcrypt.hashSync("admin123", 10);
+  const adminPasswordHash = bcrypt.hashSync("CoveCoffee#2026", 10);
 
   const config: ITenantConfig = {
     _id: "config_cove_default",

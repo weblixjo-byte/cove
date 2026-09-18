@@ -39,15 +39,17 @@ const i18n = {
     password: "Password",
     signIn: "Sign In to Admin",
     authenticating: "Authenticating...",
-    defaultCredentials: "Default Credentials:",
-    returnHome: "Return to Homepage Overview",
+    defaultCredentials: "Administrator Credentials:",
+    openCashier: "Cashier POS Terminal",
+    openCustomer: "Customer Pass",
+    returnHome: "Open Cashier Terminal",
     navAnalytics: "Analytics & Metrics",
     navBranding: "White-Label & Rules",
     navRewards: "Rewards Catalogue",
     navCashiers: "Cashier Staff",
     navBroadcast: "Broadcast Center",
     signOut: "Sign Out",
-    home: "Home",
+    home: "Cashier POS",
     analyticsTitle: "Loyalty Performance & Metrics",
     analyticsSubtitle: "Real-time financial volume and customer retention tracking.",
     refreshData: "Refresh Data",
@@ -133,15 +135,17 @@ const i18n = {
     password: "كلمة المرور",
     signIn: "تسجيل الدخول للوحة التحكم",
     authenticating: "جاري التحقق...",
-    defaultCredentials: "بيانات الدخول التجريبية:",
-    returnHome: "العودة إلى الصفحة الرئيسية",
+    defaultCredentials: "بيانات الدخول الإدارية:",
+    openCashier: "شاشة الكاشير (POS)",
+    openCustomer: "بطاقة الزبون الرقمية",
+    returnHome: "فتح شاشة الكاشير",
     navAnalytics: "التحليلات والمؤشرات",
     navBranding: "الهوية وقواعد الولاء",
     navRewards: "كتالوج المكافآت",
     navCashiers: "طاقم الكاشير",
     navBroadcast: "مركز الإشعارات والرسائل",
     signOut: "تسجيل الخروج",
-    home: "الرئيسية",
+    home: "شاشة الكاشير",
     analyticsTitle: "أداء برنامج الولاء والمؤشرات المالية",
     analyticsSubtitle: "متابعة فورية لحجم المبيعات وحركة النقاط ونشاط الزبائن.",
     refreshData: "تحديث البيانات",
@@ -245,7 +249,7 @@ export default function AdminPage() {
 
   // Login Form State
   const [emailInput, setEmailInput] = useState("admin@covecoffee.com");
-  const [passwordInput, setPasswordInput] = useState("admin123");
+  const [passwordInput, setPasswordInput] = useState("CoveCoffee#2026");
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
 
@@ -563,20 +567,20 @@ export default function AdminPage() {
     return (
       <div
         dir={lang === "ar" ? "rtl" : "ltr"}
-        className="min-h-screen bg-[#FAFAFA] flex flex-col justify-between p-6 transition-all"
+        className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between p-4 sm:p-6 transition-all"
       >
         {/* Language Toggle Top Bar */}
         <div className="max-w-sm w-full mx-auto flex justify-end">
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-xs font-medium text-neutral-700 transition-colors shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FDF4F0] text-xs font-medium text-[#2B0B0D] transition-colors shadow-2xs"
           >
-            <Languages className="w-3.5 h-3.5 text-neutral-500" />
+            <Languages className="w-3.5 h-3.5 text-[#3F1215]" />
             <span>{t.langToggle}</span>
           </button>
         </div>
 
-        <div className="max-w-sm w-full mx-auto my-auto">
+        <div className="max-w-sm w-full mx-auto my-auto py-4">
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-[#3F1215] text-white flex items-center justify-center mx-auto mb-4 shadow-md overflow-hidden p-0.5 border border-[#3F1215]">
               <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
@@ -587,7 +591,7 @@ export default function AdminPage() {
             <p className="text-xs text-neutral-500">{t.portalSubtitle}</p>
           </div>
 
-          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-7 shadow-sm">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 sm:p-7 shadow-sm">
             {loginError && (
               <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -627,7 +631,7 @@ export default function AdminPage() {
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full py-3 rounded-xl bg-[#3F1215] text-[#FEECE2] text-sm font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-50 mt-2 cursor-pointer shadow-xs"
+                className="w-full py-3 rounded-xl bg-[#3F1215] text-[#FEECE2] text-sm font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-50 mt-2 cursor-pointer shadow-xs active:scale-98"
               >
                 {loginLoading ? t.authenticating : t.signIn}
               </button>
@@ -637,130 +641,170 @@ export default function AdminPage() {
               <span className="text-[11px] font-mono text-neutral-400 block mb-1">
                 {t.defaultCredentials}
               </span>
-              <p className="text-xs font-mono text-neutral-700" dir="ltr">
-                admin@covecoffee.com / admin123
+              <p className="text-xs font-mono font-medium text-[#3F1215]" dir="ltr">
+                admin@covecoffee.com / CoveCoffee#2026
               </p>
             </div>
           </div>
         </div>
 
-        <div className="text-center text-xs text-neutral-400 py-4">
-          <Link href="/" className="hover:text-neutral-700 underline">
-            {t.returnHome}
+        <div className="text-center text-xs text-neutral-500 py-4 flex items-center justify-center gap-4">
+          <Link href="/cashier" className="hover:text-[#3F1215] underline flex items-center gap-1">
+            <Coffee className="w-3.5 h-3.5 text-[#3F1215]" />
+            {t.openCashier}
+          </Link>
+          <span className="text-neutral-300">•</span>
+          <Link href="/customer" className="hover:text-[#3F1215] underline">
+            {t.openCustomer}
           </Link>
         </div>
       </div>
     );
   }
 
-  // Super Admin Layout (Bilingual RTL / LTR Supported)
+  const navTabs = [
+    { id: "analytics", label: t.navAnalytics, icon: LayoutDashboard },
+    { id: "branding", label: t.navBranding, icon: Settings },
+    { id: "rewards", label: t.navRewards, icon: Gift },
+    { id: "cashiers", label: t.navCashiers, icon: Users },
+    { id: "broadcast", label: t.navBroadcast, icon: Send },
+  ] as const;
+
+  // Super Admin Layout (Bilingual RTL / LTR Supported with full Mobile & iPad Landscape Optimization)
   return (
     <div
       dir={lang === "ar" ? "rtl" : "ltr"}
-      className="min-h-screen bg-[#FAF5F2] flex flex-col md:flex-row transition-all"
+      className="min-h-screen bg-[#FAF5F2] flex flex-col lg:flex-row transition-all text-[#2B0B0D]"
     >
-      {/* Editorial Sidebar */}
-      <aside className="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-[#EBD3C8] flex flex-col justify-between p-5 md:min-h-screen flex-shrink-0">
+      {/* MOBILE & IPAD PORTRAIT TOP HEADER (< lg: 1024px) */}
+      <div className="lg:hidden bg-white/95 backdrop-blur-md border-b border-[#EBD3C8] sticky top-0 z-30">
+        <div className="px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-[#3F1215] flex items-center justify-center text-white shrink-0 overflow-hidden p-0.5 border border-[#3F1215]">
+              <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-lg" />
+            </div>
+            <div className="min-w-0">
+              <span className="font-semibold text-sm text-[#2B0B0D] block leading-tight truncate font-serif">
+                {config.storeName}
+              </span>
+              <span className="text-[10px] font-mono text-[#A44A3F] uppercase tracking-wider font-semibold">
+                {t.superAdmin}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={toggleLanguage}
+              className="px-2.5 py-1.5 rounded-xl border border-[#EBD3C8] bg-[#FDF4F0] hover:bg-[#EBD3C8]/40 text-xs font-medium text-[#3F1215] transition-colors flex items-center gap-1.5"
+            >
+              <Languages className="w-3.5 h-3.5 text-[#3F1215]" />
+              <span>{t.langToggle}</span>
+            </button>
+
+            <Link
+              href="/cashier"
+              title={t.openCashier}
+              className="px-2.5 py-1.5 rounded-xl border border-[#EBD3C8] bg-white hover:bg-[#FDF4F0] text-xs font-medium text-[#2B0B0D] transition-colors flex items-center gap-1"
+            >
+              <Coffee className="w-3.5 h-3.5 text-[#3F1215]" />
+              <span className="hidden sm:inline">{t.openCashier}</span>
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-xl text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+              title={t.signOut}
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Horizontal Navigation Pills (Touch-Optimized for Mobile & iPad Portrait) */}
+        <div className="px-3 py-2 border-t border-[#EBD3C8]/60 overflow-x-auto flex items-center gap-1.5 scrollbar-none">
+          {navTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`px-3 py-2 rounded-xl text-xs font-medium shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-[#3F1215] text-[#FEECE2] shadow-xs font-semibold"
+                    : "bg-[#FDF4F0] text-[#2B0B0D] hover:bg-[#EBD3C8]/50 border border-[#EBD3C8]/60"
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-[#FEECE2]" : "text-[#3F1215]"}`} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* DESKTOP & IPAD LANDSCAPE SIDEBAR (>= lg: 1024px) */}
+      <aside className="hidden lg:flex w-64 xl:w-72 bg-white border-e border-[#EBD3C8] flex-col justify-between p-5 min-h-screen shrink-0 sticky top-0 h-screen">
         <div>
           {/* Brand header */}
           <div className="flex items-center gap-3 px-2 py-3 mb-4 border-b border-[#EBD3C8]/60">
-            <div className="w-10 h-10 rounded-xl bg-[#3F1215] flex items-center justify-center text-white flex-shrink-0 overflow-hidden p-0.5 border border-[#3F1215]">
+            <div className="w-11 h-11 rounded-xl bg-[#3F1215] flex items-center justify-center text-white flex-shrink-0 overflow-hidden p-0.5 border border-[#3F1215]">
               <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-lg" />
             </div>
             <div className="truncate">
-              <span className="font-semibold text-sm text-neutral-900 block leading-tight truncate">
+              <span className="font-semibold text-sm text-[#2B0B0D] block leading-tight truncate font-serif">
                 {config.storeName}
               </span>
-              <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider">
+              <span className="text-[10px] font-mono text-[#A44A3F] uppercase tracking-wider font-semibold">
                 {t.superAdmin}
               </span>
             </div>
           </div>
 
           {/* Language Switcher Pill */}
-          <div className="mb-4 px-2">
+          <div className="mb-4 px-1">
             <button
               onClick={toggleLanguage}
-              className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 text-xs font-medium text-neutral-700 transition-colors"
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-[#EBD3C8] bg-[#FDF4F0] hover:bg-[#EBD3C8]/40 text-xs font-medium text-[#2B0B0D] transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Languages className="w-3.5 h-3.5 text-neutral-500" />
-                <span>{lang === "ar" ? "اللغة الحالية: العربية" : "Current: English"}</span>
+                <Languages className="w-3.5 h-3.5 text-[#3F1215]" />
+                <span>{lang === "ar" ? "اللغة: العربية" : "Language: English"}</span>
               </div>
-              <span className="text-[11px] font-semibold text-[#1A5336] underline">
+              <span className="text-[11px] font-semibold text-[#3F1215] underline">
                 {t.langToggle}
               </span>
             </button>
           </div>
 
           {/* Navigation Links */}
-          <nav className="space-y-1">
-            <button
-              onClick={() => setActiveTab("analytics")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeTab === "analytics"
-                  ? "bg-neutral-900 text-white shadow-xs"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
-              <span>{t.navAnalytics}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("branding")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeTab === "branding"
-                  ? "bg-neutral-900 text-white shadow-xs"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-              }`}
-            >
-              <Settings className="w-4 h-4 flex-shrink-0" />
-              <span>{t.navBranding}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("rewards")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeTab === "rewards"
-                  ? "bg-neutral-900 text-white shadow-xs"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-              }`}
-            >
-              <Gift className="w-4 h-4 flex-shrink-0" />
-              <span>{t.navRewards}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("cashiers")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeTab === "cashiers"
-                  ? "bg-neutral-900 text-white shadow-xs"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-              }`}
-            >
-              <Users className="w-4 h-4 flex-shrink-0" />
-              <span>{t.navCashiers}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("broadcast")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeTab === "broadcast"
-                  ? "bg-neutral-900 text-white shadow-xs"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
-              }`}
-            >
-              <Send className="w-4 h-4 flex-shrink-0" />
-              <span>{t.navBroadcast}</span>
-            </button>
+          <nav className="space-y-1.5">
+            {navTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-[#3F1215] text-[#FEECE2] shadow-sm font-semibold"
+                      : "text-neutral-600 hover:text-[#2B0B0D] hover:bg-[#FDF4F0]"
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-[#FEECE2]" : "text-[#3F1215]"}`} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </nav>
         </div>
 
         {/* Sidebar Footer */}
-        <div className="pt-4 border-t border-neutral-100 space-y-2 mt-4 md:mt-0">
+        <div className="pt-4 border-t border-[#EBD3C8]/60 space-y-3">
           <div className="px-2">
-            <span className="text-xs font-medium text-neutral-900 block truncate">
+            <span className="text-xs font-semibold text-[#2B0B0D] block truncate">
               {admin.name}
             </span>
             <span className="text-[11px] text-neutral-400 font-mono block truncate" dir="ltr">
@@ -768,16 +812,17 @@ export default function AdminPage() {
             </span>
           </div>
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-1">
             <Link
-              href="/"
-              className="text-xs text-neutral-500 hover:text-neutral-800 transition-colors"
+              href="/cashier"
+              className="text-xs text-[#3F1215] hover:text-[#2B0B0D] font-medium flex items-center gap-1.5 transition-colors"
             >
-              {t.home}
+              <Coffee className="w-3.5 h-3.5 text-[#3F1215]" />
+              {t.openCashier}
             </Link>
             <button
               onClick={handleLogout}
-              className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1"
+              className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer font-medium"
             >
               <LogOut className="w-3.5 h-3.5" />
               {t.signOut}
@@ -787,7 +832,7 @@ export default function AdminPage() {
       </aside>
 
       {/* Main Workspace */}
-      <main className="flex-1 p-6 lg:p-10 max-w-6xl overflow-y-auto">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 max-w-6xl w-full mx-auto overflow-y-auto">
         {/* TAB 1: ANALYTICS & METRICS */}
         {activeTab === "analytics" && (
           <div className="space-y-8">
@@ -1127,7 +1172,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={savingBrand}
-                  className="px-6 py-2.5 rounded-xl bg-neutral-900 text-white text-xs font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-50 flex items-center gap-2 shadow-xs"
+                  className="px-6 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors disabled:opacity-50 flex items-center gap-2 shadow-xs cursor-pointer active:scale-98"
                 >
                   <Save className="w-3.5 h-3.5" />
                   {savingBrand ? t.savingBranding : t.saveBranding}
@@ -1140,7 +1185,7 @@ export default function AdminPage() {
         {/* TAB 3: REWARDS CATALOGUE MANAGEMENT */}
         {activeTab === "rewards" && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-serif font-medium text-neutral-900">
                   {t.rewardsTitle}
@@ -1152,17 +1197,17 @@ export default function AdminPage() {
 
               <button
                 onClick={() => setShowAddRewardModal(true)}
-                className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800 transition-colors flex items-center gap-1.5 shadow-xs"
+                className="px-4 py-2 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-medium hover:bg-[#2B0B0D] transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0 active:scale-98"
               >
                 <Plus className="w-3.5 h-3.5" />
                 {t.addReward}
               </button>
             </div>
 
-            <div className="bg-white border border-neutral-200 rounded-3xl overflow-hidden shadow-xs">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
-                <table className="w-full text-start text-xs">
-                  <thead className="bg-neutral-50 border-b border-neutral-200 font-mono text-neutral-500 uppercase tracking-wider">
+                <table className="min-w-[620px] w-full text-start text-xs">
+                  <thead className="bg-[#FAF5F2] border-b border-[#EBD3C8] font-mono text-neutral-500 uppercase tracking-wider">
                     <tr>
                       <th className="py-3 px-5 text-start">{t.tblRewardTitle}</th>
                       <th className="py-3 px-4 text-start">{t.tblCategory}</th>
@@ -1172,22 +1217,22 @@ export default function AdminPage() {
                       <th className="py-3 px-5 text-end">{t.tblActions}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100">
+                  <tbody className="divide-y divide-[#EBD3C8]/50">
                     {rewardsList.map((reward) => (
-                      <tr key={reward._id} className="hover:bg-neutral-50/50">
+                      <tr key={reward._id} className="hover:bg-[#FDF4F0]/50 transition-colors">
                         <td className="py-3.5 px-5">
-                          <span className="font-semibold text-neutral-900 block">{reward.title}</span>
+                          <span className="font-semibold text-[#2B0B0D] block">{reward.title}</span>
                           <span className="text-[11px] text-neutral-400 line-clamp-1">{reward.description}</span>
                         </td>
                         <td className="py-3.5 px-4 font-mono text-neutral-600">{reward.category}</td>
-                        <td className="py-3.5 px-4 font-mono font-bold text-neutral-900" dir="ltr">
+                        <td className="py-3.5 px-4 font-mono font-bold text-[#3F1215]" dir="ltr">
                           {reward.pointsRequired} {t.pts}
                         </td>
                         <td className="py-3.5 px-4 font-mono text-neutral-500">{reward.redemptionCount || 0}</td>
                         <td className="py-3.5 px-4">
                           <button
                             onClick={() => handleToggleReward(reward._id, reward.isActive)}
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border cursor-pointer transition-colors ${
                               reward.isActive
                                 ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                                 : "bg-neutral-100 text-neutral-500 border-neutral-200"
@@ -1199,7 +1244,7 @@ export default function AdminPage() {
                         <td className="py-3.5 px-5 text-end">
                           <button
                             onClick={() => handleDeleteReward(reward._id)}
-                            className="p-1 text-neutral-400 hover:text-red-600 transition-colors"
+                            className="p-1 text-neutral-400 hover:text-red-600 transition-colors cursor-pointer"
                             title="Delete Reward"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1217,7 +1262,7 @@ export default function AdminPage() {
         {/* TAB 4: CASHIER STAFF ACCOUNTS */}
         {activeTab === "cashiers" && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-serif font-medium text-neutral-900">
                   {t.cashiersTitle}
@@ -1229,17 +1274,17 @@ export default function AdminPage() {
 
               <button
                 onClick={() => setShowAddCashierModal(true)}
-                className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800 transition-colors flex items-center gap-1.5 shadow-xs"
+                className="px-4 py-2 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-medium hover:bg-[#2B0B0D] transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0 active:scale-98"
               >
                 <Plus className="w-3.5 h-3.5" />
                 {t.addCashier}
               </button>
             </div>
 
-            <div className="bg-white border border-neutral-200 rounded-3xl overflow-hidden shadow-xs">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
-                <table className="w-full text-start text-xs">
-                  <thead className="bg-neutral-50 border-b border-neutral-200 font-mono text-neutral-500 uppercase tracking-wider">
+                <table className="min-w-[620px] w-full text-start text-xs">
+                  <thead className="bg-[#FAF5F2] border-b border-[#EBD3C8] font-mono text-neutral-500 uppercase tracking-wider">
                     <tr>
                       <th className="py-3 px-5 text-start">{t.tblStaffMember}</th>
                       <th className="py-3 px-4 text-start">{t.tblUsername}</th>
@@ -1249,18 +1294,18 @@ export default function AdminPage() {
                       <th className="py-3 px-5 text-end">{t.tblActions}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100">
+                  <tbody className="divide-y divide-[#EBD3C8]/50">
                     {cashiersList.map((c) => (
-                      <tr key={c.id} className="hover:bg-neutral-50/50">
-                        <td className="py-3.5 px-5 font-semibold text-neutral-900">{c.name}</td>
+                      <tr key={c.id} className="hover:bg-[#FDF4F0]/50 transition-colors">
+                        <td className="py-3.5 px-5 font-semibold text-[#2B0B0D]">{c.name}</td>
                         <td className="py-3.5 px-4 font-mono text-neutral-600" dir="ltr">{c.username}</td>
                         <td className="py-3.5 px-4 text-neutral-600">{c.branchName}</td>
-                        <td className="py-3.5 px-4 font-mono tracking-wider font-bold text-neutral-700" dir="ltr">
+                        <td className="py-3.5 px-4 font-mono tracking-wider font-bold text-[#3F1215]" dir="ltr">
                           {c.staffPin}
                         </td>
                         <td className="py-3.5 px-4">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${
                               c.isActive
                                 ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                                 : "bg-neutral-100 text-neutral-500 border-neutral-200"
@@ -1272,7 +1317,7 @@ export default function AdminPage() {
                         <td className="py-3.5 px-5 text-end">
                           <button
                             onClick={() => handleToggleCashier(c.id, c.isActive)}
-                            className="text-neutral-500 hover:text-neutral-900 text-xs underline"
+                            className="text-[#3F1215] hover:text-[#2B0B0D] text-xs underline font-medium cursor-pointer"
                           >
                             {c.isActive ? t.deactivate : t.reactivate}
                           </button>
@@ -1298,9 +1343,9 @@ export default function AdminPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSendBroadcast} className="bg-white border border-neutral-200 rounded-3xl p-7 shadow-xs space-y-5">
+            <form onSubmit={handleSendBroadcast} className="bg-white border border-[#EBD3C8] rounded-3xl p-6 sm:p-7 shadow-xs space-y-5">
               {broadcastSuccess && (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-[#1A5336] flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                   <span>{broadcastSuccess}</span>
                 </div>
@@ -1315,7 +1360,7 @@ export default function AdminPage() {
                   value={broadcastTitle}
                   onChange={(e) => setBroadcastTitle(e.target.value)}
                   placeholder={lang === "ar" ? "مثال: خصم مضاعف لنهاية الأسبوع بفرع المارينا" : "e.g. Weekend Double Points Weekend at Marina Branch"}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:ring-2 focus:ring-neutral-900/10"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
@@ -1329,7 +1374,7 @@ export default function AdminPage() {
                   value={broadcastMessage}
                   onChange={(e) => setBroadcastMessage(e.target.value)}
                   placeholder={lang === "ar" ? "اكتب تفاصيل الإعلان هنا..." : "Write your customer announcement here..."}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:ring-2 focus:ring-neutral-900/10"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
@@ -1343,18 +1388,18 @@ export default function AdminPage() {
                   value={broadcastBonus}
                   onChange={(e) => setBroadcastBonus(e.target.value)}
                   placeholder="0"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm font-mono focus:ring-2 focus:ring-neutral-900/10"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                 />
                 <span className="text-[10px] text-neutral-400 mt-1 block">
                   {t.bonusHelp}
                 </span>
               </div>
 
-              <div className="pt-4 border-t border-neutral-100 flex justify-end">
+              <div className="pt-4 border-t border-[#EBD3C8]/60 flex justify-end">
                 <button
                   type="submit"
                   disabled={broadcastSending}
-                  className="px-6 py-2.5 rounded-xl bg-[#1A5336] hover:bg-[#14422B] text-white text-xs font-semibold transition-colors disabled:opacity-50 flex items-center gap-2 shadow-xs"
+                  className="px-6 py-2.5 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 flex items-center gap-2 shadow-xs cursor-pointer active:scale-98"
                 >
                   <Send className="w-3.5 h-3.5" />
                   {broadcastSending ? t.sendingBroadcast : t.sendBroadcast}
@@ -1370,59 +1415,59 @@ export default function AdminPage() {
         <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div
             dir={lang === "ar" ? "rtl" : "ltr"}
-            className="bg-white border border-neutral-200 rounded-3xl p-6 max-w-md w-full shadow-lg"
+            className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-md w-full shadow-2xl"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-neutral-900">{t.addRewardModalTitle}</h3>
-              <button onClick={() => setShowAddRewardModal(false)} className="text-neutral-400 hover:text-neutral-700">
+              <h3 className="text-base font-semibold text-[#2B0B0D] font-serif">{t.addRewardModalTitle}</h3>
+              <button onClick={() => setShowAddRewardModal(false)} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleCreateReward} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1">{t.titleLabel}</label>
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.titleLabel}</label>
                 <input
                   type="text"
                   value={newReward.title}
                   onChange={(e) => setNewReward({ ...newReward, title: e.target.value })}
                   placeholder={lang === "ar" ? "مثال: قهوة مقطرة كيمكس" : "e.g. Single Origin Pour-Over"}
-                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1">{t.descriptionLabel}</label>
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.descriptionLabel}</label>
                 <input
                   type="text"
                   value={newReward.description}
                   onChange={(e) => setNewReward({ ...newReward, description: e.target.value })}
                   placeholder={lang === "ar" ? "إيحاءات الفواكه والمكسرات" : "Notes of jasmine and peach"}
-                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-neutral-700 mb-1">{t.tblPointsCost}</label>
+                  <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.tblPointsCost}</label>
                   <input
                     type="number"
                     value={newReward.pointsRequired}
                     onChange={(e) =>
                       setNewReward({ ...newReward, pointsRequired: parseInt(e.target.value) || 0 })
                     }
-                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-neutral-700 mb-1">{t.tblCategory}</label>
+                  <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.tblCategory}</label>
                   <select
                     value={newReward.category}
                     onChange={(e) => setNewReward({ ...newReward, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   >
                     <option value="Drinks">{lang === "ar" ? "مشروبات" : "Drinks"}</option>
                     <option value="Food">{lang === "ar" ? "مأكولات ومخبوزات" : "Food"}</option>
@@ -1433,17 +1478,17 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-3 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAddRewardModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-neutral-600 hover:bg-neutral-100"
+                  className="px-4 py-2.5 rounded-xl text-xs text-neutral-600 hover:bg-neutral-100 cursor-pointer"
                 >
                   {t.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800"
+                  className="px-5 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors shadow-xs cursor-pointer active:scale-98"
                 >
                   {t.createReward}
                 </button>
@@ -1458,36 +1503,36 @@ export default function AdminPage() {
         <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div
             dir={lang === "ar" ? "rtl" : "ltr"}
-            className="bg-white border border-neutral-200 rounded-3xl p-6 max-w-md w-full shadow-lg"
+            className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-md w-full shadow-2xl"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-neutral-900">{t.addCashierModalTitle}</h3>
-              <button onClick={() => setShowAddCashierModal(false)} className="text-neutral-400 hover:text-neutral-700">
+              <h3 className="text-base font-semibold text-[#2B0B0D] font-serif">{t.addCashierModalTitle}</h3>
+              <button onClick={() => setShowAddCashierModal(false)} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleCreateCashier} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1">{t.fullName}</label>
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.fullName}</label>
                 <input
                   type="text"
                   value={newCashier.name}
                   onChange={(e) => setNewCashier({ ...newCashier, name: e.target.value })}
                   placeholder="e.g. Abdullah Al-Ghanim"
-                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1">{t.usernameForPOS}</label>
+                <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.usernameForPOS}</label>
                 <input
                   type="text"
                   value={newCashier.username}
                   onChange={(e) => setNewCashier({ ...newCashier, username: e.target.value })}
                   placeholder="e.g. cashier3"
-                  className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                   dir="ltr"
                   required
                 />
@@ -1495,41 +1540,41 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-neutral-700 mb-1">{t.tblBranch}</label>
+                  <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.tblBranch}</label>
                   <input
                     type="text"
                     value={newCashier.branchName}
                     onChange={(e) => setNewCashier({ ...newCashier, branchName: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-neutral-700 mb-1">{t.tblPin}</label>
+                  <label className="block text-xs font-medium text-[#2B0B0D] mb-1">{t.tblPin}</label>
                   <input
                     type="password"
                     maxLength={4}
                     value={newCashier.staffPin}
                     onChange={(e) => setNewCashier({ ...newCashier, staffPin: e.target.value })}
                     placeholder="1234"
-                    className="w-full px-3 py-2 rounded-xl border border-neutral-200 text-xs font-mono text-center tracking-widest"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EBD3C8] text-xs font-mono text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 focus:border-[#3F1215]"
                     required
                   />
                 </div>
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-3 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAddCashierModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-neutral-600 hover:bg-neutral-100"
+                  className="px-4 py-2.5 rounded-xl text-xs text-neutral-600 hover:bg-neutral-100 cursor-pointer"
                 >
                   {t.cancel}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800"
+                  className="px-5 py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors shadow-xs cursor-pointer active:scale-98"
                 >
                   {t.createAccount}
                 </button>

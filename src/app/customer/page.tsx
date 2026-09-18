@@ -394,10 +394,8 @@ export default function CustomerPage() {
           </div>
         </div>
 
-        <div className="text-center text-xs text-neutral-400 py-4">
-          <Link href="/" className="hover:text-neutral-700 underline">
-            Return to Homepage Overview
-          </Link>
+        <div className="text-center text-xs text-neutral-400 py-4 font-mono">
+          © 2026 {config.storeName} • Digital Member Pass
         </div>
 
         {/* MODAL: Google Account Selector / Direct Registration */}
