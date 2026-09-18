@@ -96,6 +96,7 @@ export default function CashierPage() {
   const [rewardTitle, setRewardTitle] = useState<string>("Specialty Flat White / Latte");
   const [redeemLoading, setRedeemLoading] = useState(false);
   const [redeemError, setRedeemError] = useState<string | null>(null);
+  const [activeRewards, setActiveRewards] = useState<{ _id: string; title: string; pointsRequired: number; category: string }[]>([]);
 
   // Cashier PWA Installation States
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -103,6 +104,21 @@ export default function CashierPage() {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   useEffect(() => {
+    // Fetch active store rewards catalogue for POS redemption
+    fetch("/api/customer/rewards")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.rewards && data.rewards.length > 0) {
+          const activeList = data.rewards.filter((r: any) => r.isActive !== false);
+          setActiveRewards(activeList);
+          if (activeList[0]) {
+            setRewardTitle(activeList[0].title);
+            setRedeemPoints(activeList[0].pointsRequired.toString());
+          }
+        }
+      })
+      .catch(() => {});
+
     if (typeof window !== "undefined") {
       const standalone =
         ("standalone" in window.navigator && (window.navigator as any).standalone) ||
@@ -993,19 +1009,29 @@ export default function CashierPage() {
                     <select
                       value={rewardTitle}
                       onChange={(e) => {
-                        setRewardTitle(e.target.value);
-                        if (e.target.value === "Specialty Flat White / Latte") setRedeemPoints("80");
-                        if (e.target.value === "Kyoto Cold Brew") setRedeemPoints("120");
-                        if (e.target.value === "Fresh French Pistachio Croissant") setRedeemPoints("90");
-                        if (e.target.value === `Cash Discount 1.000 ${config.currency}`) setRedeemPoints("100");
+                        const val = e.target.value;
+                        setRewardTitle(val);
+                        const matched = activeRewards.find((r) => r.title === val);
+                        if (matched) {
+                          setRedeemPoints(matched.pointsRequired.toString());
+                        }
                       }}
                       className="w-full px-3.5 py-3 rounded-xl border border-[#EBD3C8] text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3F1215]/20 bg-[#FAF5F2]/40"
                     >
-                      <option value="Specialty Flat White / Latte">Specialty Flat White / Latte (80 pts)</option>
-                      <option value="Kyoto Cold Brew">Kyoto Cold Brew (120 pts)</option>
-                      <option value="Fresh French Pistachio Croissant">Fresh French Pistachio Croissant (90 pts)</option>
-                      <option value={`Cash Discount 1.000 ${config.currency}`}>Cash Discount 1.000 ${config.currency} (100 pts)</option>
-                      <option value="Custom Points Deduction">Custom Points Deduction</option>
+                      {activeRewards.length > 0 ? (
+                        activeRewards.map((r) => (
+                          <option key={r._id} value={r.title}>
+                            {r.title} ({r.pointsRequired} pts)
+                          </option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="Specialty Flat White / Latte">Specialty Flat White / Latte (80 pts)</option>
+                          <option value="Kyoto Cold Brew">Kyoto Cold Brew (120 pts)</option>
+                          <option value="Fresh French Pistachio Croissant">Fresh French Pistachio Croissant (90 pts)</option>
+                        </>
+                      )}
+                      <option value="Custom Bill Discount">Custom Bill Discount</option>
                     </select>
                   </div>
 
@@ -1111,8 +1137,9 @@ export default function CashierPage() {
                 </div>
 
                 {receipt.tierUpgraded && (
-                  <div className="p-2 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-center font-bold mt-2">
-                    🌟 Customer tier upgraded to {receipt.tier}!
+                  <div className="p-2.5 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-center font-bold mt-2 flex items-center justify-center gap-1.5 text-xs">
+                    <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>Customer tier upgraded to {receipt.tier}!</span>
                   </div>
                 )}
               </div>

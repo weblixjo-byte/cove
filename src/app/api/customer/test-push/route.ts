@@ -50,8 +50,8 @@ export async function POST(req: Request) {
     }
 
     const sent = await sendWebPushToSubscriptions(targetSubs, {
-      title: "☕ Cove Specialty Coffee - Push Test Successful!",
-      body: "Congratulations! Direct push notifications are active and will reach your lock screen even when the app is closed.",
+      title: "Cove Coffee House - Push Notification",
+      body: "Direct push notifications are active and will reach your lock screen even when the app is closed.",
       url: "/customer",
     });
 

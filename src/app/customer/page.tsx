@@ -21,6 +21,7 @@ import {
   X,
   AlertCircle,
   CheckCircle2,
+  CheckCheck,
   User,
   Plus,
   Send,
@@ -135,7 +136,6 @@ export default function CustomerPage() {
   const [pushPermission, setPushPermission] = useState<"default" | "granted" | "denied" | "unsupported">("default");
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
-  const [testPushLoading, setTestPushLoading] = useState(false);
   const [showIosInstallModal, setShowIosInstallModal] = useState(false);
   const [pushSuccessToast, setPushSuccessToast] = useState<string | null>(null);
 
@@ -182,7 +182,7 @@ export default function CustomerPage() {
         if (prevPointsRef.current !== null && data.customer.pointsBalance > prevPointsRef.current) {
           const diff = data.customer.pointsBalance - prevPointsRef.current;
           confetti({ particleCount: 45, spread: 65 });
-          setPushSuccessToast(`🎉 Awesome! +${diff} new points added to your Cove balance!`);
+          setPushSuccessToast(`+${diff} points added to your balance!`);
           setTimeout(() => setPushSuccessToast(null), 5000);
         }
         prevPointsRef.current = data.customer.pointsBalance;
@@ -452,28 +452,8 @@ export default function CustomerPage() {
         const reg = await navigator.serviceWorker.ready;
         await syncPushSubscription(reg);
 
-        setPushSuccessToast("🎉 Notifications enabled successfully! Sending a test push to your device...");
-
-        // Fire direct test push so user gets instant confirmation
-        try {
-          const sub = await reg.pushManager.getSubscription();
-          const subJson = sub?.toJSON ? sub.toJSON() : ({} as any);
-          const headers = getAuthHeaders();
-          headers["Content-Type"] = "application/json";
-          await fetch("/api/customer/test-push", {
-            method: "POST",
-            headers,
-            body: JSON.stringify({
-              endpoint: sub?.endpoint,
-              keys: subJson.keys,
-              customerId: customer?.id || (typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_ID_KEY) : undefined),
-            }),
-          });
-        } catch (e) {
-          console.warn("Auto test push error:", e);
-        }
-
-        setTimeout(() => setPushSuccessToast(null), 6000);
+        setPushSuccessToast("Notifications enabled successfully!");
+        setTimeout(() => setPushSuccessToast(null), 4000);
       } else if (permission === "denied") {
         setPushSubscribed(false);
         alert("Notification permission was denied in browser settings. Please allow notifications in site settings.");
@@ -483,41 +463,6 @@ export default function CustomerPage() {
       alert("Unable to enable notifications: " + (err.message || "Unexpected error"));
     } finally {
       setPushLoading(false);
-    }
-  };
-
-  // Send a manual test notification to customer phone
-  const handleSendTestPush = async () => {
-    try {
-      setTestPushLoading(true);
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.getSubscription();
-      const subJson = sub?.toJSON ? sub.toJSON() : ({} as any);
-
-      const headers = getAuthHeaders();
-      headers["Content-Type"] = "application/json";
-
-      const res = await fetch("/api/customer/test-push", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          endpoint: sub?.endpoint,
-          keys: subJson.keys,
-          customerId: customer?.id || (typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_ID_KEY) : undefined),
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setPushSuccessToast("🚀 Test notification sent successfully! Check your lock screen / notification tray.");
-        setTimeout(() => setPushSuccessToast(null), 5000);
-      } else {
-        alert(data.error || "Unable to send test push notification");
-      }
-    } catch (err: any) {
-      alert("Connection error: " + err.message);
-    } finally {
-      setTestPushLoading(false);
     }
   };
 
@@ -839,7 +784,7 @@ export default function CustomerPage() {
 
   // Authenticated Mobile-First Customer View
   return (
-    <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between pb-12">
+    <div className="min-h-screen bg-[#FAF5F2] flex flex-col justify-between pb-28 sm:pb-32">
       {/* Top Mobile Bar */}
       <header className="bg-white/90 backdrop-blur-md border-b border-[#EBD3C8] sticky top-0 z-20 px-4 py-3">
         <div className="max-w-md mx-auto flex items-center justify-between">
@@ -856,24 +801,9 @@ export default function CustomerPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Notifications button */}
-            <button
-              onClick={() => {
-                setActiveTab("notifications");
-                markAllRead();
-              }}
-              className="relative p-2 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-colors"
-              title="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#3F1215]" />
-              )}
-            </button>
-
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 transition-colors"
+              className="p-2 rounded-xl text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -891,10 +821,10 @@ export default function CustomerPage() {
               setActiveTab("notifications");
               markAllRead();
             }}
-            className="mb-4 p-3.5 rounded-2xl bg-[#3F1215] text-[#FEECE2] shadow-md flex items-center justify-between gap-3 cursor-pointer hover:bg-[#2B0B0D] transition-all border border-[#3F1215] animate-pulse"
+            className="mb-4 p-3.5 rounded-2xl bg-[#3F1215] text-[#FEECE2] shadow-md flex items-center justify-between gap-3 cursor-pointer hover:bg-[#2B0B0D] transition-all border border-[#3F1215]"
           >
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-xl bg-[#FEECE2]/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#FEECE2]/20 flex items-center justify-center shrink-0">
                 <Bell className="w-4 h-4 text-[#FEECE2]" />
               </div>
               <div className="overflow-hidden">
@@ -906,7 +836,7 @@ export default function CustomerPage() {
                 </p>
               </div>
             </div>
-            <span className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-white/15 text-[#FEECE2] flex-shrink-0">
+            <span className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-white/15 text-[#FEECE2] shrink-0">
               View
             </span>
           </div>
@@ -917,47 +847,22 @@ export default function CustomerPage() {
         {pushPermission === "default" && !pushSubscribed && (
           <div className="mb-4 bg-gradient-to-r from-[#3F1215] to-[#52181C] text-[#FEECE2] rounded-3xl p-4 shadow-md border border-[#3F1215] flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#FEECE2]/15 flex items-center justify-center flex-shrink-0 text-[#FEECE2]">
+              <div className="w-10 h-10 rounded-2xl bg-[#FEECE2]/15 flex items-center justify-center shrink-0 text-[#FEECE2]">
                 <Bell className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold leading-tight">Enable Push Notifications 🔔</h4>
+                <h4 className="text-xs font-bold leading-tight">Enable Push Notifications</h4>
                 <p className="text-[10px] text-[#FEECE2]/80 mt-0.5 leading-snug">
-                  Receive instant balance updates and rewards even when closed
+                  Receive instant balance updates and rewards directly on your device
                 </p>
               </div>
             </div>
             <button
               onClick={handleEnablePush}
               disabled={pushLoading}
-              className="px-4 py-2 rounded-xl bg-[#FEECE2] text-[#3F1215] text-xs font-bold hover:bg-white transition-all shadow-xs cursor-pointer active:scale-95 flex-shrink-0"
+              className="px-4 py-2 rounded-xl bg-[#FEECE2] text-[#3F1215] text-xs font-bold hover:bg-white transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
             >
               {pushLoading ? "Enabling..." : "Enable"}
-            </button>
-          </div>
-        )}
-
-        {/* State 2: Permission is granted OR already subscribed -> Show active state and test button */}
-        {(pushPermission === "granted" || pushSubscribed) && (
-          <div className="mb-4 bg-white border border-emerald-200 rounded-2xl p-3 shadow-2xs flex items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2.5 w-2.5 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-              <div>
-                <span className="font-bold text-[#2B0B0D] text-xs block leading-tight">Push Notifications Active 🔔</span>
-                <span className="text-[10px] text-neutral-400">You'll receive alerts even when the app is closed</span>
-              </div>
-            </div>
-            <button
-              onClick={handleSendTestPush}
-              disabled={testPushLoading}
-              className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-[11px] transition-all cursor-pointer active:scale-95 shrink-0 flex items-center gap-1"
-              title="Send test push notification to verify"
-            >
-              <Send className="w-3 h-3" />
-              <span>{testPushLoading ? "Sending..." : "Test Push"}</span>
             </button>
           </div>
         )}
@@ -967,7 +872,7 @@ export default function CustomerPage() {
           <div className="mb-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
             <span className="text-[11px]">
-              Notifications are blocked in your browser settings. Tap the lock 🔒 icon in the URL bar and allow notifications.
+              Notifications are blocked in your browser settings. Tap the lock icon in your address bar and allow notifications.
             </span>
           </div>
         )}
@@ -975,49 +880,10 @@ export default function CustomerPage() {
         {/* Push Activation Success Toast */}
         {pushSuccessToast && (
           <div className="mb-4 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 shadow-xs">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span className="font-medium">{pushSuccessToast}</span>
           </div>
         )}
-
-        {/* Navigation Pills */}
-        <div className="flex bg-[#EED9D1]/50 p-1 rounded-xl mb-4 text-xs font-medium border border-[#EBD3C8]">
-          <button
-            onClick={() => setActiveTab("card")}
-            className={`flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-              activeTab === "card"
-                ? "bg-white text-[#3F1215] shadow-xs font-semibold"
-                : "text-neutral-600 hover:text-neutral-900"
-            }`}
-          >
-            <QrCode className="w-3.5 h-3.5" />
-            My Pass
-          </button>
-
-          <button
-            onClick={() => setActiveTab("rewards")}
-            className={`flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-              activeTab === "rewards"
-                ? "bg-white text-[#3F1215] shadow-xs font-semibold"
-                : "text-neutral-600 hover:text-neutral-900"
-            }`}
-          >
-            <Gift className="w-3.5 h-3.5" />
-            Rewards
-          </button>
-
-          <button
-            onClick={() => setActiveTab("history")}
-            className={`flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-              activeTab === "history"
-                ? "bg-white text-[#3F1215] shadow-xs font-semibold"
-                : "text-neutral-600 hover:text-neutral-900"
-            }`}
-          >
-            <History className="w-3.5 h-3.5" />
-            Ledger
-          </button>
-        </div>
 
         {/* TAB 1: THE CENTRAL CARD (EDITORIAL MINIMALIST CARD LAYOUT) */}
         {activeTab === "card" && (
@@ -1336,60 +1202,204 @@ export default function CustomerPage() {
 
         {/* TAB 4: IN-APP NOTIFICATIONS */}
         {activeTab === "notifications" && (
-          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#EBD3C8]/60">
-              <h3 className="text-sm font-semibold text-[#2B0B0D] font-serif">Notifications</h3>
-              <button
-                onClick={markAllRead}
-                className="text-xs font-mono text-neutral-500 hover:text-neutral-800"
-              >
-                Mark all read
-              </button>
-            </div>
+          <div className="space-y-3">
+            <div className="bg-white border border-[#EBD3C8] rounded-3xl p-5 shadow-sm">
+              <div className="flex items-center justify-between pb-3 border-b border-[#EBD3C8]/60">
+                <div>
+                  <h3 className="text-sm font-semibold text-[#2B0B0D] font-serif">Notification Center</h3>
+                  <span className="text-[11px] text-neutral-400 font-mono">
+                    {unreadCount > 0 ? `${unreadCount} unread update${unreadCount > 1 ? "s" : ""}` : "All caught up"}
+                  </span>
+                </div>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllRead}
+                    className="text-xs font-mono text-[#3F1215] hover:text-[#2B0B0D] font-semibold flex items-center gap-1 py-1 px-2.5 rounded-lg bg-[#FAF5F2] border border-[#EBD3C8] transition-colors cursor-pointer"
+                  >
+                    <CheckCheck className="w-3.5 h-3.5" />
+                    <span>Mark all read</span>
+                  </button>
+                )}
+              </div>
 
-            {notifications.length === 0 ? (
-              <div className="text-center py-10 text-neutral-400 text-xs font-mono">
-                No notifications to display.
-              </div>
-            ) : (
-              <div className="divide-y divide-[#EBD3C8]/50">
-                {notifications.map((n) => (
-                  <div key={n._id} className="py-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-semibold text-[#2B0B0D]">{n.title}</span>
-                      <span className="text-[10px] font-mono text-neutral-400">
-                        {new Date(n.createdAt).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-xs text-neutral-600 leading-relaxed">{n.message}</p>
+              {notifications.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-12 h-12 rounded-2xl bg-[#FAF5F2] border border-[#EBD3C8] text-neutral-400 flex items-center justify-center mx-auto mb-3">
+                    <Bell className="w-5 h-5" />
                   </div>
-                ))}
-              </div>
-            )}
+                  <p className="text-xs font-medium text-neutral-600">No notifications yet</p>
+                  <p className="text-[11px] text-neutral-400 font-mono mt-1">
+                    You will receive real-time alerts for point credits, tier upgrades, and redeemed rewards.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2.5 pt-3">
+                  {notifications.map((n) => {
+                    const isReward = n.title.toLowerCase().includes("reward") || n.message.toLowerCase().includes("reward");
+                    const isPoints = n.title.toLowerCase().includes("point") || n.message.toLowerCase().includes("point");
+                    return (
+                      <div
+                        key={n._id}
+                        className={`p-3.5 rounded-2xl border transition-all ${
+                          !n.isRead
+                            ? "bg-[#FAF5F2]/90 border-[#3F1215]/30 shadow-2xs"
+                            : "bg-white border-[#EBD3C8]/70"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                            isReward
+                              ? "bg-amber-50 text-amber-900 border border-amber-200"
+                              : isPoints
+                              ? "bg-[#FDF4F0] text-[#3F1215] border border-[#EBD3C8]"
+                              : "bg-neutral-100 text-neutral-600 border border-neutral-200"
+                          }`}>
+                            {isReward ? (
+                              <Gift className="w-4 h-4" />
+                            ) : isPoints ? (
+                              <Sparkles className="w-4 h-4" />
+                            ) : (
+                              <Bell className="w-4 h-4" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="text-xs font-bold text-[#2B0B0D] truncate font-serif">
+                                {n.title}
+                              </span>
+                              <span className="text-[10px] font-mono text-neutral-400 shrink-0">
+                                {new Date(n.createdAt).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            </div>
+                            <p className="text-xs text-neutral-600 leading-relaxed">
+                              {n.message}
+                            </p>
+                          </div>
+                          {!n.isRead && (
+                            <span className="w-2 h-2 rounded-full bg-[#3F1215] shrink-0 mt-1.5" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </main>
 
-      {/* MODAL: REDEMPTION CONFIRMATION */}
+      {/* Sticky Bottom Glassmorphism Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/85 backdrop-blur-xl border-t border-[#EBD3C8]/80 shadow-[0_-4px_25px_rgba(63,18,21,0.06)] px-4 py-2">
+        <div className="max-w-md mx-auto flex items-center justify-around">
+          <button
+            onClick={() => setActiveTab("card")}
+            className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all cursor-pointer ${
+              activeTab === "card"
+                ? "text-[#3F1215] font-bold"
+                : "text-neutral-400 hover:text-neutral-700 font-medium"
+            }`}
+          >
+            <div
+              className={`p-1.5 rounded-xl transition-all ${
+                activeTab === "card" ? "bg-[#FAF5F2] text-[#3F1215]" : ""
+              }`}
+            >
+              <QrCode className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] tracking-tight">Pass</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("rewards")}
+            className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all cursor-pointer ${
+              activeTab === "rewards"
+                ? "text-[#3F1215] font-bold"
+                : "text-neutral-400 hover:text-neutral-700 font-medium"
+            }`}
+          >
+            <div
+              className={`p-1.5 rounded-xl transition-all ${
+                activeTab === "rewards" ? "bg-[#FAF5F2] text-[#3F1215]" : ""
+              }`}
+            >
+              <Gift className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] tracking-tight">Rewards</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all cursor-pointer ${
+              activeTab === "history"
+                ? "text-[#3F1215] font-bold"
+                : "text-neutral-400 hover:text-neutral-700 font-medium"
+            }`}
+          >
+            <div
+              className={`p-1.5 rounded-xl transition-all ${
+                activeTab === "history" ? "bg-[#FAF5F2] text-[#3F1215]" : ""
+              }`}
+            >
+              <History className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] tracking-tight">Activity</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab("notifications");
+              markAllRead();
+            }}
+            className={`flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all cursor-pointer relative ${
+              activeTab === "notifications"
+                ? "text-[#3F1215] font-bold"
+                : "text-neutral-400 hover:text-neutral-700 font-medium"
+            }`}
+          >
+            <div
+              className={`p-1.5 rounded-xl relative transition-all ${
+                activeTab === "notifications" ? "bg-[#FAF5F2] text-[#3F1215]" : ""
+              }`}
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#3F1215] ring-2 ring-white" />
+              )}
+            </div>
+            <span className="text-[10px] tracking-tight">Alerts</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* MODAL: REDEMPTION PASS & CASHIER CODE */}
       {redeemingReward && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-xl">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-[#2B0B0D]">Confirm Reward Redemption</h3>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-[#FAF5F2] border border-[#EBD3C8] flex items-center justify-center text-[#3F1215]">
+                  <Gift className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-semibold text-[#2B0B0D] font-serif">Redeem Reward</h3>
+              </div>
               <button
                 onClick={() => setRedeemingReward(null)}
-                className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700 cursor-pointer"
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Reward Card Summary */}
             <div className="bg-[#FAF5F2] rounded-2xl overflow-hidden mb-4 border border-[#EBD3C8]">
               {redeemingReward.imageUrl && (
-                <div className="w-full h-36 overflow-hidden border-b border-[#EBD3C8]">
+                <div className="w-full h-32 overflow-hidden border-b border-[#EBD3C8]">
                   <img
                     src={redeemingReward.imageUrl}
                     alt={redeemingReward.title}
@@ -1397,71 +1407,73 @@ export default function CustomerPage() {
                   />
                 </div>
               )}
-              <div className="p-4">
-                <span className="text-[10px] font-mono uppercase text-neutral-400 block mb-1">
+              <div className="p-3.5">
+                <span className="text-[10px] font-mono uppercase text-neutral-400 block mb-0.5">
                   {redeemingReward.category}
                 </span>
                 <h4 className="text-sm font-bold text-[#2B0B0D]">{redeemingReward.title}</h4>
-                <p className="text-xs text-neutral-500 mt-1">{redeemingReward.description}</p>
-                <div className="mt-3 pt-3 border-t border-[#EBD3C8] flex justify-between items-center text-xs font-mono">
-                  <span>Reward Cost:</span>
-                  <span className="font-bold text-[#3F1215]">{redeemingReward.pointsRequired} pts</span>
+                <div className="mt-2 pt-2 border-t border-[#EBD3C8] flex justify-between items-center text-xs">
+                  <span className="text-neutral-500 font-mono">Points Value:</span>
+                  <span className="font-bold font-mono text-[#3F1215]">{redeemingReward.pointsRequired} pts</span>
                 </div>
               </div>
             </div>
 
-            {redeemError && (
-              <div className="mb-4 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
-                {redeemError}
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <button
-                onClick={() => handleRedeem(redeemingReward)}
-                disabled={redeemLoading}
-                className="w-full py-3 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-98"
-              >
-                {redeemLoading ? "Generating voucher code..." : "Confirm & Redeem Points"}
-              </button>
-              <button
-                onClick={() => setRedeemingReward(null)}
-                className="w-full py-2 rounded-xl text-neutral-500 hover:bg-[#FAF5F2] text-xs transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: CLAIMED VOUCHER DISPLAY */}
-      {claimedVoucher && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-xl text-center">
-            <div className="w-12 h-12 rounded-full bg-[#FDF4F0] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-6 h-6" />
-            </div>
-
-            <h3 className="text-lg font-medium text-[#2B0B0D] mb-1 font-serif">
-              Voucher Generated!
-            </h3>
-            <p className="text-xs text-neutral-500 mb-4">
-              Present this voucher reference to the barista at the counter.
-            </p>
-
-            <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 mb-5">
+            {/* Prominent Counter Code Box */}
+            <div className="bg-white border-2 border-[#3F1215] rounded-2xl p-4 mb-3 text-center shadow-xs">
               <span className="text-[10px] uppercase tracking-wider font-mono text-neutral-400 block mb-1">
-                {claimedVoucher.title}
+                Give this 6-Digit Code to Cashier
               </span>
-              <span className="text-2xl font-bold font-mono tracking-widest text-[#3F1215] block">
-                {claimedVoucher.code}
+              <div className="flex items-center justify-center gap-3">
+                <span className="font-pin text-3xl font-bold tracking-widest text-[#3F1215] select-all">
+                  {customer.formattedPin}
+                </span>
+                <button
+                  onClick={handleCopyPin}
+                  className="p-1.5 rounded-lg border border-[#EBD3C8] bg-[#FAF5F2] hover:bg-[#FDF4F0] text-neutral-600 transition-colors active:scale-95 cursor-pointer"
+                  title="Copy PIN"
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              {copied && (
+                <span className="text-[10px] font-mono text-[#3F1215] mt-1 block">
+                  Copied to clipboard!
+                </span>
+              )}
+            </div>
+
+            {/* QR Code Presentation */}
+            <div className="flex flex-col items-center justify-center mb-4">
+              <div className="p-2.5 bg-white rounded-xl border border-[#EBD3C8] shadow-2xs">
+                <QRCodeSVG
+                  value={customer.qrSecret}
+                  size={120}
+                  level="H"
+                  includeMargin={false}
+                  fgColor="#3F1215"
+                />
+              </div>
+              <span className="text-[10px] text-neutral-400 font-mono mt-1.5">
+                Or scan customer QR on POS terminal
               </span>
+            </div>
+
+            {/* Cashier-Only Activation Notice */}
+            <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-[11px] text-amber-900 mb-4 flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+              <p className="leading-snug">
+                Present this code to the cashier at the counter. The discount will only be applied and points deducted once confirmed by the cashier.
+              </p>
             </div>
 
             <button
-              onClick={() => setClaimedVoucher(null)}
-              className="w-full py-3 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors shadow-xs cursor-pointer"
+              onClick={() => setRedeemingReward(null)}
+              className="w-full py-3 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-98"
             >
               Done & Return to Pass
             </button>
