@@ -3,6 +3,8 @@ import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { BrandProvider } from "@/components/BrandProvider";
 
+// Cove Loyalty Platform - Production Release FINAL
+
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],
   weight: ["300", "400", "500", "600", "700"],
