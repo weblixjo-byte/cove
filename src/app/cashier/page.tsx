@@ -20,7 +20,9 @@ import {
   X,
   Store,
   ChevronRight,
+  Camera,
 } from "lucide-react";
+import QrCameraScanner from "@/components/QrCameraScanner";
 
 interface POSCustomer {
   id: string;
@@ -68,6 +70,7 @@ export default function CashierPage() {
 
   // POS Workflow State
   const [activeMode, setActiveMode] = useState<"pin" | "qr" | "redeem">("pin");
+  const [showCameraScanner, setShowCameraScanner] = useState(false);
   const [pinQuery, setPinQuery] = useState("");
   const [qrQuery, setQrQuery] = useState("");
   const [lookupLoading, setLookupLoading] = useState(false);
@@ -175,6 +178,13 @@ export default function CashierPage() {
     }
   };
 
+  // Handle scanned QR from live camera
+  const handleQrScan = (decodedData: string) => {
+    setShowCameraScanner(false);
+    setQrQuery(decodedData);
+    performLookup(decodedData);
+  };
+
   // Reset POS for next customer
   const resetPOS = () => {
     setIdentifiedCustomer(null);
@@ -275,10 +285,10 @@ export default function CashierPage() {
   // Cashier Login View
   if (!cashier) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex flex-col justify-between p-6">
-        <div className="max-w-sm w-full mx-auto my-auto">
-          <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#1A5336] text-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+      <div className="min-h-screen bg-[#FAFAFA] flex flex-col justify-between px-4 py-6 sm:p-6 overflow-y-auto">
+        <div className="max-w-sm w-full mx-auto my-auto py-4">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-[#1A5336] text-white flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-sm">
               <ScanLine className="w-7 h-7 text-emerald-200" />
             </div>
             <h1 className="text-2xl font-serif font-medium text-neutral-900 mb-1">
@@ -287,7 +297,7 @@ export default function CashierPage() {
             <p className="text-xs text-neutral-500">{config.storeName} • POS Verification</p>
           </div>
 
-          <div className="bg-white border border-neutral-200 rounded-3xl p-7 shadow-sm">
+          <div className="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-7 shadow-sm">
             {loginError && (
               <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -298,29 +308,31 @@ export default function CashierPage() {
             <form onSubmit={handleCashierLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-neutral-700 mb-1.5">
-                  Cashier Username
+                  Cashier Username / اسم المستخدم
                 </label>
                 <input
                   type="text"
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="e.g. cashier1"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                  placeholder="sajji or ahmad"
+                  className="w-full px-3.5 py-3 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
                   required
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-neutral-700 mb-1.5">
-                  4-Digit Terminal PIN
+                  4-Digit Terminal PIN / رمز الدخول
                 </label>
                 <input
                   type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength={4}
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}
-                  placeholder="1234"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-center font-mono text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                  placeholder="••••"
+                  className="w-full px-3.5 py-3 rounded-xl border border-neutral-200 text-center font-mono text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
                   required
                 />
               </div>
@@ -328,7 +340,7 @@ export default function CashierPage() {
               <button
                 type="submit"
                 disabled={loginLoading}
-                className="w-full py-3 rounded-xl bg-[#1A5336] text-white text-sm font-medium hover:bg-[#14422B] transition-colors disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-[#1A5336] text-white text-sm font-semibold hover:bg-[#14422B] transition-colors disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
               >
                 {loginLoading ? "Verifying PIN..." : "Open POS Terminal"}
                 <ArrowRight className="w-4 h-4" />
@@ -380,39 +392,40 @@ export default function CashierPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col justify-between">
       {/* Top Header */}
-      <header className="bg-white border-b border-neutral-200 px-6 py-3 sticky top-0 z-20">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#1A5336] flex items-center justify-center text-white">
-              <ScanLine className="w-5 h-5 text-emerald-200" />
+      <header className="bg-white border-b border-neutral-200 px-3 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-20">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#1A5336] flex items-center justify-center text-white shrink-0 shadow-xs">
+              <ScanLine className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-200" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm text-neutral-900">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-xs sm:text-sm text-neutral-900 truncate">
                   {config.storeName} POS
                 </span>
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#1A5336] font-medium">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#1A5336] font-medium shrink-0">
                   Active
                 </span>
               </div>
-              <span className="text-xs text-neutral-500">
+              <span className="text-[11px] text-neutral-500 block truncate max-w-[130px] sm:max-w-none">
                 Staff: {cashier.name} • {cashier.branchName}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               onClick={resetPOS}
-              className="px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 text-xs text-neutral-700 flex items-center gap-1.5 transition-colors"
+              className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 text-xs text-neutral-700 flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              Reset Terminal
+              <span className="hidden sm:inline">Reset Terminal</span>
+              <span className="sm:hidden">Reset</span>
             </button>
 
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-colors cursor-pointer"
               title="Log Out"
             >
               <LogOut className="w-4 h-4" />
@@ -422,58 +435,65 @@ export default function CashierPage() {
       </header>
 
       {/* POS Content Body */}
-      <main className="max-w-4xl mx-auto w-full px-6 py-8 flex-1">
+      <main className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-5 sm:py-8 flex-1">
         {/* STEP 1: Fast Customer Identification (Dual Large Actions) */}
         {!identifiedCustomer && (
           <div className="max-w-xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-serif font-medium text-neutral-900 mb-2">
-                Identify Customer
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-serif font-medium text-neutral-900 mb-1 sm:mb-2">
+                Identify Customer / البحث عن الزبون
               </h2>
-              <p className="text-sm text-neutral-500">
-                Scan member QR pass or type their 6-digit phone fallback PIN.
+              <p className="text-xs sm:text-sm text-neutral-500">
+                وجه الكاميرا لمسح رمز الـ QR أو أدخل رمز الزبون المكون من 6 أرقام.
               </p>
             </div>
 
             {/* Two Primary Action Buttons */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-6">
               <button
+                type="button"
                 onClick={() => {
                   setActiveMode("pin");
                   setLookupError(null);
                 }}
-                className={`p-5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-2 ${
+                className={`p-4 sm:p-5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   activeMode === "pin"
-                    ? "border-[#1A5336] bg-emerald-50/40 text-[#1A5336] shadow-xs"
+                    ? "border-[#1A5336] bg-emerald-50/50 text-[#1A5336] shadow-xs ring-1 ring-[#1A5336]"
                     : "border-neutral-200 bg-white hover:border-neutral-300 text-neutral-700"
                 }`}
               >
-                <Hash className="w-6 h-6" />
-                <span className="font-semibold text-sm">Enter 6-Digit PIN</span>
-                <span className="text-[11px] text-neutral-400">Manual counter keypad</span>
+                <Hash className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="font-semibold text-xs sm:text-sm">6-Digit PIN</span>
+                <span className="text-[10px] sm:text-[11px] text-neutral-400 font-mono">
+                  رمز الزبون
+                </span>
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   setActiveMode("qr");
+                  setShowCameraScanner(true);
                   setLookupError(null);
                 }}
-                className={`p-5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-2 ${
+                className={`p-4 sm:p-5 rounded-2xl border text-center transition-all flex flex-col items-center justify-center gap-1.5 sm:gap-2 cursor-pointer ${
                   activeMode === "qr"
-                    ? "border-[#1A5336] bg-emerald-50/40 text-[#1A5336] shadow-xs"
+                    ? "border-[#1A5336] bg-emerald-50/50 text-[#1A5336] shadow-xs ring-1 ring-[#1A5336]"
                     : "border-neutral-200 bg-white hover:border-neutral-300 text-neutral-700"
                 }`}
               >
-                <ScanLine className="w-6 h-6" />
-                <span className="font-semibold text-sm">Scan QR Code</span>
-                <span className="text-[11px] text-neutral-400">Camera / Barcode Reader</span>
+                <ScanLine className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="font-semibold text-xs sm:text-sm">Scan QR Code</span>
+                <span className="text-[10px] sm:text-[11px] text-neutral-400 font-mono">
+                  كاميرا الـ QR
+                </span>
               </button>
             </div>
 
             {/* Input Form based on Active Mode */}
-            <div className="bg-white border border-neutral-200 rounded-3xl p-7 shadow-sm">
+            <div className="bg-white border border-neutral-200 rounded-3xl p-5 sm:p-7 shadow-sm">
               {lookupError && (
-                <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+                <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2 text-start">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   <span>{lookupError}</span>
                 </div>
@@ -482,11 +502,13 @@ export default function CashierPage() {
               {activeMode === "pin" ? (
                 <div>
                   <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2">
-                    Customer 6-Digit PIN
+                    Customer 6-Digit PIN / الرمز السري المكون من 6 أرقام
                   </label>
                   <div className="flex gap-2">
                     <input
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       maxLength={6}
                       value={pinQuery}
                       onChange={(e) => {
@@ -497,39 +519,56 @@ export default function CashierPage() {
                         }
                       }}
                       placeholder="482910"
-                      className="flex-1 px-4 py-3.5 rounded-2xl border border-neutral-200 text-center font-pin text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                      className="flex-1 px-3 sm:px-4 py-3 sm:py-3.5 rounded-2xl border border-neutral-200 text-center font-pin text-xl sm:text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
                       autoFocus
                     />
                     <button
                       onClick={() => performLookup(pinQuery)}
                       disabled={lookupLoading || pinQuery.length < 6}
-                      className="px-6 rounded-2xl bg-[#1A5336] text-white text-sm font-medium hover:bg-[#14422B] transition-colors disabled:opacity-40"
+                      className="px-4 sm:px-6 rounded-2xl bg-[#1A5336] text-white text-xs sm:text-sm font-semibold hover:bg-[#14422B] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
                     >
-                      {lookupLoading ? "Looking up..." : "Lookup"}
+                      {lookupLoading ? "Looking..." : "Lookup"}
                     </button>
                   </div>
                 </div>
               ) : (
-                <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2">
-                    Scanned QR Token / Payload
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={qrQuery}
-                      onChange={(e) => setQrQuery(e.target.value)}
-                      placeholder="Paste or scan QR token (e.g. cove_token_...)"
-                      className="flex-1 px-4 py-3 rounded-2xl border border-neutral-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
-                      autoFocus
-                    />
-                    <button
-                      onClick={() => performLookup(qrQuery)}
-                      disabled={lookupLoading || !qrQuery}
-                      className="px-6 rounded-2xl bg-[#1A5336] text-white text-sm font-medium hover:bg-[#14422B] transition-colors disabled:opacity-40"
-                    >
-                      {lookupLoading ? "Scanning..." : "Verify"}
-                    </button>
+                <div className="space-y-4">
+                  {/* Primary Big Camera Scan Trigger */}
+                  <button
+                    type="button"
+                    onClick={() => setShowCameraScanner(true)}
+                    className="w-full py-4 px-4 rounded-2xl bg-[#1A5336] hover:bg-[#14422B] text-white text-sm font-semibold flex items-center justify-center gap-3 transition-all shadow-md active:scale-98 cursor-pointer"
+                  >
+                    <Camera className="w-6 h-6 text-emerald-300 animate-pulse" />
+                    <span>تشغيل كاميرا الموبايل للمسح المباشر (Open Camera)</span>
+                  </button>
+
+                  <div className="flex items-center gap-2 my-2">
+                    <div className="flex-1 h-px bg-neutral-200" />
+                    <span className="text-[11px] text-neutral-400 font-mono">أو إدخال رمز الـ QR يدوياً</span>
+                    <div className="flex-1 h-px bg-neutral-200" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2">
+                      Scanned QR Token / Payload
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={qrQuery}
+                        onChange={(e) => setQrQuery(e.target.value)}
+                        placeholder="Paste or type QR token (e.g. cove_token_...)"
+                        className="flex-1 px-3.5 py-3 rounded-xl border border-neutral-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                      />
+                      <button
+                        onClick={() => performLookup(qrQuery)}
+                        disabled={lookupLoading || !qrQuery}
+                        className="px-4 sm:px-6 rounded-xl bg-[#1A5336] text-white text-xs font-semibold hover:bg-[#14422B] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+                      >
+                        {lookupLoading ? "Scanning..." : "Verify"}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -634,18 +673,43 @@ export default function CashierPage() {
                     <div className="relative">
                       <input
                         type="number"
+                        inputMode="decimal"
                         step="0.05"
                         min="0.1"
                         value={billAmount}
                         onChange={(e) => setBillAmount(e.target.value)}
                         placeholder="0.000"
-                        className="w-full px-5 py-4 rounded-2xl border border-neutral-200 text-3xl font-bold font-serif focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
+                        className="w-full px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl border border-neutral-200 text-2xl sm:text-3xl font-bold font-serif focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20 focus:border-[#1A5336]"
                         autoFocus
                         required
                       />
-                      <span className="absolute right-5 top-1/2 -translate-y-1/2 font-mono text-sm text-neutral-400">
+                      <span className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 font-mono text-sm text-neutral-400">
                         {config.currency}
                       </span>
+                    </div>
+
+                    {/* Quick amount chips for fast mobile cashier input */}
+                    <div className="flex flex-wrap gap-1.5 mt-2.5">
+                      {[0.5, 1, 1.5, 2, 3, 5].map((val) => (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() => {
+                            const current = parseFloat(billAmount) || 0;
+                            setBillAmount((current + val).toFixed(3));
+                          }}
+                          className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 active:scale-95 text-neutral-800 text-xs font-mono font-medium transition-all cursor-pointer"
+                        >
+                          +{val.toFixed(3)}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setBillAmount("")}
+                        className="px-2.5 py-1.5 rounded-xl bg-neutral-50 hover:bg-red-50 active:scale-95 text-neutral-500 hover:text-red-600 text-xs font-mono font-medium transition-all cursor-pointer"
+                      >
+                        Clear
+                      </button>
                     </div>
                   </div>
 
@@ -707,14 +771,14 @@ export default function CashierPage() {
                         if (e.target.value === "Artisan Flat White") setRedeemPoints("80");
                         if (e.target.value === "Kyoto Cold Brew") setRedeemPoints("120");
                         if (e.target.value === "Pistachio Croissant") setRedeemPoints("90");
-                        if (e.target.value === "Bill Discount (1.000 KWD)") setRedeemPoints("100");
+                        if (e.target.value === `Bill Discount (1.000 ${config.currency})`) setRedeemPoints("100");
                       }}
                       className="w-full px-4 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A5336]/20"
                     >
                       <option value="Artisan Flat White">Artisan Flat White / Latte (80 pts)</option>
                       <option value="Kyoto Cold Brew">Kyoto Cold Brew (120 pts)</option>
                       <option value="Pistachio Croissant">Fresh Pistachio Croissant (90 pts)</option>
-                      <option value="Bill Discount (1.000 KWD)">Cash Discount 1.000 KWD (100 pts)</option>
+                      <option value={`Bill Discount (1.000 ${config.currency})`}>Cash Discount 1.000 {config.currency} (100 pts)</option>
                       <option value="Custom Redemption">Custom Points Deduction</option>
                     </select>
                   </div>
@@ -759,7 +823,7 @@ export default function CashierPage() {
         {/* STEP 3: Tactile Success Receipt Modal */}
         {receipt && (
           <div className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white border border-neutral-200 rounded-3xl p-7 max-w-md w-full shadow-xl text-center">
+            <div className="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-xl text-center max-h-[90vh] overflow-y-auto">
               <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-100 text-[#1A5336] flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
@@ -818,6 +882,14 @@ export default function CashierPage() {
               </button>
             </div>
           </div>
+        )}
+
+        {/* Live Mobile Camera QR Scanner Modal */}
+        {showCameraScanner && (
+          <QrCameraScanner
+            onScan={handleQrScan}
+            onClose={() => setShowCameraScanner(false)}
+          />
         )}
       </main>
 

@@ -14,7 +14,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Customer PIN, QR token, or phone is required" }, { status: 400 });
     }
 
-    const cleaned = query.trim();
+    let cleaned = query.trim();
+
+    // If scanned data is a full URL, extract relevant query parameters
+    if (cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
+      try {
+        const parsedUrl = new URL(cleaned);
+        const extracted = parsedUrl.searchParams.get("token") || parsedUrl.searchParams.get("qr") || parsedUrl.searchParams.get("pin");
+        if (extracted) {
+          cleaned = extracted.trim();
+        }
+      } catch {
+        // Ignore URL parsing errors and keep cleaned
+      }
+    }
+
     let customer = null;
 
     // 1. Try 6-digit PIN (strip spaces/dashes: "482 - 910" -> "482910")
