@@ -950,10 +950,10 @@ export default function CustomerPage() {
 
                 <div className="text-right">
                   <span className="text-[11px] uppercase tracking-wider font-mono text-neutral-400 block mb-0.5">
-                    Cash Valuation
+                    Rewards Status
                   </span>
                   <span className="inline-block px-2.5 py-1 rounded-lg bg-[#FDF4F0] border border-[#EBD3C8] text-xs font-semibold text-[#3F1215]">
-                    = {formatCurrency(customer.currencyValue)}
+                    {rewards.filter((r) => r.canRedeem).length} Unlocked
                   </span>
                 </div>
               </div>
@@ -997,8 +997,8 @@ export default function CustomerPage() {
                 </span>
               </div>
               <div className="text-end">
-                <span className="text-xs text-emerald-800 font-medium bg-emerald-50/80 border border-emerald-200 px-3 py-1 rounded-full block">
-                  = {formatCurrency(customer.currencyValue)} instant discount
+                <span className="text-xs text-[#3F1215] font-semibold bg-[#FDF4F0] border border-[#EBD3C8] px-3 py-1 rounded-full block">
+                  Redeemable in Store
                 </span>
               </div>
             </div>

@@ -824,9 +824,9 @@ export default function CashierPage() {
                   </div>
                 </div>
                 <div className="text-right bg-white/80 px-3 py-1.5 rounded-xl border border-[#EBD3C8]/70 shadow-2xs">
-                  <span className="text-[10px] text-neutral-400 block font-medium">Cash Discount Value</span>
-                  <span className="text-xs font-bold text-[#3F1215] font-mono">
-                    {formatCurrency(identifiedCustomer.currencyValue)}
+                  <span className="text-[10px] text-neutral-400 block font-medium">Member Tier</span>
+                  <span className="text-xs font-bold text-[#3F1215] uppercase tracking-wider">
+                    {identifiedCustomer.tier || "Member"}
                   </span>
                 </div>
               </div>
