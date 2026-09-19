@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbService } from "@/lib/db";
-import { signToken, TOKEN_COOKIE_NAME } from "@/lib/auth";
+import { signToken, TOKEN_COOKIE_NAME, PERMANENT_COOKIE_MAX_AGE } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
 
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60,
+        maxAge: PERMANENT_COOKIE_MAX_AGE,
         path: "/",
       });
 
@@ -134,7 +134,7 @@ export async function POST(req: Request) {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60,
+        maxAge: PERMANENT_COOKIE_MAX_AGE,
         path: "/",
       });
 

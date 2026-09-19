@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbService } from "@/lib/db";
-import { signToken, TOKEN_COOKIE_NAME } from "@/lib/auth";
+import { signToken, TOKEN_COOKIE_NAME, PERMANENT_COOKIE_MAX_AGE } from "@/lib/auth";
 
 function getOrigin(req: Request): string {
   const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
@@ -143,7 +143,7 @@ export async function GET(req: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 365 * 24 * 60 * 60, // 1 year
+      maxAge: PERMANENT_COOKIE_MAX_AGE,
       path: "/",
     });
 

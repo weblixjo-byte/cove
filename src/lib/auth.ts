@@ -4,10 +4,12 @@ import { AuthSession, UserRole } from "./types";
 
 const JWT_SECRET = process.env.JWT_SECRET || "cove_coffee_house_super_secure_secret_loyalty_2026_jwt_token";
 export const TOKEN_COOKIE_NAME = "cove_loyalty_session";
+// 10 years persistent session in seconds (permanent session)
+export const PERMANENT_COOKIE_MAX_AGE = 10 * 365 * 24 * 60 * 60;
 
 export function signToken(session: AuthSession): string {
   return jwt.sign(session, JWT_SECRET, {
-    expiresIn: "365d",
+    expiresIn: "3650d",
   });
 }
 
