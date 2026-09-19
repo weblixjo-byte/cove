@@ -606,6 +606,19 @@ export default function AdminPage() {
     }
   };
 
+  // Delete Cashier
+  const handleDeleteCashier = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to permanently delete cashier "${name}"?`)) return;
+    try {
+      const res = await fetch(`/api/admin/cashiers?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        await loadCashiers();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // Send Broadcast / Targeted Notification
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1467,12 +1480,21 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="py-3.5 px-5 text-end">
-                          <button
-                            onClick={() => handleToggleCashier(c.id, c.isActive)}
-                            className="text-[#3F1215] hover:text-[#2B0B0D] text-xs underline font-medium cursor-pointer"
-                          >
-                            {c.isActive ? t.deactivate : t.reactivate}
-                          </button>
+                          <div className="flex items-center justify-end gap-3">
+                            <button
+                              onClick={() => handleToggleCashier(c.id, c.isActive)}
+                              className="text-[#3F1215] hover:text-[#2B0B0D] text-xs underline font-medium cursor-pointer"
+                            >
+                              {c.isActive ? t.deactivate : t.reactivate}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCashier(c.id, c.name)}
+                              className="p-1 rounded-lg text-neutral-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                              title="Delete Cashier"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

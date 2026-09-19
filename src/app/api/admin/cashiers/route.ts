@@ -101,3 +101,24 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "super_admin") {
+      return NextResponse.json({ error: "Unauthorized: Super Admin access required" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Cashier ID is required" }, { status: 400 });
+    }
+
+    await dbService.deleteUser(id);
+    return NextResponse.json({ success: true, message: "Cashier deleted successfully" });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

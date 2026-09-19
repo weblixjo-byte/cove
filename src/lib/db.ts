@@ -338,6 +338,24 @@ export const dbService = {
     return null;
   },
 
+  async deleteUser(id: string): Promise<boolean> {
+    const { isMongoose } = await connectDB();
+    if (isMongoose) {
+      try {
+        await User.findByIdAndDelete(id);
+        return true;
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    const idx = memoryStore.users.findIndex((u) => u._id === id);
+    if (idx !== -1) {
+      memoryStore.users.splice(idx, 1);
+      return true;
+    }
+    return false;
+  },
+
   async getAllCashiers(): Promise<IUser[]> {
     const { isMongoose } = await connectDB();
     if (isMongoose) {
