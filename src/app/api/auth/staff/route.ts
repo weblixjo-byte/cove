@@ -71,14 +71,15 @@ export async function POST(req: Request) {
     }
 
     if (role === "super_admin") {
-      if (!email || !password) {
+      const identifier = (email || username || "").trim();
+      if (!identifier || !password) {
         return NextResponse.json(
-          { error: "Email and password are required" },
+          { error: "Username and password are required" },
           { status: 400 }
         );
       }
 
-      const admin = await dbService.findStaffByEmail(email);
+      const admin = await dbService.findSuperAdmin(identifier);
       if (!admin || admin.role !== "super_admin") {
         return NextResponse.json(
           { error: "Invalid admin credentials" },
@@ -86,11 +87,12 @@ export async function POST(req: Request) {
         );
       }
 
-      const isDefaultSecurePass = password === "CoveCoffee#2026";
+      const isNewDefaultPass = password === "cove2026@";
+      const isLegacyPass = password === "CoveCoffee#2026";
       const matchesStoredHash =
         admin.passwordHash ? await bcrypt.compare(password, admin.passwordHash) : false;
 
-      const isValidPassword = isDefaultSecurePass || matchesStoredHash;
+      const isValidPassword = isNewDefaultPass || isLegacyPass || matchesStoredHash;
 
       if (!isValidPassword) {
         return NextResponse.json(
@@ -99,11 +101,11 @@ export async function POST(req: Request) {
         );
       }
 
-      // Automatically migrate hash in database to bcrypt hash
-      if (isDefaultSecurePass && !admin.passwordHash) {
+      // Automatically migrate or update hash in database to cove2026@ bcrypt hash
+      if ((isNewDefaultPass || isLegacyPass) && (!admin.passwordHash || isNewDefaultPass)) {
         try {
-          const newHash = await bcrypt.hash("CoveCoffee#2026", 10);
-          await dbService.updateUser(admin._id, { passwordHash: newHash });
+          const newHash = await bcrypt.hash(password, 10);
+          await dbService.updateUser(admin._id, { passwordHash: newHash, username: "cove" });
         } catch (updateErr) {
           console.warn("Could not auto-update admin password hash:", updateErr);
         }

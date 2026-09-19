@@ -229,6 +229,32 @@ export const dbService = {
     return this.findUserByEmail(email);
   },
 
+  async findSuperAdmin(identifier: string): Promise<IUser | null> {
+    const clean = identifier.toLowerCase().trim();
+    const { isMongoose } = await connectDB();
+    if (isMongoose) {
+      try {
+        const user = await User.findOne({
+          role: "super_admin",
+          $or: [
+            { username: clean },
+            { email: clean },
+          ],
+        }).lean();
+        if (user) return JSON.parse(JSON.stringify(user));
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    const found = memoryStore.users.find(
+      (u) =>
+        u.role === "super_admin" &&
+        ((u.username && u.username.toLowerCase() === clean) ||
+          (u.email && u.email.toLowerCase() === clean))
+    );
+    return found ? { ...found } : null;
+  },
+
   async findUserByEmail(email: string): Promise<IUser | null> {
     const cleanEmail = email.toLowerCase().trim();
     const { isMongoose } = await connectDB();

@@ -34,7 +34,7 @@ const i18n = {
     langToggle: "English",
     superAdmin: "Super Admin",
     portalSubtitle: "Executive Portal",
-    adminEmail: "Administrator Email",
+    adminEmail: "Administrator Username",
     password: "Password",
     signIn: "Sign In to Admin",
     authenticating: "Authenticating...",
@@ -454,7 +454,8 @@ export default function AdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           role: "super_admin",
-          email: emailInput,
+          username: emailInput.trim(),
+          email: emailInput.trim(),
           password: passwordInput,
         }),
       });
@@ -690,10 +691,11 @@ export default function AdminPage() {
                   {t.adminEmail}
                 </label>
                 <input
-                  type="email"
+                  type="text"
+                  autoCapitalize="none"
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="admin@covecoffee.com"
+                  placeholder="cove"
                   className="glass-input w-full px-4 py-3 rounded-2xl text-sm"
                   required
                 />
