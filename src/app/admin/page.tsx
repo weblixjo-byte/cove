@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Gift,
   Users,
+  User,
   Send,
   Coffee,
   DollarSign,
@@ -121,12 +122,12 @@ const i18n = {
     optionalBonus: "Optional Bonus Points Gift",
     bonusHelp: "Set to 0 for a standard notification without a points grant.",
     audienceLabel: "Target Audience",
-    audienceAll: "All Members (Broadcast)",
-    audienceSingle: "Specific Member (Direct)",
+    audienceAll: "All Members",
+    audienceSingle: "Specific Member",
     selectCustomer: "Select Customer",
     noCustomersFound: "No registered customers found",
     sendBroadcast: "Send Broadcast to All Members",
-    sendToSingle: "Send Direct Notification",
+    sendToSingle: "Send to Specific Member",
     sendingBroadcast: "Dispatching Notification...",
     broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string, pushDevices?: number) => {
       const pushNote = pushDevices && pushDevices > 0 ? ` (Real push delivered to ${pushDevices} device${pushDevices > 1 ? "s" : ""})` : "";
@@ -226,12 +227,12 @@ const i18n = {
     optionalBonus: "Optional Bonus Points Gift",
     bonusHelp: "Set to 0 for a standard notification without a points grant.",
     audienceLabel: "Target Audience",
-    audienceAll: "All Members (Broadcast)",
-    audienceSingle: "Specific Member (Direct)",
+    audienceAll: "All Members",
+    audienceSingle: "Specific Member",
     selectCustomer: "Select Customer",
     noCustomersFound: "No registered customers found",
     sendBroadcast: "Send Broadcast to All Members",
-    sendToSingle: "Send Direct Notification",
+    sendToSingle: "Send to Specific Member",
     sendingBroadcast: "Dispatching Notification...",
     broadcastSuccessMsg: (bonusCount?: number, bonus?: string, recipientName?: string, pushDevices?: number) => {
       const pushNote = pushDevices && pushDevices > 0 ? ` (Real push delivered to ${pushDevices} device${pushDevices > 1 ? "s" : ""})` : "";
@@ -309,7 +310,7 @@ export default function AdminPage() {
   const [loadingCustomers, setLoadingCustomers] = useState(false);
 
   // Broadcast & Targeted Notification State
-  const [broadcastAudience, setBroadcastAudience] = useState<"all" | "gold" | "silver" | "inactive" | "single">("all");
+  const [broadcastAudience, setBroadcastAudience] = useState<"all" | "single">("all");
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
@@ -1534,37 +1535,60 @@ export default function AdminPage() {
 
               {/* Audience Selector */}
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2">
+                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2.5">
                   {t.audienceLabel}
                 </label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: "all", label: "All Members" },
-                    { id: "gold", label: "VIP / Gold" },
-                    { id: "silver", label: "Silver Tier" },
-                    { id: "inactive", label: "Inactive Members" },
-                    { id: "single", label: "Individual Member" },
-                  ].map((aud) => (
-                    <button
-                      key={aud.id}
-                      type="button"
-                      onClick={() => setBroadcastAudience(aud.id as any)}
-                      className={`py-2 px-3.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
-                        broadcastAudience === aud.id
-                          ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs"
-                          : "bg-white/70 text-neutral-600 border-[#EBD3C8] hover:bg-white hover:text-neutral-900"
-                      }`}
-                    >
-                      {aud.label}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setBroadcastAudience("all")}
+                    className={`py-3 px-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-3 ${
+                      broadcastAudience === "all"
+                        ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-md ring-2 ring-[#3F1215]/20"
+                        : "bg-white/80 text-neutral-700 border-[#EBD3C8] hover:bg-white hover:border-[#3F1215]/40"
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${broadcastAudience === "all" ? "bg-white/15 text-white" : "bg-[#FAF5F2] text-[#3F1215]"}`}>
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className={`text-xs font-bold ${broadcastAudience === "all" ? "text-white" : "text-neutral-900"}`}>
+                        All Members
+                      </div>
+                      <div className={`text-[10px] ${broadcastAudience === "all" ? "text-[#FEECE2]/70" : "text-neutral-400"}`}>
+                        Broadcast to all members
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBroadcastAudience("single")}
+                    className={`py-3 px-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-3 ${
+                      broadcastAudience === "single"
+                        ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-md ring-2 ring-[#3F1215]/20"
+                        : "bg-white/80 text-neutral-700 border-[#EBD3C8] hover:bg-white hover:border-[#3F1215]/40"
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${broadcastAudience === "single" ? "bg-white/15 text-white" : "bg-[#FAF5F2] text-[#3F1215]"}`}>
+                      <User className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className={`text-xs font-bold ${broadcastAudience === "single" ? "text-white" : "text-neutral-900"}`}>
+                        Specific Member
+                      </div>
+                      <div className={`text-[10px] ${broadcastAudience === "single" ? "text-[#FEECE2]/70" : "text-neutral-400"}`}>
+                        Direct 1-on-1 message
+                      </div>
+                    </div>
+                  </button>
                 </div>
               </div>
 
               {/* Single Customer Selection Dropdown */}
               {broadcastAudience === "single" && (
-                <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
+                <div className="p-4 rounded-2xl bg-[#FAF5F2]/80 border border-[#EBD3C8]/80 space-y-2">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-neutral-600">
                     {t.selectCustomer}
                   </label>
                   {loadingCustomers ? (
@@ -1591,21 +1615,21 @@ export default function AdminPage() {
               )}
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-600 mb-2">
                   {t.announcementTitle}
                 </label>
                 <input
                   type="text"
                   value={broadcastTitle}
                   onChange={(e) => setBroadcastTitle(e.target.value)}
-                  placeholder="Notification title or offer announcement"
-                  className="glass-input w-full"
+                  placeholder="Notification title or offer announcement..."
+                  className="glass-input w-full px-4 py-3.5 rounded-2xl text-sm font-medium text-neutral-900 placeholder:text-neutral-400 shadow-xs focus:ring-4 focus:ring-[#3F1215]/10"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-600 mb-2">
                   {t.notificationMessage}
                 </label>
                 <textarea
@@ -1613,23 +1637,29 @@ export default function AdminPage() {
                   value={broadcastMessage}
                   onChange={(e) => setBroadcastMessage(e.target.value)}
                   placeholder="Write notification message details here..."
-                  className="glass-input w-full resize-none"
+                  className="glass-input w-full px-4 py-3.5 rounded-2xl text-sm text-neutral-900 placeholder:text-neutral-400 resize-none leading-relaxed min-h-[110px] shadow-xs focus:ring-4 focus:ring-[#3F1215]/10"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-neutral-600 mb-2">
                   {t.optionalBonus}
                 </label>
-                <input
-                  type="number"
-                  value={broadcastBonus}
-                  onChange={(e) => setBroadcastBonus(e.target.value)}
-                  placeholder="0"
-                  className="glass-input w-full font-mono"
-                />
-                <span className="text-[10px] text-neutral-400 mt-1 block">
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={broadcastBonus}
+                    onChange={(e) => setBroadcastBonus(e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    className="glass-input w-full px-4 py-3.5 pr-14 rounded-2xl text-sm font-mono text-neutral-900 placeholder:text-neutral-400 shadow-xs focus:ring-4 focus:ring-[#3F1215]/10"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-mono font-bold text-neutral-400 pointer-events-none">
+                    PTS
+                  </span>
+                </div>
+                <span className="text-[11px] text-neutral-400 mt-1.5 block">
                   {t.bonusHelp}
                 </span>
               </div>
