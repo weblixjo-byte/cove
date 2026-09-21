@@ -151,6 +151,11 @@ export default function CustomerPage() {
   const [activeTab, setActiveTab] = useState<"card" | "rewards" | "history" | "notifications">("card");
   const [copied, setCopied] = useState(false);
 
+  // Auto-Dismissing Top Toast Notification State (6s timeout, preserves isRead: false)
+  const [showTopToast, setShowTopToast] = useState(false);
+  const [activeToastNotification, setActiveToastNotification] = useState<NotificationItem | null>(null);
+  const seenToastNotifIdRef = useRef<string | null>(null);
+
   // Web Push Notification State
   const [pushPermission, setPushPermission] = useState<"default" | "granted" | "denied" | "unsupported">("default");
   const [pushSubscribed, setPushSubscribed] = useState(false);
@@ -216,6 +221,9 @@ export default function CustomerPage() {
         setCustomer(data.customer);
         setTransactions(data.transactions || []);
         if (typeof data.unreadNotificationsCount === "number") {
+          if (data.unreadNotificationsCount > serverUnreadCount) {
+            loadNotifications();
+          }
           setServerUnreadCount(data.unreadNotificationsCount);
         }
         if (typeof window !== "undefined") {
@@ -261,9 +269,18 @@ export default function CustomerPage() {
       const res = await fetch("/api/customer/notifications", { headers });
       const data = await res.json();
       if (data.success) {
-        setNotifications(data.notifications || []);
-        const unread = (data.notifications || []).filter((n: any) => !n.isRead).length;
+        const notifs: NotificationItem[] = data.notifications || [];
+        setNotifications(notifs);
+        const unread = notifs.filter((n) => !n.isRead).length;
         setServerUnreadCount(unread);
+
+        // Find the newest unread notification and show auto-dismissing top toast if not shown yet
+        const newestUnread = notifs.find((n) => !n.isRead);
+        if (newestUnread && newestUnread._id !== seenToastNotifIdRef.current) {
+          seenToastNotifIdRef.current = newestUnread._id;
+          setActiveToastNotification(newestUnread);
+          setShowTopToast(true);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -457,6 +474,15 @@ export default function CustomerPage() {
       }
     };
   }, []);
+
+  // Auto-dismiss top notification toast after 6 seconds without changing read status
+  useEffect(() => {
+    if (!showTopToast) return;
+    const timer = setTimeout(() => {
+      setShowTopToast(false);
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [showTopToast, activeToastNotification?._id]);
 
   // Listen for beforeinstallprompt event for Android 1-Click PWA install
   useEffect(() => {
@@ -726,6 +752,7 @@ export default function CustomerPage() {
 
   const markAllRead = async () => {
     try {
+      setShowTopToast(false);
       setServerUnreadCount(0);
       const headers = getAuthHeaders();
       await fetch("/api/customer/notifications", { method: "POST", headers });
@@ -966,31 +993,48 @@ export default function CustomerPage() {
 
       {/* Main Container */}
       <main className="max-w-md mx-auto w-full px-4 pt-4 pb-32 flex-1">
-        {/* Real-time Notification Banner */}
-        {unreadCount > 0 && notifications.length > 0 && !notifications[0].isRead && activeTab !== "notifications" && (
+        {/* Auto-Dismissing Top Notification Toast (6s auto-dismiss, dismissible via X, preserves unread status) */}
+        {showTopToast && activeToastNotification && activeTab !== "notifications" && (
           <div
             onClick={() => {
+              setShowTopToast(false);
               setActiveTab("notifications");
               markAllRead();
             }}
-            className="mb-4 bg-[#3F1215] text-[#FEECE2] rounded-2xl p-3.5 shadow-md flex items-center justify-between gap-3 cursor-pointer hover:bg-[#2B0B0D] transition-all animate-in fade-in slide-in-from-top-2"
+            className="mb-4 bg-[#3F1215] text-[#FEECE2] rounded-2xl p-3.5 shadow-lg border border-white/15 flex items-center justify-between gap-3 cursor-pointer hover:bg-[#2B0B0D] transition-all duration-300 animate-in fade-in slide-in-from-top-3"
           >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
-                <Bell className="w-4 h-4 text-[#FEECE2]" />
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0 text-[#FEECE2]">
+                <Bell className="w-4 h-4 animate-bounce" />
               </div>
-              <div className="overflow-hidden">
-                <p className="text-xs font-semibold truncate text-[#FEECE2]">
-                  {notifications[0].title}
-                </p>
-                <p className="text-[11px] text-[#FEECE2]/80 truncate">
-                  {notifications[0].message}
+              <div className="overflow-hidden flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse shrink-0" />
+                  <p className="text-xs font-semibold truncate text-[#FEECE2]">
+                    {activeToastNotification.title}
+                  </p>
+                </div>
+                <p className="text-[11px] text-[#FEECE2]/80 truncate mt-0.5">
+                  {activeToastNotification.message}
                 </p>
               </div>
             </div>
-            <span className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-white/15 text-[#FEECE2] shrink-0">
-              View
-            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-white/15 text-[#FEECE2]">
+                View
+              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowTopToast(false);
+                }}
+                className="p-1 rounded-lg text-[#FEECE2]/70 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
+                title="Dismiss"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
 
@@ -1498,7 +1542,7 @@ export default function CustomerPage() {
             <div className="relative">
               <Bell className="w-4 h-4 mb-0.5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
+                <span className="absolute -top-0.5 -right-1 w-2.5 h-2.5 rounded-full bg-red-600 ring-2 ring-white animate-pulse" />
               )}
             </div>
             <span className="text-[10px] tracking-tight font-medium">Alerts</span>
