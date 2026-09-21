@@ -15,11 +15,17 @@ export async function GET(req: Request) {
   const origin = getOrigin(req);
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const oauthError = url.searchParams.get("error");
+  const rawOauthError = url.searchParams.get("error");
   const redirectUri = `${origin}/api/auth/google/callback`;
 
-  if (oauthError) {
-    return NextResponse.redirect(`${origin}/customer?error=${encodeURIComponent(oauthError)}`);
+  if (rawOauthError) {
+    let cleanError = rawOauthError;
+    try {
+      cleanError = decodeURIComponent(rawOauthError);
+    } catch {
+      cleanError = rawOauthError;
+    }
+    return NextResponse.redirect(`${origin}/customer?error=${encodeURIComponent(cleanError)}`);
   }
 
   if (!code) {
@@ -32,7 +38,6 @@ export async function GET(req: Request) {
   if (!clientId || !clientSecret) {
     return NextResponse.redirect(`${origin}/customer?error=missing_credentials`);
   }
-
 
   try {
     // 1. Exchange authorization code for access token
@@ -79,7 +84,7 @@ export async function GET(req: Request) {
     const config = await dbService.getConfig();
 
     if (!user) {
-      // First-time signup with Google
+      // First-time signup with Google (no phone yet)
       const pin = Math.floor(100000 + Math.random() * 900000).toString();
       const qrSecret = `cove_token_${cleanEmail.replace(/[^a-z0-9]/g, "_")}_${pin}`;
 
@@ -125,18 +130,22 @@ export async function GET(req: Request) {
       }
     }
 
-    // 4. Sign JWT session token
+    // 4. Sign JWT session token (10 years)
     const token = signToken({
       userId: user._id,
       role: "customer",
       name: user.name,
       email: user.email,
+      phone: user.phone,
       avatarUrl: user.avatarUrl,
       googleId: user.googleId,
       tier: user.tier,
     });
 
-    const redirectResponse = NextResponse.redirect(`${origin}/customer`);
+    const redirectUrl = new URL(`${origin}/customer`);
+    redirectUrl.searchParams.set("token", token);
+
+    const redirectResponse = NextResponse.redirect(redirectUrl.toString());
     redirectResponse.cookies.set({
       name: TOKEN_COOKIE_NAME,
       value: token,
@@ -150,6 +159,12 @@ export async function GET(req: Request) {
     return redirectResponse;
   } catch (err: any) {
     console.error("OAuth callback exception:", err);
-    return NextResponse.redirect(`${origin}/customer?error=oauth_exception`);
+    let errMsg = "oauth_exception";
+    try {
+      errMsg = decodeURIComponent(err.message || "oauth_exception");
+    } catch {
+      errMsg = err.message || "oauth_exception";
+    }
+    return NextResponse.redirect(`${origin}/customer?error=${encodeURIComponent(errMsg)}`);
   }
 }

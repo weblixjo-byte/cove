@@ -166,17 +166,32 @@ export const dbService = {
   },
 
   async findUserByPhone(phone: string): Promise<IUser | null> {
-    const cleanPhone = phone.replace(/\D/g, "");
+    let cleanPhone = phone.replace(/\D/g, "");
+    if (cleanPhone.startsWith("962") && cleanPhone.length > 9) {
+      cleanPhone = "0" + cleanPhone.slice(3);
+    }
+    const last9Digits = cleanPhone.length >= 9 ? cleanPhone.slice(-9) : cleanPhone;
+
     const { isMongoose } = await connectDB();
     if (isMongoose) {
       try {
-        const user = await User.findOne({ phone: { $regex: cleanPhone } }).lean();
+        const user = await User.findOne({
+          $or: [
+            { phone: cleanPhone },
+            { phone: { $regex: last9Digits } },
+          ],
+        }).lean();
         if (user) return JSON.parse(JSON.stringify(user));
       } catch (e) {
         console.warn(e);
       }
     }
-    const found = memoryStore.users.find((u) => u.phone && u.phone.replace(/\D/g, "") === cleanPhone);
+    const found = memoryStore.users.find(
+      (u) =>
+        u.phone &&
+        (u.phone.replace(/\D/g, "") === cleanPhone ||
+          u.phone.replace(/\D/g, "").endsWith(last9Digits))
+    );
     return found ? { ...found } : null;
   },
 

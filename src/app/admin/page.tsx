@@ -309,7 +309,7 @@ export default function AdminPage() {
   const [loadingCustomers, setLoadingCustomers] = useState(false);
 
   // Broadcast & Targeted Notification State
-  const [broadcastAudience, setBroadcastAudience] = useState<"all" | "single">("all");
+  const [broadcastAudience, setBroadcastAudience] = useState<"all" | "gold" | "silver" | "inactive" | "single">("all");
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
@@ -1537,29 +1537,27 @@ export default function AdminPage() {
                 <label className="block text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2">
                   {t.audienceLabel}
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setBroadcastAudience("all")}
-                    className={`py-2.5 px-3 rounded-xl border text-xs font-medium text-center transition-all cursor-pointer ${
-                      broadcastAudience === "all"
-                        ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs font-semibold"
-                        : "bg-white/60 text-neutral-600 border-[#EBD3C8] hover:bg-white"
-                    }`}
-                  >
-                    {t.audienceAll}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBroadcastAudience("single")}
-                    className={`py-2.5 px-3 rounded-xl border text-xs font-medium text-center transition-all cursor-pointer ${
-                      broadcastAudience === "single"
-                        ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs font-semibold"
-                        : "bg-white/60 text-neutral-600 border-[#EBD3C8] hover:bg-white"
-                    }`}
-                  >
-                    {t.audienceSingle}
-                  </button>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "all", label: "All Members" },
+                    { id: "gold", label: "VIP / Gold" },
+                    { id: "silver", label: "Silver Tier" },
+                    { id: "inactive", label: "Inactive Members" },
+                    { id: "single", label: "Individual Member" },
+                  ].map((aud) => (
+                    <button
+                      key={aud.id}
+                      type="button"
+                      onClick={() => setBroadcastAudience(aud.id as any)}
+                      className={`py-2 px-3.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
+                        broadcastAudience === aud.id
+                          ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215] shadow-xs"
+                          : "bg-white/70 text-neutral-600 border-[#EBD3C8] hover:bg-white hover:text-neutral-900"
+                      }`}
+                    >
+                      {aud.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 

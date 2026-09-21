@@ -8,6 +8,7 @@ export interface SelectOption {
   label: string;
   subtitle?: string;
   badge?: string;
+  avatarUrl?: string;
 }
 
 interface CustomGlassSelectProps {
@@ -84,7 +85,14 @@ export default function CustomGlassSelect({
       >
         <div className="flex items-center gap-2 min-w-0 overflow-hidden pr-2 flex-1">
           {selectedOption ? (
-            <div className="flex items-center justify-between gap-2 w-full min-w-0">
+            <div className="flex items-center gap-2 w-full min-w-0">
+              {selectedOption.avatarUrl && (
+                <img
+                  src={selectedOption.avatarUrl}
+                  alt=""
+                  className="w-5 h-5 rounded-full object-cover shrink-0 border border-[#EBD3C8]"
+                />
+              )}
               <span className="truncate font-medium text-neutral-900 text-xs sm:text-sm">
                 {selectedOption.label}
               </span>
@@ -154,17 +162,26 @@ export default function CustomGlassSelect({
                         : "text-neutral-700 hover:bg-[#FAF5F2] hover:text-[#3F1215]"
                     }`}
                   >
-                    <div className="flex flex-col min-w-0">
-                      <span className="truncate font-medium">{opt.label}</span>
-                      {opt.subtitle && (
-                        <span
-                          className={`truncate text-[10px] ${
-                            isSelected ? "text-[#FEECE2]/75" : "text-neutral-400"
-                          } font-mono`}
-                        >
-                          {opt.subtitle}
-                        </span>
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      {opt.avatarUrl && (
+                        <img
+                          src={opt.avatarUrl}
+                          alt=""
+                          className="w-6 h-6 rounded-full object-cover shrink-0 border border-[#EBD3C8]"
+                        />
                       )}
+                      <div className="flex flex-col min-w-0">
+                        <span className="truncate font-medium">{opt.label}</span>
+                        {opt.subtitle && (
+                          <span
+                            className={`truncate text-[10px] ${
+                              isSelected ? "text-[#FEECE2]/75" : "text-neutral-400"
+                            } font-mono`}
+                          >
+                            {opt.subtitle}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">

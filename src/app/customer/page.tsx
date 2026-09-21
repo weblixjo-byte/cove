@@ -19,6 +19,9 @@ import {
   AlertCircle,
   CheckCircle2,
   CheckCheck,
+  Phone,
+  Smartphone,
+  ArrowRight,
 } from "lucide-react";
 
 // Official Google Multi-Color Icon
@@ -117,10 +120,31 @@ const VAPID_KEY =
 export default function CustomerPage() {
   const { config, formatCurrency } = useBrand();
 
-  // State
-  const [loading, setLoading] = useState(true);
-  const [customer, setCustomer] = useState<CustomerData | null>(null);
-  const [transactions, setTransactions] = useState<TransactionItem[]>([]);
+  // State - Synchronous Cache Mount for 0ms initial load
+  const [customer, setCustomer] = useState<CustomerData | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(CUSTOMER_CACHE_KEY);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return !localStorage.getItem(CUSTOMER_CACHE_KEY);
+    }
+    return true;
+  });
+  const [transactions, setTransactions] = useState<TransactionItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(TRANSACTIONS_CACHE_KEY);
+        if (cached) return JSON.parse(cached);
+      } catch {}
+    }
+    return [];
+  });
   const [rewards, setRewards] = useState<RewardItem[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [activeTab, setActiveTab] = useState<"card" | "rewards" | "history" | "notifications">("card");
@@ -133,6 +157,15 @@ export default function CustomerPage() {
   const [showIosInstallModal, setShowIosInstallModal] = useState(false);
   const [pushSuccessToast, setPushSuccessToast] = useState<string | null>(null);
 
+  // Mandatory No-Skip Jordanian Phone Onboarding State
+  const [phoneInput, setPhoneInput] = useState("");
+  const [phoneSaving, setPhoneSaving] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  // 1-Click Android PWA Install State
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showAndroidBanner, setShowAndroidBanner] = useState(false);
+
   // Ref to track last known points for real-time cashier credit detection
   const prevPointsRef = useRef<number | null>(null);
 
@@ -141,7 +174,7 @@ export default function CustomerPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
 
-  // Custom Google Signup Form State (for signing up with any new Google email)
+  // Custom Google Signup Form State
   const [customName, setCustomName] = useState("");
   const [customEmail, setCustomEmail] = useState("");
 
@@ -150,13 +183,16 @@ export default function CustomerPage() {
   const [googleRedirecting, setGoogleRedirecting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Helper for dual persistence headers
+  // Helper for dual persistence headers (Authorization + x-customer-auth)
   const getAuthHeaders = (): Record<string, string> => {
     const headers: Record<string, string> = {};
     if (typeof window !== "undefined") {
       const savedToken = localStorage.getItem(CUSTOMER_TOKEN_KEY);
       const savedId = localStorage.getItem(CUSTOMER_ID_KEY);
-      if (savedToken) headers["x-customer-auth"] = savedToken;
+      if (savedToken) {
+        headers["Authorization"] = `Bearer ${savedToken}`;
+        headers["x-customer-auth"] = savedToken;
+      }
       if (savedId) headers["x-customer-id"] = savedId;
     }
     return headers;
@@ -171,7 +207,7 @@ export default function CustomerPage() {
       if (res.ok && data.success) {
         if (prevPointsRef.current !== null && data.customer.pointsBalance > prevPointsRef.current) {
           const diff = data.customer.pointsBalance - prevPointsRef.current;
-          confetti({ particleCount: 45, spread: 65 });
+          confetti({ particleCount: 55, spread: 70, origin: { y: 0.6 } });
           setPushSuccessToast(`+${diff} points added to your balance!`);
           setTimeout(() => setPushSuccessToast(null), 5000);
         }
@@ -181,6 +217,9 @@ export default function CustomerPage() {
         if (typeof window !== "undefined") {
           localStorage.setItem(CUSTOMER_CACHE_KEY, JSON.stringify(data.customer));
           localStorage.setItem(CUSTOMER_ID_KEY, data.customer.id);
+          if (data.token) {
+            localStorage.setItem(CUSTOMER_TOKEN_KEY, data.token);
+          }
           if (data.transactions) {
             localStorage.setItem(TRANSACTIONS_CACHE_KEY, JSON.stringify(data.transactions));
           }
@@ -320,6 +359,39 @@ export default function CustomerPage() {
       console.warn("Cache load failed", e);
     }
 
+    // 2. Check if redirected with OAuth token or error
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tokenParam = params.get("token");
+      if (tokenParam) {
+        localStorage.setItem(CUSTOMER_TOKEN_KEY, tokenParam);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      const rawErr = params.get("error");
+      if (rawErr) {
+        let err = rawErr;
+        try {
+          err = decodeURIComponent(rawErr);
+        } catch {
+          err = rawErr;
+        }
+        if (err === "google_not_configured") {
+          setAuthError("GOOGLE_CLIENT_ID is not configured in server environment variables. Please configure it or sign in directly below.");
+        } else if (err === "token_exchange_failed") {
+          setAuthError("Google token exchange failed. Please verify GOOGLE_CLIENT_SECRET and redirect URI match.");
+        } else if (err === "missing_credentials") {
+          setAuthError("Google OAuth configuration is incomplete (GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET missing).");
+        } else if (err === "redirect_uri_mismatch") {
+          setAuthError("Redirect URI is not registered in Google Cloud Console. Add your site URL + /api/auth/google/callback.");
+        } else if (err === "access_denied") {
+          setAuthError("Google sign-in was cancelled.");
+        } else {
+          setAuthError(`Google sign-in notice: ${err}`);
+        }
+      }
+    }
+
     loadDashboard();
     loadRewards();
     loadNotifications();
@@ -343,27 +415,6 @@ export default function CustomerPage() {
       window.addEventListener("focus", handleVisibilityChange);
     }
 
-    // Check if redirected with OAuth error parameter
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const err = params.get("error");
-      if (err) {
-        if (err === "google_not_configured") {
-          setAuthError("GOOGLE_CLIENT_ID is not configured in server environment variables. Please configure it or sign in directly below.");
-        } else if (err === "token_exchange_failed") {
-          setAuthError("Google token exchange failed. Please verify GOOGLE_CLIENT_SECRET and redirect URI match.");
-        } else if (err === "missing_credentials") {
-          setAuthError("Google OAuth configuration is incomplete (GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET missing).");
-        } else if (err === "redirect_uri_mismatch") {
-          setAuthError("Redirect URI is not registered in Google Cloud Console. Add your site URL + /api/auth/google/callback.");
-        } else if (err === "access_denied") {
-          setAuthError("Google sign-in was cancelled.");
-        } else {
-          setAuthError(`Google sign-in notice: ${err}`);
-        }
-      }
-    }
-
     // Register Service Worker for PWA & Web Push with automatic synchronization
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       navigator.serviceWorker
@@ -376,7 +427,6 @@ export default function CustomerPage() {
           const perm = Notification.permission;
           setPushPermission(perm);
 
-          // If permission is already granted, instantly switch UI to enabled and background sync with MongoDB
           if (perm === "granted") {
             setPushSubscribed(true);
             try {
@@ -400,6 +450,23 @@ export default function CustomerPage() {
     };
   }, []);
 
+  // Listen for beforeinstallprompt event for Android 1-Click PWA install
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+  }, []);
+
+  const isAndroidDevice = (): boolean => {
+    if (typeof window === "undefined") return false;
+    const ua = window.navigator.userAgent.toLowerCase();
+    return /android/.test(ua);
+  };
+
   const isIosDevice = (): boolean => {
     if (typeof window === "undefined") return false;
     const ua = window.navigator.userAgent.toLowerCase();
@@ -413,6 +480,119 @@ export default function CustomerPage() {
       window.matchMedia("(display-mode: standalone)").matches
     );
   };
+
+  // Check and trigger Android 1-click install banner with show-once check
+  const checkAndTriggerAndroidInstall = () => {
+    if (typeof window === "undefined") return;
+    if (!isAndroidDevice()) return;
+    if (isIosDevice()) return;
+    if (isStandalone()) return;
+
+    const seen = localStorage.getItem("pwa_android_install_prompt_seen");
+    if (seen === "true") return;
+
+    setShowAndroidBanner(true);
+  };
+
+  // Auto-trigger Android install banner 1.5s after user is logged in with valid phone
+  useEffect(() => {
+    if (customer && customer.phone) {
+      const timer = setTimeout(() => {
+        checkAndTriggerAndroidInstall();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [customer?.phone]);
+
+  // Clean Jordanian Phone Input
+  const cleanJordanianPhone = (input: string): string => {
+    let cleaned = input.replace(/[\s\-\(\)\.]/g, "");
+    if (cleaned.startsWith("+962")) cleaned = "0" + cleaned.slice(4);
+    else if (cleaned.startsWith("00962")) cleaned = "0" + cleaned.slice(5);
+    else if (cleaned.startsWith("962")) cleaned = "0" + cleaned.slice(3);
+    if (/^7[789]\d{7}$/.test(cleaned)) cleaned = "0" + cleaned;
+    return cleaned;
+  };
+
+  const cleanedPhone = cleanJordanianPhone(phoneInput);
+  const digitsOnly = cleanedPhone.replace(/\D/g, "");
+  const isPhoneValid = /^07[789]\d{7}$/.test(cleanedPhone);
+  const digitsCount = Math.min(digitsOnly.length, 10);
+  const showPhoneModal = Boolean(customer && !customer.phone);
+
+  const handleSavePhone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isPhoneValid || phoneSaving) return;
+    setPhoneSaving(true);
+    setPhoneError(null);
+
+    try {
+      const headers = getAuthHeaders();
+      headers["Content-Type"] = "application/json";
+
+      const res = await fetch("/api/customer/phone", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ phone: cleanedPhone }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        confetti({ particleCount: 65, spread: 80, origin: { y: 0.5 } });
+        setPushSuccessToast("Phone number linked successfully!");
+        setTimeout(() => setPushSuccessToast(null), 4000);
+
+        if (data.token && typeof window !== "undefined") {
+          localStorage.setItem(CUSTOMER_TOKEN_KEY, data.token);
+        }
+
+        const updatedCustomer = {
+          ...customer!,
+          phone: data.phone || cleanedPhone,
+        };
+        setCustomer(updatedCustomer);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(CUSTOMER_CACHE_KEY, JSON.stringify(updatedCustomer));
+        }
+
+        // Trigger Android PWA banner check 1.5s after completing phone onboarding
+        setTimeout(() => {
+          checkAndTriggerAndroidInstall();
+        }, 1500);
+      } else {
+        setPhoneError(data.error || "Failed to save phone number");
+      }
+    } catch (err: any) {
+      setPhoneError(err.message || "Network error while saving phone");
+    } finally {
+      setPhoneSaving(false);
+    }
+  };
+
+  const handleAndroidInstallClick = async () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("pwa_android_install_prompt_seen", "true");
+    }
+    setShowAndroidBanner(false);
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+          setDeferredPrompt(null);
+        }
+      } catch (e) {
+        console.warn("PWA prompt error:", e);
+      }
+    }
+  };
+
+  const handleDismissAndroidBanner = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("pwa_android_install_prompt_seen", "true");
+    }
+    setShowAndroidBanner(false);
+  };
+
 
 
   const handleEnablePush = async () => {
@@ -1460,6 +1640,155 @@ export default function CustomerPage() {
             >
               Got it, thanks
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 1-CLICK ANDROID PWA INSTALL FLOATING BANNER */}
+      {showAndroidBanner && (
+        <div className="fixed bottom-24 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-40 animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="glass-banner rounded-3xl p-4 shadow-2xl border border-white/95 relative">
+            <button
+              type="button"
+              onClick={handleDismissAndroidBanner}
+              className="absolute top-3 end-3 p-1 rounded-full text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-start gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#3F1215] flex items-center justify-center text-white shrink-0 overflow-hidden p-0.5 border border-[#3F1215]/30 shadow-md">
+                <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
+              </div>
+
+              <div className="flex-1 min-w-0 pr-3">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="font-bold text-xs sm:text-sm text-[#2B0B0D]">
+                    Install {config.storeName}
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#FAF5F2] text-[#3F1215] border border-[#EBD3C8]">
+                    1-Tap
+                  </span>
+                </div>
+                <p className="text-[11px] text-neutral-500 leading-snug">
+                  Add to home screen for instant 1-tap checkout & offline loyalty pass.
+                </p>
+
+                <div className="flex items-center gap-2 mt-3">
+                  <button
+                    type="button"
+                    onClick={handleAndroidInstallClick}
+                    className="flex-1 py-2 px-3 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Install Now</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDismissAndroidBanner}
+                    className="py-2 px-3 rounded-xl bg-transparent hover:bg-black/5 text-neutral-500 text-xs font-medium transition-colors cursor-pointer"
+                  >
+                    Not now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* NO-SKIP MANDATORY JORDANIAN PHONE ONBOARDING MODAL */}
+      {showPhoneModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 select-none">
+          <div className="glass-panel rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-white/95 relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-14 h-14 rounded-2xl bg-[#3F1215] text-[#FEECE2] flex items-center justify-center mx-auto mb-4 shadow-lg border border-[#3F1215]/20">
+              <Phone className="w-7 h-7 text-[#FEECE2]" />
+            </div>
+
+            <h2 className="text-xl font-bold text-center text-[#2B0B0D] mb-1">
+              Link Mobile Number
+            </h2>
+            <p className="text-xs text-neutral-500 text-center mb-5 leading-relaxed">
+              Enter your Jordanian mobile phone number (<strong>077</strong>, <strong>078</strong>, or <strong>079</strong>) to activate your digital pass and enable cashier lookup.
+            </p>
+
+            {phoneError && (
+              <div className="mb-4 p-3 rounded-2xl bg-red-50/90 border border-red-200 text-xs text-red-700 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
+                <span>{phoneError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSavePhone} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#2B0B0D] mb-1.5">
+                  Jordanian Phone (10 digits)
+                </label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-xs font-mono font-bold text-neutral-500 pointer-events-none select-none">
+                    🇯🇴 +962
+                  </span>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    autoFocus
+                    value={phoneInput}
+                    onChange={(e) => {
+                      setPhoneInput(e.target.value);
+                      if (phoneError) setPhoneError(null);
+                    }}
+                    placeholder="079 123 4567"
+                    className="glass-input w-full pl-20 pr-12 py-3 rounded-2xl text-sm font-mono tracking-wide"
+                    required
+                  />
+                  <div className="absolute right-3 flex items-center">
+                    {isPhoneValid ? (
+                      <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </div>
+                    ) : (
+                      <span className="text-[10px] font-mono font-semibold text-neutral-400">
+                        {digitsCount}/10
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Validation Status Indicator */}
+                <div className="mt-2 flex items-center justify-between text-[11px]">
+                  <span className={isPhoneValid ? "text-emerald-700 font-medium flex items-center gap-1" : "text-neutral-400"}>
+                    {isPhoneValid ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 inline text-emerald-600" />
+                        Valid Jordanian Mobile
+                      </>
+                    ) : digitsOnly.length > 2 && !/^07[789]/.test(digitsOnly) ? (
+                      <span className="text-amber-700 font-medium">Must start with 077, 078, or 079</span>
+                    ) : (
+                      "Format: 07X XXX XXXX"
+                    )}
+                  </span>
+                  <span className="font-mono text-neutral-400">{digitsCount}/10</span>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={!isPhoneValid || phoneSaving}
+                className="w-full py-3.5 rounded-2xl bg-[#3F1215] text-[#FEECE2] text-sm font-bold hover:bg-[#2B0B0D] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              >
+                {phoneSaving ? (
+                  <span>Saving & Activating...</span>
+                ) : (
+                  <>
+                    <span>Confirm & Activate Pass</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
           </div>
         </div>
       )}
