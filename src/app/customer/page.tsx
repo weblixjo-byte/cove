@@ -147,6 +147,7 @@ export default function CustomerPage() {
   });
   const [rewards, setRewards] = useState<RewardItem[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [serverUnreadCount, setServerUnreadCount] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<"card" | "rewards" | "history" | "notifications">("card");
   const [copied, setCopied] = useState(false);
 
@@ -214,6 +215,9 @@ export default function CustomerPage() {
         prevPointsRef.current = data.customer.pointsBalance;
         setCustomer(data.customer);
         setTransactions(data.transactions || []);
+        if (typeof data.unreadNotificationsCount === "number") {
+          setServerUnreadCount(data.unreadNotificationsCount);
+        }
         if (typeof window !== "undefined") {
           localStorage.setItem(CUSTOMER_CACHE_KEY, JSON.stringify(data.customer));
           localStorage.setItem(CUSTOMER_ID_KEY, data.customer.id);
@@ -258,6 +262,8 @@ export default function CustomerPage() {
       const data = await res.json();
       if (data.success) {
         setNotifications(data.notifications || []);
+        const unread = (data.notifications || []).filter((n: any) => !n.isRead).length;
+        setServerUnreadCount(unread);
       }
     } catch (e) {
       console.error(e);
@@ -396,13 +402,15 @@ export default function CustomerPage() {
     loadRewards();
     loadNotifications();
 
-    // Fast polling every 3 seconds for instant real-time sync with cashier POS
+    // Optimized 5-second polling: strictly active ONLY when tab/screen is visible to conserve server quota
+    // Inside the recurring interval, only fetch the lightweight dashboard route (points & unread count)
     const interval = setInterval(() => {
-      loadDashboard();
-      loadNotifications();
-    }, 3000);
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        loadDashboard();
+      }
+    }, 5000);
 
-    // Instant refresh when user unlocks phone or switches back to tab
+    // Instant refresh when user unlocks phone or switches back to tab (visibilitychange + focus)
     const handleVisibilityChange = () => {
       if (typeof document !== "undefined" && document.visibilityState === "visible") {
         loadDashboard();
@@ -718,6 +726,7 @@ export default function CustomerPage() {
 
   const markAllRead = async () => {
     try {
+      setServerUnreadCount(0);
       const headers = getAuthHeaders();
       await fetch("/api/customer/notifications", { method: "POST", headers });
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
@@ -726,7 +735,9 @@ export default function CustomerPage() {
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount = notifications.length > 0
+    ? notifications.filter((n) => !n.isRead).length
+    : serverUnreadCount;
 
   if (loading) {
     return (
