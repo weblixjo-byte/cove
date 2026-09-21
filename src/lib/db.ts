@@ -709,13 +709,17 @@ export const dbService = {
     const { isMongoose } = await connectDB();
     if (isMongoose) {
       try {
-        const docs = await PushSubscription.find({ userId }).lean();
+        const docs = await PushSubscription.find({
+          $or: [{ userId }, { userId: String(userId) }],
+        }).lean();
         return JSON.parse(JSON.stringify(docs));
       } catch (e) {
         console.warn("Mongo getPushSubscriptionsForUser error:", e);
       }
     }
-    return memoryStore.pushSubscriptions.filter((s) => s.userId === userId);
+    return memoryStore.pushSubscriptions.filter(
+      (s) => s.userId === userId || s.userId === String(userId)
+    );
   },
 
   async getAllPushSubscriptions(): Promise<IPushSubscription[]> {

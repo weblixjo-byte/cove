@@ -466,14 +466,40 @@ export default function CustomerPage() {
       setPushPermission("unsupported");
     }
 
+    // Instant real-time foreground sync when Web Push arrives while app is open (0ms delay)
+    const handleSwMessage = (event: MessageEvent) => {
+      if (event.data?.type === "PUSH_NOTIFICATION_RECEIVED") {
+        loadDashboard();
+        loadNotifications();
+      }
+    };
+
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", handleSwMessage);
+    }
+
     return () => {
       clearInterval(interval);
       if (typeof document !== "undefined") {
         document.removeEventListener("visibilitychange", handleVisibilityChange);
         window.removeEventListener("focus", handleVisibilityChange);
       }
+      if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+        navigator.serviceWorker.removeEventListener("message", handleSwMessage);
+      }
     };
   }, []);
+
+  // Ensure push subscription is permanently bound to confirmed customer ID upon login/refresh
+  useEffect(() => {
+    if (customer?.id && typeof window !== "undefined" && "serviceWorker" in navigator) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        navigator.serviceWorker.ready.then((reg) => {
+          syncPushSubscription(reg).catch((e) => console.warn("Push auto-bind notice:", e));
+        });
+      }
+    }
+  }, [customer?.id]);
 
   // Auto-dismiss top notification toast after 6 seconds without changing read status
   useEffect(() => {

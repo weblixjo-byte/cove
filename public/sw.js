@@ -41,14 +41,30 @@ self.addEventListener('push', (event) => {
     body: data.body || data.message || 'You have an update on your loyalty balance and rewards!',
     icon: data.icon || '/icon-192.png',
     badge: data.badge || '/icon-192.png',
-    vibrate: [200, 100, 200],
+    vibrate: [300, 150, 300, 150, 300],
     renotify: true,
+    requireInteraction: true, // Remains on lock screen / desktop until user interacts
+    silent: false,
     data: {
       url: targetUrl,
       time: Date.now(),
     },
     tag: data.tag || 'cove-' + Date.now(),
   };
+
+  // Notify any open customer tabs immediately (0ms instant live sync)
+  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+    clients.forEach((client) => {
+      try {
+        client.postMessage({
+          type: 'PUSH_NOTIFICATION_RECEIVED',
+          data: data,
+        });
+      } catch (e) {
+        // Ignore client messaging errors
+      }
+    });
+  });
 
   event.waitUntil(
     self.registration.showNotification(title, options).catch((err) => {

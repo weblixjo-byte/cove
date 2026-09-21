@@ -55,7 +55,14 @@ export async function sendWebPushToSubscriptions(
               auth: sub.keys.auth,
             },
           },
-          payloadString
+          payloadString,
+          {
+            TTL: 86400, // 24 hours queue retention if device is offline
+            urgency: "high", // Immediate FCM / APNs dispatch bypassing battery-saver/doze mode
+            headers: {
+              Urgency: "high",
+            },
+          }
         );
         sentCount++;
       } catch (err: any) {
