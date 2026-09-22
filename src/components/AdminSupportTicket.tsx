@@ -16,25 +16,25 @@ interface AdminSupportTicketProps {
 }
 
 const CATEGORIES = [
-  { id: "Bug / System Error", label: "Bug / System Error", desc: "Unexpected behavior or glitch" },
+  { id: "Bug / System Glitch", label: "Bug / System Glitch", desc: "Software errors, crashes, or glitches" },
   { id: "POS & Cashier Flow", label: "POS & Cashier Flow", desc: "Numpad, scanning, or bill credit/redeem" },
   { id: "Customer Card & PIN", label: "Customer Card & PIN", desc: "Pass, QR code, or customer PIN" },
   { id: "Points & Calculation", label: "Points & Calculation", desc: "Points balance or redemption rules" },
   { id: "Performance & Speed", label: "Performance & Speed", desc: "Loading latency or lag" },
-  { id: "Feature Request / Other", label: "Feature / Other", desc: "Request improvement or inquiry" },
+  { id: "Feature Request / Other", label: "Feature Request / Other", desc: "Request improvement or inquiry" },
 ];
 
 export default function AdminSupportTicket({
   storeName = "Cove Coffee House",
   onReturnToDashboard,
 }: AdminSupportTicketProps) {
-  // Form State
-  const [category, setCategory] = useState<string>("Bug / System Error");
+  // Form State matching UI Exactly
+  const [category, setCategory] = useState<string>("Bug / System Glitch");
   const [subject, setSubject] = useState<string>("");
-  const [contactPhone, setContactPhone] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [contactPhone, setContactPhone] = useState<string>("");
 
-  // Hidden System State (Sent in payload silently)
+  // Hidden System Metadata
   const adminName = `${storeName} Admin`;
   const adminEmail = "info@weblix-jo.com";
   const urgency = "Normal";
@@ -95,12 +95,12 @@ export default function AdminSupportTicket({
     setSubmitError(null);
 
     if (!subject.trim()) {
-      setSubmitError("Please enter a ticket subject.");
+      setSubmitError("Please provide a summary of the issue.");
       return;
     }
 
     if (!message.trim() || message.trim().length < 5) {
-      setSubmitError("Please provide a description of the issue.");
+      setSubmitError("Please explain what happened in detail.");
       return;
     }
 
@@ -172,7 +172,7 @@ export default function AdminSupportTicket({
     setSubject("");
     setMessage("");
     setContactPhone("");
-    setCategory("Bug / System Error");
+    setCategory("Bug / System Glitch");
     setSubmittedTicket(null);
     setSubmitError(null);
   };
@@ -237,96 +237,98 @@ export default function AdminSupportTicket({
     );
   }
 
-  // TICKET FORM SCREEN
+  // TICKET FORM SCREEN - Matching User Mockup Exactly with Brand Colors
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {/* Header Banner */}
-      <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[#EBD3C8]">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-[#3F1215] text-[#FEECE2]">
-              <LifeBuoy className="w-5 h-5" />
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2B0B0D] font-serif">
-              Technical Support Ticket
-            </h2>
+    <div className="max-w-4xl mx-auto space-y-5">
+      {/* Top Header Row matching image 1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-[#3F1215] text-[#FEECE2] flex items-center justify-center shadow-xs shrink-0">
+            <LifeBuoy className="w-6 h-6 stroke-[2.2]" />
           </div>
-          <p className="text-xs text-neutral-500 leading-relaxed max-w-xl">
-            Direct communication channel to Weblix Engineering for issue resolution and technical assistance.
-          </p>
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-[#2B0B0D] font-serif leading-tight">
+              Technical Support & Issue Tickets
+            </h2>
+            <p className="text-xs text-neutral-500 mt-0.5">
+              Submit bugs, POS glitches, or technical requests directly to the engineering team.
+            </p>
+          </div>
         </div>
 
-        <div className="shrink-0">
-          <span className="text-[11px] text-emerald-700 font-medium flex items-center gap-1.5 bg-emerald-50/80 border border-emerald-200/80 px-3 py-1.5 rounded-full font-mono">
+        <div className="shrink-0 flex items-center">
+          <div className="px-3.5 py-1.5 rounded-full bg-emerald-50/90 border border-emerald-200/90 text-emerald-800 text-xs font-mono flex items-center gap-2 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Priority Dispatch
-          </span>
+            <span>Direct Line: info@weblix-jo.com</span>
+          </div>
         </div>
       </div>
 
-      {/* Main Form Box */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="glass-panel rounded-3xl p-5 sm:p-7 shadow-sm border border-[#EBD3C8] space-y-5">
-          {/* CATEGORY DROPDOWN */}
+      {/* Main Form Card */}
+      <form onSubmit={handleSubmit}>
+        <div className="glass-panel rounded-3xl p-6 sm:p-8 shadow-xs border border-[#EBD3C8] space-y-5">
+          {/* FIELD 1: ISSUE CATEGORY */}
           <div>
-            <label className="text-xs font-bold text-[#2B0B0D] block mb-1.5 font-mono uppercase tracking-wider">
-              Issue Category
+            <label className="text-[11px] font-bold text-neutral-500 block mb-2 font-mono uppercase tracking-wider">
+              ISSUE CATEGORY
             </label>
             <div className="relative">
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full glass-select text-xs font-medium cursor-pointer"
+                className="w-full rounded-2xl border-1.5 border-[#EBD3C8] bg-white px-4 py-3.5 text-xs sm:text-sm text-[#2B0B0D] font-mono cursor-pointer appearance-none outline-none focus:border-[#3F1215] focus:ring-2 focus:ring-[#3F1215]/10 shadow-2xs transition-all"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat.id} value={cat.id} className="text-neutral-900 bg-white">
-                    {cat.label} — {cat.desc}
+                    {cat.label} &nbsp; {cat.desc}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-neutral-500 absolute end-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-neutral-400 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
 
-          {/* SUBJECT & CONTACT PHONE */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-2">
-              <label className="text-xs font-bold text-[#2B0B0D] block mb-1.5 font-mono uppercase tracking-wider">
-                Ticket Subject *
-              </label>
-              <input
-                type="text"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full glass-input text-xs"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-bold text-[#2B0B0D] block mb-1.5 font-mono uppercase tracking-wider">
-                Contact Phone / WhatsApp
-              </label>
-              <input
-                type="tel"
-                value={contactPhone}
-                onChange={(e) => setContactPhone(e.target.value)}
-                className="w-full glass-input text-xs"
-              />
-            </div>
-          </div>
-
-          {/* DETAILED DESCRIPTION */}
+          {/* FIELD 2: SUBJECT / SUMMARY */}
           <div>
-            <label className="text-xs font-bold text-[#2B0B0D] block mb-1.5 font-mono uppercase tracking-wider">
-              Incident Description *
+            <label className="text-[11px] font-bold text-neutral-500 block mb-2 font-mono uppercase tracking-wider">
+              SUBJECT / SUMMARY
+            </label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Brief summary of the issue or inquiry..."
+              className="w-full rounded-2xl border-1.5 border-[#EBD3C8] bg-white px-4 py-3.5 text-xs sm:text-sm text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-2 focus:ring-[#3F1215]/10 shadow-2xs transition-all"
+              required
+            />
+          </div>
+
+          {/* FIELD 3: DETAILED DESCRIPTION */}
+          <div>
+            <label className="text-[11px] font-bold text-neutral-500 block mb-2 font-mono uppercase tracking-wider">
+              DETAILED DESCRIPTION
             </label>
             <textarea
-              rows={6}
+              rows={5}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full glass-input font-sans text-xs leading-relaxed resize-y"
+              placeholder="Explain what happened in detail: steps to reproduce, customer PIN or reward code (if relevant), error messages, or what needs fixing..."
+              className="w-full rounded-2xl border-1.5 border-[#EBD3C8] bg-white px-4 py-3.5 text-xs sm:text-sm text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-2 focus:ring-[#3F1215]/10 shadow-2xs transition-all leading-relaxed resize-y font-sans"
               required
+            />
+          </div>
+
+          {/* FIELD 4: PHONE / WHATSAPP (OPTIONAL) */}
+          <div>
+            <label className="text-[11px] font-bold text-neutral-500 block mb-2 font-mono uppercase tracking-wider">
+              PHONE / WHATSAPP (OPTIONAL)
+            </label>
+            <input
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="+962 7X XXX XXXX"
+              className="w-full rounded-2xl border-1.5 border-[#EBD3C8] bg-white px-4 py-3.5 text-xs sm:text-sm text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-2 focus:ring-[#3F1215]/10 shadow-2xs transition-all font-mono"
             />
           </div>
 
@@ -338,12 +340,16 @@ export default function AdminSupportTicket({
             </div>
           )}
 
-          {/* SUBMIT BUTTON */}
-          <div className="pt-2 flex justify-end">
+          {/* BOTTOM ROW */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-xs text-neutral-400 font-mono">
+              Dispatched directly to engineering team via Web3Forms.
+            </span>
+
             <button
               type="submit"
               disabled={submitting}
-              className={`w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 ${
+              className={`w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2.5 cursor-pointer active:scale-98 ${
                 submitting ? "opacity-75 cursor-not-allowed" : ""
               }`}
             >
