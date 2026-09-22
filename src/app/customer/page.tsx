@@ -1627,18 +1627,14 @@ export default function CustomerPage() {
               </div>
             </div>
 
-            {/* Prominent Counter Code Box - 8-Digit Combined Code in a single line */}
+            {/* Prominent Counter Code Box - 8-Digit Combined Code in a single unified line and color */}
             <div className="glass-panel-subtle border-2 border-[#3F1215]/30 rounded-2xl p-4 mb-3 text-center shadow-xs">
               <span className="text-[10px] uppercase tracking-wider font-mono text-neutral-400 block mb-1.5">
                 Give this 8-Digit Redemption Code to Cashier
               </span>
               <div className="flex items-center justify-center gap-2 whitespace-nowrap overflow-x-auto py-1">
                 <span className="font-pin text-2xl sm:text-3xl font-bold tracking-widest text-[#3F1215] select-all">
-                  {customer.formattedPin}
-                </span>
-                <span className="text-xl font-bold text-neutral-300">-</span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xl sm:text-2xl font-pin font-extrabold tracking-wider shadow-2xs select-all">
-                  {redeemingReward.claimCode || "10"}
+                  {customer.formattedPin} - {redeemingReward.claimCode || "10"}
                 </span>
                 <button
                   onClick={() => {
@@ -1648,8 +1644,8 @@ export default function CustomerPage() {
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   }}
-                  className="p-1.5 rounded-lg border border-[#EBD3C8] bg-white/80 hover:bg-[#FDF4F0] text-neutral-600 transition-colors active:scale-95 cursor-pointer ml-0.5 shrink-0"
-                  title="Copy Full Code"
+                  className="p-1.5 rounded-lg border border-[#EBD3C8] bg-white/80 hover:bg-[#FDF4F0] text-neutral-600 transition-colors active:scale-95 cursor-pointer ml-1 shrink-0"
+                  title="Copy Code"
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-emerald-600" />
@@ -1658,10 +1654,8 @@ export default function CustomerPage() {
                   )}
                 </button>
               </div>
-              <div className="flex items-center justify-center gap-2 mt-1 text-[10px] font-mono text-neutral-400">
-                <span>PIN: 6 digits</span>
-                <span>•</span>
-                <span className="text-[#3F1215] font-bold">Reward Code: #{redeemingReward.claimCode || "10"}</span>
+              <div className="flex items-center justify-center gap-2 mt-1 text-[11px] font-mono text-neutral-400">
+                <span>Single-use 8-digit redemption code</span>
               </div>
               {copied && (
                 <span className="text-[10px] font-mono text-[#3F1215] mt-1 block font-semibold">

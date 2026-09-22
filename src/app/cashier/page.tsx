@@ -624,9 +624,7 @@ export default function CashierPage() {
               <div className="glass-panel rounded-3xl p-4 sm:p-5 shadow-lg space-y-4">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1.5 text-xs font-semibold mb-1">
-                    <span className="text-neutral-600">PIN (6 Digits)</span>
-                    <span className="text-neutral-300">•</span>
-                    <span className="text-amber-800">Reward Code (2 Digits)</span>
+                    <span className="text-neutral-600">Enter 6-Digit PIN or 8-Digit Code</span>
                   </div>
 
                   {/* 6 PIN Display Boxes + Separator + 2 Reward Display Boxes */}
@@ -685,10 +683,10 @@ export default function CashierPage() {
                             key={idx}
                             className={`w-9 h-11 sm:w-10 sm:h-13 rounded-xl border-2 flex items-center justify-center text-lg sm:text-xl font-bold font-mono transition-all ${
                               char
-                                ? "border-amber-700 bg-amber-50 text-amber-900"
+                                ? "border-[#3F1215] bg-[#FDF4F0] text-[#3F1215]"
                                 : idx === pinQuery.length
-                                ? "border-amber-600 bg-white animate-pulse"
-                                : "border-amber-200 bg-amber-50/30 text-amber-300"
+                                ? "border-[#3F1215] bg-white animate-pulse"
+                                : "border-[#EBD3C8] bg-[#FAF5F2]/50 text-neutral-300"
                             }`}
                           >
                             {char || "•"}
@@ -700,10 +698,10 @@ export default function CashierPage() {
 
                   <div className="text-[11px] font-mono text-neutral-400">
                     {pinQuery.length === 0 && "Type 6 digits for Points Credit, or 8 digits for Reward Redemption"}
-                    {pinQuery.length > 0 && pinQuery.length < 6 && `${6 - pinQuery.length} digits remaining for PIN`}
-                    {pinQuery.length === 6 && "6-digit PIN complete! Credit Points or type 2 digits for Reward"}
-                    {pinQuery.length === 7 && "1 digit remaining for Reward Code"}
-                    {pinQuery.length === 8 && `8-digit Code: PIN + Reward #${pinQuery.slice(6, 8)}`}
+                    {pinQuery.length > 0 && pinQuery.length < 6 && `${6 - pinQuery.length} digits remaining`}
+                    {pinQuery.length === 6 && "6 digits entered! Credit Points, or enter 2 more digits for Reward"}
+                    {pinQuery.length === 7 && "1 digit remaining for 8-digit code"}
+                    {pinQuery.length === 8 && "8 digits complete — searching..."}
                   </div>
                 </div>
 
