@@ -24,9 +24,11 @@ import {
   Upload,
   Camera,
   Smartphone,
+  LifeBuoy,
 } from "lucide-react";
 import { IReward, IUser, ITransaction } from "@/lib/types";
 import CustomGlassSelect from "@/components/CustomGlassSelect";
+import AdminSupportTicket from "@/components/AdminSupportTicket";
 
 // Bilingual Dictionary for Admin Console
 const i18n = {
@@ -271,7 +273,7 @@ export default function AdminPage() {
   const [loginLoading, setLoginLoading] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"analytics" | "customers" | "rewards" | "cashiers" | "broadcast">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "customers" | "rewards" | "cashiers" | "broadcast" | "support">("analytics");
 
   // Customer Directory State
   const [customerSearchQuery, setCustomerSearchQuery] = useState("");
@@ -813,6 +815,7 @@ export default function AdminPage() {
     { id: "rewards", label: t.navRewards, icon: Gift },
     { id: "cashiers", label: t.navCashiers, icon: ShieldCheck },
     { id: "broadcast", label: t.navBroadcast, icon: Send },
+    { id: "support", label: "Support Ticket", icon: LifeBuoy },
   ] as const;
 
   // Super Admin Layout (100% English, Centered & Balanced Layout)
@@ -847,6 +850,20 @@ export default function AdminPage() {
               <Coffee className="w-3.5 h-3.5 text-[#3F1215]" />
               <span className="hidden sm:inline">{t.openCashier}</span>
             </Link>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("support")}
+              className={`px-2.5 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+                activeTab === "support"
+                  ? "bg-[#3F1215] text-[#FEECE2] border-[#3F1215]"
+                  : "bg-white hover:bg-[#FDF4F0] text-[#3F1215] border-[#EBD3C8]"
+              }`}
+              title="Support Ticket"
+            >
+              <LifeBuoy className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Support</span>
+            </button>
 
             {!isStandaloneApp && (
               <button
@@ -936,6 +953,23 @@ export default function AdminPage() {
 
         {/* Sidebar Footer */}
         <div className="pt-4 border-t border-[#EBD3C8]/60 space-y-3">
+          {/* Quick Support Ticket Button */}
+          <button
+            type="button"
+            onClick={() => setActiveTab("support")}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              activeTab === "support"
+                ? "bg-[#3F1215] text-[#FEECE2] shadow-xs"
+                : "bg-[#FDF4F0] text-[#3F1215] hover:bg-[#EBD3C8]/50 border border-[#EBD3C8]"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <LifeBuoy className={`w-3.5 h-3.5 ${activeTab === "support" ? "text-[#FEECE2]" : "text-[#3F1215]"}`} />
+              <span>Support & Incidents</span>
+            </div>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          </button>
+
           <div className="px-2">
             <span className="text-xs font-semibold text-[#2B0B0D] block truncate">
               {admin.name}
@@ -1672,6 +1706,14 @@ export default function AdminPage() {
               </div>
             </form>
           </div>
+        )}
+
+        {/* TAB 6: SUPPORT & INCIDENT TICKET (Web3Forms to info@weblix-jo.com) */}
+        {activeTab === "support" && (
+          <AdminSupportTicket
+            storeName={config.storeName}
+            onReturnToDashboard={() => setActiveTab("analytics")}
+          />
         )}
       </main>
 
