@@ -31,12 +31,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/favicon.png", type: "image/png" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon.ico?v=2" },
+      { url: "/favicon.png?v=2", type: "image/png", sizes: "64x64" },
+      { url: "/icon-192.png?v=2", sizes: "192x192", type: "image/png" },
     ],
+    shortcut: ["/favicon.ico?v=2"],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon.png?v=2", sizes: "180x180", type: "image/png" },
     ],
   },
   robots: {
@@ -65,11 +66,15 @@ export default function RootLayout({
         <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
         <meta name="googlebot" content="noindex, nofollow" />
 
-        {/* Icons shared across all routes */}
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+        {/* Browser tab favicons and PWA icons with cache busting */}
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+        <link rel="shortcut icon" href="/favicon.ico?v=2" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=2" />
+        <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=2" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=2" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png?v=2" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#3F1215" />

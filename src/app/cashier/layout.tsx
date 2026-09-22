@@ -11,12 +11,14 @@ export const metadata: Metadata = {
   },
   icons: {
     apple: [
-      { url: "/apple-touch-icon-cashier.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon-cashier.png?v=2", sizes: "180x180", type: "image/png" },
     ],
     icon: [
-      { url: "/icon-cashier-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-cashier-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.ico?v=2" },
+      { url: "/icon-cashier-192.png?v=2", sizes: "192x192", type: "image/png" },
+      { url: "/icon-cashier-512.png?v=2", sizes: "512x512", type: "image/png" },
     ],
+    shortcut: ["/favicon.ico?v=2"],
   },
   manifest: "/manifest-cashier.json",
   other: {
