@@ -7,28 +7,58 @@ import {
   Send,
   CheckCircle2,
   AlertCircle,
-  ChevronDown,
+  Bug,
+  CreditCard,
+  QrCode,
+  ShieldCheck,
+  Gauge,
+  Sparkles,
 } from "lucide-react";
+import CustomGlassSelect, { SelectOption } from "@/components/CustomGlassSelect";
 
 interface AdminSupportTicketProps {
   storeName?: string;
   onReturnToDashboard?: () => void;
 }
 
-const CATEGORIES = [
-  { id: "Bug / System Glitch", label: "Bug / System Glitch", desc: "Software errors, crashes, or glitches" },
-  { id: "POS & Cashier Flow", label: "POS & Cashier Flow", desc: "Numpad, scanning, or bill credit/redeem" },
-  { id: "Customer Card & PIN", label: "Customer Card & PIN", desc: "Pass, QR code, or customer PIN" },
-  { id: "Points & Calculation", label: "Points & Calculation", desc: "Points balance or redemption rules" },
-  { id: "Performance & Speed", label: "Performance & Speed", desc: "Loading latency or lag" },
-  { id: "Feature Request / Other", label: "Feature Request / Other", desc: "Request improvement or inquiry" },
+const CATEGORY_OPTIONS: SelectOption[] = [
+  {
+    value: "Bug / System Glitch",
+    label: "Bug / System Glitch",
+    subtitle: "Software errors, crashes, or unexpected behavior",
+  },
+  {
+    value: "POS & Cashier Flow",
+    label: "POS & Cashier Flow",
+    subtitle: "Numpad latency, bill entry, or scanning",
+  },
+  {
+    value: "Customer Card & PIN",
+    label: "Customer Card & PIN",
+    subtitle: "Pass display, QR code, or PIN lookup",
+  },
+  {
+    value: "Points & Calculation",
+    label: "Points & Calculation",
+    subtitle: "Points balance math or redemption rules",
+  },
+  {
+    value: "Performance & Speed",
+    label: "Performance & Speed",
+    subtitle: "Loading latency, slowness, or screen lag",
+  },
+  {
+    value: "Feature Request / Other",
+    label: "Feature Request / Other",
+    subtitle: "Request improvement, new ability, or inquiry",
+  },
 ];
 
 export default function AdminSupportTicket({
   storeName = "Cove Coffee House",
   onReturnToDashboard,
 }: AdminSupportTicketProps) {
-  // Form State matching UI Exactly
+  // Form State
   const [category, setCategory] = useState<string>("Bug / System Glitch");
   const [subject, setSubject] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -95,7 +125,7 @@ export default function AdminSupportTicket({
     setSubmitError(null);
 
     if (!subject.trim()) {
-      setSubmitError("Please provide a summary of the issue.");
+      setSubmitError("Please provide a brief summary of the issue.");
       return;
     }
 
@@ -237,17 +267,17 @@ export default function AdminSupportTicket({
     );
   }
 
-  // TICKET FORM SCREEN - Matching User Mockup Exactly with Brand Colors
+  // TICKET FORM SCREEN - Modern, Sleek, and Fully Brand-Aligned
   return (
-    <div className="max-w-4xl mx-auto space-y-5">
-      {/* Top Header Row matching image 1 */}
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Header Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-[#3F1215] text-[#FEECE2] flex items-center justify-center shadow-xs shrink-0">
-            <LifeBuoy className="w-6 h-6 stroke-[2.2]" />
+          <div className="w-11 h-11 rounded-2xl bg-[#3F1215] text-[#FEECE2] flex items-center justify-center shadow-xs shrink-0 border border-[#3F1215]">
+            <LifeBuoy className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-[#2B0B0D] font-serif leading-tight">
+            <h2 className="text-xl font-bold text-[#2B0B0D] font-serif leading-tight">
               Technical Support & Issue Tickets
             </h2>
             <p className="text-xs text-neutral-500 mt-0.5">
@@ -264,71 +294,63 @@ export default function AdminSupportTicket({
         </div>
       </div>
 
-      {/* Main Form Card */}
+      {/* Main Glass Form Card */}
       <form onSubmit={handleSubmit}>
-        <div className="glass-panel rounded-3xl p-6 sm:p-8 shadow-xs border border-[#EBD3C8] space-y-5">
-          {/* FIELD 1: ISSUE CATEGORY */}
+        <div className="glass-panel rounded-3xl p-6 sm:p-8 shadow-[0_8px_30px_rgba(63,18,21,0.03)] border border-[#EBD3C8]/80 space-y-5">
+          {/* FIELD 1: ISSUE CATEGORY - Custom Glass Dropdown */}
           <div>
-            <label className="text-[11px] font-bold text-neutral-500 block mb-2 font-mono uppercase tracking-wider">
-              ISSUE CATEGORY
+            <label className="text-xs font-semibold text-[#2B0B0D] block mb-1.5">
+              Issue Category
             </label>
-            <div className="relative">
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-2xl border-1.5 border-[#EBD3C8] bg-white px-4 py-3.5 text-xs sm:text-sm text-[#2B0B0D] font-mono cursor-pointer appearance-none outline-none focus:border-[#3F1215] focus:ring-2 focus:ring-[#3F1215]/10 shadow-2xs transition-all"
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat.id} value={cat.id} className="text-neutral-900 bg-white">
-                    {cat.label} &nbsp; {cat.desc}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-neutral-400 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <CustomGlassSelect
+              value={category}
+              onChange={(val) => setCategory(val)}
+              options={CATEGORY_OPTIONS}
+              className="w-full"
+            />
           </div>
 
           {/* FIELD 2: SUBJECT / SUMMARY */}
           <div>
-            <label className="text-[11px] font-bold text-neutral-500 block mb-2 font-mono uppercase tracking-wider">
-              SUBJECT / SUMMARY
+            <label className="text-xs font-semibold text-[#2B0B0D] block mb-1.5">
+              Subject / Summary
             </label>
             <input
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Brief summary of the issue or inquiry..."
-              className="w-full rounded-2xl border-1.5 border-[#EBD3C8] bg-white px-4 py-3.5 text-xs sm:text-sm text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-2 focus:ring-[#3F1215]/10 shadow-2xs transition-all"
+              className="w-full glass-input rounded-2xl border border-[#EBD3C8] bg-[#FAF5F2]/40 hover:bg-white focus:bg-white px-4 py-3 text-xs text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-3 focus:ring-[#3F1215]/10 shadow-2xs transition-all"
               required
             />
           </div>
 
           {/* FIELD 3: DETAILED DESCRIPTION */}
           <div>
-            <label className="text-[11px] font-bold text-neutral-500 block mb-2 font-mono uppercase tracking-wider">
-              DETAILED DESCRIPTION
+            <label className="text-xs font-semibold text-[#2B0B0D] block mb-1.5">
+              Detailed Description
             </label>
             <textarea
               rows={5}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Explain what happened in detail: steps to reproduce, customer PIN or reward code (if relevant), error messages, or what needs fixing..."
-              className="w-full rounded-2xl border-1.5 border-[#EBD3C8] bg-white px-4 py-3.5 text-xs sm:text-sm text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-2 focus:ring-[#3F1215]/10 shadow-2xs transition-all leading-relaxed resize-y font-sans"
+              className="w-full glass-input rounded-2xl border border-[#EBD3C8] bg-[#FAF5F2]/40 hover:bg-white focus:bg-white px-4 py-3 text-xs text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-3 focus:ring-[#3F1215]/10 shadow-2xs transition-all leading-relaxed resize-y font-sans"
               required
             />
           </div>
 
           {/* FIELD 4: PHONE / WHATSAPP (OPTIONAL) */}
           <div>
-            <label className="text-[11px] font-bold text-neutral-500 block mb-2 font-mono uppercase tracking-wider">
-              PHONE / WHATSAPP (OPTIONAL)
+            <label className="text-xs font-semibold text-[#2B0B0D] block mb-1.5">
+              Phone / WhatsApp (Optional)
             </label>
             <input
               type="tel"
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}
               placeholder="+962 7X XXX XXXX"
-              className="w-full rounded-2xl border-1.5 border-[#EBD3C8] bg-white px-4 py-3.5 text-xs sm:text-sm text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-2 focus:ring-[#3F1215]/10 shadow-2xs transition-all font-mono"
+              className="w-full glass-input rounded-2xl border border-[#EBD3C8] bg-[#FAF5F2]/40 hover:bg-white focus:bg-white px-4 py-3 text-xs text-[#2B0B0D] placeholder:text-neutral-400 outline-none focus:border-[#3F1215] focus:ring-3 focus:ring-[#3F1215]/10 shadow-2xs transition-all font-mono"
             />
           </div>
 
@@ -342,15 +364,15 @@ export default function AdminSupportTicket({
 
           {/* BOTTOM ROW */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-xs text-neutral-400 font-mono">
+            <span className="text-[11px] text-neutral-400 font-sans">
               Dispatched directly to engineering team via Web3Forms.
             </span>
 
             <button
               type="submit"
               disabled={submitting}
-              className={`w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2.5 cursor-pointer active:scale-98 ${
-                submitting ? "opacity-75 cursor-not-allowed" : ""
+              className={`w-full sm:w-auto px-7 py-3 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-75 ${
+                submitting ? "cursor-not-allowed" : ""
               }`}
             >
               {submitting ? (
