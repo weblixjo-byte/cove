@@ -101,6 +101,7 @@ const CUSTOMER_CACHE_KEY = "cove_customer_cached";
 const CUSTOMER_ID_KEY = "cove_customer_id";
 const CUSTOMER_TOKEN_KEY = "cove_customer_token";
 const TRANSACTIONS_CACHE_KEY = "cove_transactions_cached";
+const REWARDS_CACHE_KEY = "cove_rewards_cached";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -145,7 +146,30 @@ export default function CustomerPage() {
     }
     return [];
   });
-  const [rewards, setRewards] = useState<RewardItem[]>([]);
+  const [rewards, setRewards] = useState<RewardItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(REWARDS_CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return [];
+  });
+  const [rewardsLoading, setRewardsLoading] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(REWARDS_CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return false;
+        }
+      } catch {}
+    }
+    return true;
+  });
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [serverUnreadCount, setServerUnreadCount] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<"card" | "rewards" | "history" | "notifications">("card");
@@ -247,18 +271,28 @@ export default function CustomerPage() {
     }
   };
 
-  // Fetch Rewards
+  // Fetch Rewards with Instant Local Cache
   const loadRewards = async () => {
     try {
+      if (rewards.length === 0) {
+        setRewardsLoading(true);
+      }
       const headers = getAuthHeaders();
       const res = await fetch("/api/customer/rewards", { headers });
       const data = await res.json();
       if (data.success) {
         const sorted = (data.rewards || []).slice().sort((a: RewardItem, b: RewardItem) => a.pointsRequired - b.pointsRequired);
         setRewards(sorted);
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem(REWARDS_CACHE_KEY, JSON.stringify(sorted));
+          } catch {}
+        }
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setRewardsLoading(false);
     }
   };
 
@@ -1196,7 +1230,10 @@ export default function CustomerPage() {
 
             {/* Quick Action: Browse Rewards Shortcut */}
             <button
-              onClick={() => setActiveTab("rewards")}
+              onClick={() => {
+                setActiveTab("rewards");
+                loadRewards();
+              }}
               className="w-full glass-panel hover:bg-white/80 rounded-2xl p-4 flex items-center justify-between text-left transition-all shadow-xs cursor-pointer"
             >
               <div className="flex items-center gap-3">
@@ -1240,7 +1277,36 @@ export default function CustomerPage() {
 
             {/* Rewards Cards Stack */}
             <div className="space-y-4">
-              {rewards.map((reward) => {
+              {rewardsLoading && rewards.length === 0 ? (
+                <div className="glass-panel rounded-3xl p-10 sm:p-12 flex flex-col items-center justify-center text-center space-y-4 shadow-xs my-2 border border-[#EBD3C8]/70">
+                  <div className="flex items-center justify-center gap-2.5 py-2">
+                    <div className="w-3.5 h-3.5 rounded-full bg-[#3F1215] brand-dot-1" />
+                    <div className="w-3.5 h-3.5 rounded-full bg-[#3F1215] brand-dot-2" />
+                    <div className="w-3.5 h-3.5 rounded-full bg-[#3F1215] brand-dot-3" />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs font-bold tracking-wide text-[#3F1215] block font-mono">
+                      Loading Rewards...
+                    </span>
+                    <span className="text-[11px] text-neutral-400 block font-mono">
+                      Curating exclusive perks for you
+                    </span>
+                  </div>
+                </div>
+              ) : rewards.length === 0 ? (
+                <div className="glass-panel rounded-3xl p-10 flex flex-col items-center justify-center text-center space-y-3 shadow-xs border border-[#EBD3C8]/70">
+                  <div className="w-12 h-12 rounded-full bg-[#FAF5F2] border border-[#EBD3C8] text-[#3F1215]/60 flex items-center justify-center">
+                    <Gift className="w-6 h-6" />
+                  </div>
+                  <span className="text-xs font-semibold text-neutral-600 block">
+                    No rewards available at the moment
+                  </span>
+                  <span className="text-[11px] text-neutral-400 block">
+                    Check back soon for new special offerings
+                  </span>
+                </div>
+              ) : (
+                rewards.map((reward) => {
                 const canAfford = customer.pointsBalance >= reward.pointsRequired;
                 const progressPercent = Math.min(
                   100,
@@ -1334,7 +1400,8 @@ export default function CustomerPage() {
                     </div>
                   </div>
                 );
-              })}
+              })
+              )}
             </div>
           </div>
         )}
@@ -1512,7 +1579,10 @@ export default function CustomerPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("rewards")}
+            onClick={() => {
+              setActiveTab("rewards");
+              loadRewards();
+            }}
             className={`flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all duration-300 cursor-pointer ${
               activeTab === "rewards"
                 ? "bg-[#3F1215] text-[#FEECE2] shadow-sm font-semibold scale-102"

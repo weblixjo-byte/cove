@@ -5,22 +5,32 @@ import { dbService } from "@/lib/db";
 export async function GET() {
   try {
     const session = await getSession();
-    const rewards = await dbService.getRewards(true);
-    let userPoints = 0;
 
-    if (session && session.role === "customer") {
-      const user = await dbService.findUserById(session.userId);
-      if (user) userPoints = user.pointsBalance;
-    }
+    // Concurrently fetch rewards and user points in parallel for maximum speed
+    const [rewards, user] = await Promise.all([
+      dbService.getRewards(true),
+      session && session.role === "customer" && session.userId
+        ? dbService.findUserById(session.userId)
+        : Promise.resolve(null),
+    ]);
 
-    return NextResponse.json({
-      success: true,
-      rewards: rewards.map((r) => ({
-        ...r,
-        canRedeem: userPoints >= r.pointsRequired,
-      })),
-      userPoints,
-    });
+    const userPoints = user?.pointsBalance || 0;
+
+    return NextResponse.json(
+      {
+        success: true,
+        rewards: rewards.map((r) => ({
+          ...r,
+          canRedeem: userPoints >= r.pointsRequired,
+        })),
+        userPoints,
+      },
+      {
+        headers: {
+          "Cache-Control": "private, no-cache",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
