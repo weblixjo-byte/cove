@@ -85,6 +85,7 @@ interface RewardItem {
   pointsRequired: number;
   category: string;
   imageUrl?: string;
+  claimCode?: string;
   canRedeem: boolean;
 }
 
@@ -255,7 +256,8 @@ export default function CustomerPage() {
       const res = await fetch("/api/customer/rewards", { headers });
       const data = await res.json();
       if (data.success) {
-        setRewards(data.rewards || []);
+        const sorted = (data.rewards || []).slice().sort((a: RewardItem, b: RewardItem) => a.pointsRequired - b.pointsRequired);
+        setRewards(sorted);
       }
     } catch (e) {
       console.error(e);
@@ -1301,17 +1303,24 @@ export default function CustomerPage() {
                         </span>
                       </div>
 
-                      {/* Category Tag */}
-                      <div className="absolute top-3.5 start-3.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/95 backdrop-blur-xs text-[#3F1215] shadow-xs border border-white/80">
-                        {reward.category === "Drinks"
-                          ? "Beverages"
-                          : reward.category === "Food"
-                          ? "Food & Pastries"
-                          : reward.category === "Beans"
-                          ? "Specialty Beans"
-                          : reward.category === "Merchandise"
-                          ? "Merchandise"
-                          : reward.category}
+                      {/* Category & Claim Code Tags */}
+                      <div className="absolute top-3.5 start-3.5 flex items-center gap-1.5">
+                        <div className="px-3 py-1 rounded-full text-[11px] font-semibold bg-white/95 backdrop-blur-xs text-[#3F1215] shadow-xs border border-white/80">
+                          {reward.category === "Drinks"
+                            ? "Beverages"
+                            : reward.category === "Food"
+                            ? "Food & Pastries"
+                            : reward.category === "Beans"
+                            ? "Specialty Beans"
+                            : reward.category === "Merchandise"
+                            ? "Merchandise"
+                            : reward.category}
+                        </div>
+                        {reward.claimCode && (
+                          <div className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#3F1215]/90 backdrop-blur-xs text-[#FEECE2] shadow-xs border border-white/40">
+                            #{reward.claimCode}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1618,19 +1627,29 @@ export default function CustomerPage() {
               </div>
             </div>
 
-            {/* Prominent Counter Code Box */}
+            {/* Prominent Counter Code Box - 8-Digit Combined Code in a single line */}
             <div className="glass-panel-subtle border-2 border-[#3F1215]/30 rounded-2xl p-4 mb-3 text-center shadow-xs">
-              <span className="text-[10px] uppercase tracking-wider font-mono text-neutral-400 block mb-1">
-                Give this 6-Digit Code to Cashier
+              <span className="text-[10px] uppercase tracking-wider font-mono text-neutral-400 block mb-1.5">
+                Give this 8-Digit Redemption Code to Cashier
               </span>
-              <div className="flex items-center justify-center gap-3">
-                <span className="font-pin text-3xl font-bold tracking-widest text-[#3F1215] select-all">
+              <div className="flex items-center justify-center gap-2 whitespace-nowrap overflow-x-auto py-1">
+                <span className="font-pin text-2xl sm:text-3xl font-bold tracking-widest text-[#3F1215] select-all">
                   {customer.formattedPin}
                 </span>
+                <span className="text-xl font-bold text-neutral-300">-</span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xl sm:text-2xl font-pin font-extrabold tracking-wider shadow-2xs select-all">
+                  {redeemingReward.claimCode || "10"}
+                </span>
                 <button
-                  onClick={handleCopyPin}
-                  className="p-1.5 rounded-lg border border-[#EBD3C8] bg-white/80 hover:bg-[#FDF4F0] text-neutral-600 transition-colors active:scale-95 cursor-pointer"
-                  title="Copy PIN"
+                  onClick={() => {
+                    if (!customer?.rawPin) return;
+                    const fullCode = `${customer.rawPin}-${redeemingReward.claimCode || "10"}`;
+                    navigator.clipboard.writeText(fullCode);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="p-1.5 rounded-lg border border-[#EBD3C8] bg-white/80 hover:bg-[#FDF4F0] text-neutral-600 transition-colors active:scale-95 cursor-pointer ml-0.5 shrink-0"
+                  title="Copy Full Code"
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-emerald-600" />
@@ -1639,18 +1658,23 @@ export default function CustomerPage() {
                   )}
                 </button>
               </div>
+              <div className="flex items-center justify-center gap-2 mt-1 text-[10px] font-mono text-neutral-400">
+                <span>PIN: 6 digits</span>
+                <span>•</span>
+                <span className="text-[#3F1215] font-bold">Reward Code: #{redeemingReward.claimCode || "10"}</span>
+              </div>
               {copied && (
-                <span className="text-[10px] font-mono text-[#3F1215] mt-1 block">
-                  Copied to clipboard!
+                <span className="text-[10px] font-mono text-[#3F1215] mt-1 block font-semibold">
+                  Copied: {customer.rawPin}-{redeemingReward.claimCode || "10"}
                 </span>
               )}
             </div>
 
-            {/* QR Code Presentation */}
+            {/* QR Code Presentation with :CLAIM: payload */}
             <div className="flex flex-col items-center justify-center mb-4">
               <div className="p-2.5 bg-white rounded-xl border border-[#EBD3C8] shadow-2xs">
                 <QRCodeSVG
-                  value={customer.qrSecret}
+                  value={`${customer.qrSecret}:CLAIM:${redeemingReward.claimCode || "10"}`}
                   size={120}
                   level="H"
                   includeMargin={false}

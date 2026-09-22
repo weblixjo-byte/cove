@@ -23,7 +23,6 @@ import {
   Share2,
 } from "lucide-react";
 import QrCameraScanner from "@/components/QrCameraScanner";
-import CustomGlassSelect from "@/components/CustomGlassSelect";
 
 interface POSCustomer {
   id: string;
@@ -38,16 +37,27 @@ interface POSCustomer {
   pointsPerUnit: number;
 }
 
+interface ClaimedReward {
+  _id: string;
+  title: string;
+  description?: string;
+  pointsRequired: number;
+  category: string;
+  imageUrl?: string;
+  claimCode: string;
+}
+
 interface ReceiptData {
   referenceCode: string;
   customerName: string;
+  rewardTitle?: string;
   pointsEarned?: number;
   pointsRedeemed?: number;
   oldBalance: number;
   newBalance: number;
   billAmount?: number;
-  currency: string;
-  tier: string;
+  currency?: string;
+  tier?: string;
   tierUpgraded?: boolean;
 }
 
@@ -78,21 +88,16 @@ export default function CashierPage() {
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [identifiedCustomer, setIdentifiedCustomer] = useState<POSCustomer | null>(null);
 
-  // Active Transaction Tab: "credit" or "redeem"
-  const [actionTab, setActionTab] = useState<"credit" | "redeem">("credit");
-
-  // Bill & Transaction State
+  // Bill & Credit Points State
   const [billAmount, setBillAmount] = useState<string>("");
   const [transactLoading, setTransactLoading] = useState(false);
   const [transactError, setTransactError] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
-  // Redemption State
-  const [redeemPoints, setRedeemPoints] = useState<string>("80");
-  const [rewardTitle, setRewardTitle] = useState<string>("Specialty Flat White / Latte");
+  // Locked Claimed Reward (when 8-digit code or :CLAIM: QR is identified)
+  const [claimedReward, setClaimedReward] = useState<ClaimedReward | null>(null);
   const [redeemLoading, setRedeemLoading] = useState(false);
   const [redeemError, setRedeemError] = useState<string | null>(null);
-  const [activeRewards, setActiveRewards] = useState<{ _id: string; title: string; pointsRequired: number; category: string }[]>([]);
 
   // Cashier PWA Installation States
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -100,20 +105,6 @@ export default function CashierPage() {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   useEffect(() => {
-    // Fetch active store rewards catalogue for POS redemption
-    fetch("/api/customer/rewards")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.rewards && data.rewards.length > 0) {
-          const activeList = data.rewards.filter((r: any) => r.isActive !== false);
-          setActiveRewards(activeList);
-          if (activeList[0]) {
-            setRewardTitle(activeList[0].title);
-            setRedeemPoints(activeList[0].pointsRequired.toString());
-          }
-        }
-      })
-      .catch(() => {});
 
     if (typeof window !== "undefined") {
       const standalone =
@@ -220,24 +211,31 @@ export default function CashierPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setIdentifiedCustomer(data.customer);
+        if (data.mode === "redeem" && data.pendingReward) {
+          setClaimedReward(data.pendingReward);
+        } else {
+          setClaimedReward(null);
+        }
       } else {
         setLookupError(data.error || "Customer not found. Please verify PIN or QR.");
         setIdentifiedCustomer(null);
+        setClaimedReward(null);
       }
     } catch (e: any) {
       setLookupError(e.message || "Error looking up customer");
       setIdentifiedCustomer(null);
+      setClaimedReward(null);
     } finally {
       setLookupLoading(false);
     }
   };
 
-  // Handle tactile on-screen keypad press
+  // Handle tactile on-screen keypad press (6 PIN digits + 2 Reward Code digits)
   const handleKeypadPress = (digit: string) => {
-    if (pinQuery.length >= 6) return;
+    if (pinQuery.length >= 8) return;
     const newPin = pinQuery + digit;
     setPinQuery(newPin);
-    if (newPin.length === 6) {
+    if (newPin.length === 8) {
       performLookup(newPin);
     }
   };
@@ -261,6 +259,7 @@ export default function CashierPage() {
   // Reset POS for next customer
   const resetPOS = () => {
     setIdentifiedCustomer(null);
+    setClaimedReward(null);
     setBillAmount("");
     setPinQuery("");
     setQrQuery("");
@@ -268,7 +267,6 @@ export default function CashierPage() {
     setTransactError(null);
     setRedeemError(null);
     setReceipt(null);
-    setActionTab("credit");
   };
 
   // Credit Points on Bill
@@ -308,17 +306,12 @@ export default function CashierPage() {
     }
   };
 
-  // Redeem Points
-  const handleRedeemPoints = async () => {
-    if (!identifiedCustomer) return;
-    const pts = parseInt(redeemPoints);
-    if (isNaN(pts) || pts <= 0) {
-      setRedeemError("Please enter a valid points amount to redeem");
-      return;
-    }
-
+  // Redeem Locked Claimed Reward
+  const handleRedeemClaimedReward = async () => {
+    if (!identifiedCustomer || !claimedReward) return;
+    const pts = claimedReward.pointsRequired;
     if (pts > identifiedCustomer.pointsBalance) {
-      setRedeemError(`Insufficient customer balance (${identifiedCustomer.pointsBalance} pts available)`);
+      setRedeemError(`Insufficient customer balance (${identifiedCustomer.pointsBalance} pts available, ${pts} pts required)`);
       return;
     }
 
@@ -332,13 +325,13 @@ export default function CashierPage() {
         body: JSON.stringify({
           customerId: identifiedCustomer.id,
           pointsToRedeem: pts,
-          rewardTitle: rewardTitle || "Order Discount",
+          rewardTitle: claimedReward.title,
         }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setReceipt(data.receipt);
-        confetti({ particleCount: 40, spread: 50 });
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
       } else {
         setRedeemError(data.error || "Failed to redeem reward");
       }
@@ -626,33 +619,91 @@ export default function CashierPage() {
               </div>
             )}
 
-            {/* MODE 1: 6-DIGIT PIN WITH OPTIONAL TACTILE NUMPAD */}
+            {/* MODE 1: 6-DIGIT PIN + 2-DIGIT REWARD CODE WITH TACTILE NUMPAD */}
             {activeMode === "pin" && (
               <div className="glass-panel rounded-3xl p-4 sm:p-5 shadow-lg space-y-4">
                 <div className="text-center">
-                  <span className="text-xs font-semibold text-neutral-500 block mb-1">
-                    Enter Customer 6-Digit PIN
-                  </span>
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-semibold mb-1">
+                    <span className="text-neutral-600">PIN (6 Digits)</span>
+                    <span className="text-neutral-300">•</span>
+                    <span className="text-amber-800">Reward Code (2 Digits)</span>
+                  </div>
 
-                  {/* 6 Digit Display Boxes */}
-                  <div className="flex justify-center gap-2 my-2 dir-ltr">
-                    {[0, 1, 2, 3, 4, 5].map((idx) => {
-                      const char = pinQuery[idx];
-                      return (
-                        <div
-                          key={idx}
-                          className={`w-10 h-12 sm:w-12 sm:h-14 rounded-xl border-2 flex items-center justify-center text-xl font-bold font-mono transition-all ${
-                            char
-                              ? "border-[#3F1215] bg-[#FDF4F0] text-[#3F1215]"
-                              : idx === pinQuery.length
-                              ? "border-[#3F1215] bg-white animate-pulse"
-                              : "border-[#EBD3C8] bg-[#FAF5F2]/50 text-neutral-300"
-                          }`}
-                        >
-                          {char || "•"}
-                        </div>
-                      );
-                    })}
+                  {/* 6 PIN Display Boxes + Separator + 2 Reward Display Boxes */}
+                  <div className="flex items-center justify-center gap-1 sm:gap-1.5 my-2.5 dir-ltr overflow-x-auto py-1">
+                    {/* First 3 PIN digits */}
+                    <div className="flex items-center gap-1">
+                      {[0, 1, 2].map((idx) => {
+                        const char = pinQuery[idx];
+                        return (
+                          <div
+                            key={idx}
+                            className={`w-9 h-11 sm:w-10 sm:h-13 rounded-xl border-2 flex items-center justify-center text-lg sm:text-xl font-bold font-mono transition-all ${
+                              char
+                                ? "border-[#3F1215] bg-[#FDF4F0] text-[#3F1215]"
+                                : idx === pinQuery.length
+                                ? "border-[#3F1215] bg-white animate-pulse"
+                                : "border-[#EBD3C8] bg-[#FAF5F2]/50 text-neutral-300"
+                            }`}
+                          >
+                            {char || "•"}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Second 3 PIN digits */}
+                    <div className="flex items-center gap-1">
+                      {[3, 4, 5].map((idx) => {
+                        const char = pinQuery[idx];
+                        return (
+                          <div
+                            key={idx}
+                            className={`w-9 h-11 sm:w-10 sm:h-13 rounded-xl border-2 flex items-center justify-center text-lg sm:text-xl font-bold font-mono transition-all ${
+                              char
+                                ? "border-[#3F1215] bg-[#FDF4F0] text-[#3F1215]"
+                                : idx === pinQuery.length
+                                ? "border-[#3F1215] bg-white animate-pulse"
+                                : "border-[#EBD3C8] bg-[#FAF5F2]/50 text-neutral-300"
+                            }`}
+                          >
+                            {char || "•"}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Dash separator */}
+                    <span className="text-lg font-extrabold text-neutral-300 px-0.5">-</span>
+
+                    {/* 2 Reward Code digits */}
+                    <div className="flex items-center gap-1">
+                      {[6, 7].map((idx) => {
+                        const char = pinQuery[idx];
+                        return (
+                          <div
+                            key={idx}
+                            className={`w-9 h-11 sm:w-10 sm:h-13 rounded-xl border-2 flex items-center justify-center text-lg sm:text-xl font-bold font-mono transition-all ${
+                              char
+                                ? "border-amber-700 bg-amber-50 text-amber-900"
+                                : idx === pinQuery.length
+                                ? "border-amber-600 bg-white animate-pulse"
+                                : "border-amber-200 bg-amber-50/30 text-amber-300"
+                            }`}
+                          >
+                            {char || "•"}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] font-mono text-neutral-400">
+                    {pinQuery.length === 0 && "Type 6 digits for Points Credit, or 8 digits for Reward Redemption"}
+                    {pinQuery.length > 0 && pinQuery.length < 6 && `${6 - pinQuery.length} digits remaining for PIN`}
+                    {pinQuery.length === 6 && "6-digit PIN complete! Credit Points or type 2 digits for Reward"}
+                    {pinQuery.length === 7 && "1 digit remaining for Reward Code"}
+                    {pinQuery.length === 8 && `8-digit Code: PIN + Reward #${pinQuery.slice(6, 8)}`}
                   </div>
                 </div>
 
@@ -693,25 +744,60 @@ export default function CashierPage() {
                   </button>
                 </div>
 
-                {/* Search Button */}
-                <button
-                  type="button"
-                  onClick={() => performLookup(pinQuery)}
-                  disabled={lookupLoading || pinQuery.length < 6}
-                  className="w-full py-3.5 rounded-2xl bg-[#3F1215] text-[#FEECE2] text-sm font-bold hover:bg-[#2B0B0D] transition-all disabled:opacity-40 cursor-pointer shadow-xs flex items-center justify-center gap-2 active:scale-98"
-                >
-                  {lookupLoading ? (
-                    <>
-                      <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                      <span>Searching customer...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Search by PIN</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
+                {/* Action Buttons based on input length */}
+                <div className="space-y-2 pt-1">
+                  {pinQuery.length >= 6 && pinQuery.length < 8 && (
+                    <button
+                      type="button"
+                      onClick={() => performLookup(pinQuery.slice(0, 6))}
+                      disabled={lookupLoading}
+                      className="w-full py-3.5 rounded-2xl bg-[#3F1215] text-[#FEECE2] text-sm font-bold hover:bg-[#2B0B0D] transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2 active:scale-98"
+                    >
+                      {lookupLoading ? (
+                        <>
+                          <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                          <span>Searching customer...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Confirm & Credit Points (6 Digits)</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
                   )}
-                </button>
+
+                  {pinQuery.length === 8 && (
+                    <button
+                      type="button"
+                      onClick={() => performLookup(pinQuery)}
+                      disabled={lookupLoading}
+                      className="w-full py-3.5 rounded-2xl bg-amber-800 text-amber-50 text-sm font-bold hover:bg-amber-900 transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2 active:scale-98"
+                    >
+                      {lookupLoading ? (
+                        <>
+                          <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                          <span>Checking reward & customer...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Gift className="w-4 h-4" />
+                          <span>Redeem Reward #{pinQuery.slice(6, 8)} (8 Digits)</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {pinQuery.length < 6 && (
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full py-3.5 rounded-2xl bg-[#3F1215]/30 text-[#FEECE2]/60 text-sm font-bold transition-all cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      <span>Enter at least 6 digits</span>
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -832,43 +918,109 @@ export default function CashierPage() {
               </div>
             </div>
 
-            {/* Action Switcher: Credit Points vs. Redeem Reward */}
-            <div className="grid grid-cols-2 gap-2 glass-panel-subtle p-1 rounded-2xl border border-[#EBD3C8]/60">
-              <button
-                type="button"
-                onClick={() => {
-                  setActionTab("credit");
-                  setTransactError(null);
-                }}
-                className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                  actionTab === "credit"
-                    ? "bg-[#3F1215] text-[#FEECE2] shadow-xs"
-                    : "text-neutral-600 hover:text-neutral-900"
-                }`}
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>Credit Points (Bill)</span>
-              </button>
+            {/* MODE SEPARATION: If claimedReward is present -> LOCKED REDEEM VIEW ONLY */}
+            {claimedReward ? (
+              <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-lg space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-wider font-mono font-bold text-amber-800 block mb-0.5">
+                      Locked Reward Redemption
+                    </span>
+                    <h4 className="text-base font-bold text-[#2B0B0D]">
+                      {claimedReward.title}
+                    </h4>
+                  </div>
+                  <div className="px-3 py-1 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 font-mono text-xs font-extrabold shadow-2xs">
+                    CODE: #{claimedReward.claimCode}
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActionTab("redeem");
-                  setRedeemError(null);
-                }}
-                className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                  actionTab === "redeem"
-                    ? "bg-[#3F1215] text-[#FEECE2] shadow-xs"
-                    : "text-neutral-600 hover:text-neutral-900"
-                }`}
-              >
-                <Gift className="w-4 h-4" />
-                <span>Redeem Reward</span>
-              </button>
-            </div>
+                {redeemError && (
+                  <div className="p-3 rounded-2xl bg-red-50/80 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                    <span>{redeemError}</span>
+                  </div>
+                )}
 
-            {/* TAB A: CREDIT POINTS ON BILL */}
-            {actionTab === "credit" && (
+                {/* Locked Reward Presentation Card */}
+                <div className="glass-panel-subtle rounded-2xl overflow-hidden border border-[#EBD3C8]">
+                  {claimedReward.imageUrl && (
+                    <div className="w-full h-36 overflow-hidden border-b border-[#EBD3C8]">
+                      <img
+                        src={claimedReward.imageUrl}
+                        alt={claimedReward.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-neutral-500 font-mono uppercase">{claimedReward.category}</span>
+                      <span className="text-xs font-bold text-[#3F1215] bg-[#FDF4F0] px-2.5 py-0.5 rounded-lg border border-[#EBD3C8]">
+                        Fixed Cost: {claimedReward.pointsRequired} pts
+                      </span>
+                    </div>
+
+                    {/* Balance Math Breakdown */}
+                    <div className="pt-2 border-t border-[#EBD3C8] space-y-2 text-xs">
+                      <div className="flex justify-between text-neutral-600">
+                        <span>Current Customer Balance:</span>
+                        <span className="font-mono font-bold">{identifiedCustomer.pointsBalance} pts</span>
+                      </div>
+                      <div className="flex justify-between text-amber-900 font-semibold">
+                        <span>Points to Deduct:</span>
+                        <span className="font-mono font-bold">-{claimedReward.pointsRequired} pts</span>
+                      </div>
+                      <div className="pt-1.5 border-t border-[#EBD3C8]/60 flex justify-between font-bold text-sm">
+                        <span className="text-[#2B0B0D]">Balance After Claim:</span>
+                        <span className={`font-mono ${identifiedCustomer.pointsBalance >= claimedReward.pointsRequired ? "text-emerald-700 font-extrabold" : "text-red-600 font-extrabold"}`}>
+                          {identifiedCustomer.pointsBalance - claimedReward.pointsRequired} pts
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Insufficient points warning */}
+                {identifiedCustomer.pointsBalance < claimedReward.pointsRequired && (
+                  <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                    <span>Customer lacks required points balance ({identifiedCustomer.pointsBalance} / {claimedReward.pointsRequired} pts).</span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={resetPOS}
+                    className="px-4 py-3.5 rounded-2xl border border-[#EBD3C8] text-neutral-600 hover:bg-[#FAF5F2] text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleRedeemClaimedReward}
+                    disabled={redeemLoading || identifiedCustomer.pointsBalance < claimedReward.pointsRequired}
+                    className="flex-1 py-3.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-sm font-bold transition-all disabled:opacity-40 cursor-pointer shadow-sm active:scale-98 flex items-center justify-center gap-2"
+                  >
+                    {redeemLoading ? (
+                      <>
+                        <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                        <span>Processing redemption...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Gift className="w-4 h-4" />
+                        <span>Confirm & Redeem {claimedReward.title} ({claimedReward.pointsRequired} pts)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* MODE SEPARATION: If no claimedReward -> CREDIT POINTS VIEW ONLY */
               <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-lg space-y-4">
                 <div>
                   <h4 className="text-sm font-bold text-[#2B0B0D] mb-1">
@@ -977,108 +1129,6 @@ export default function CashierPage() {
                 </form>
               </div>
             )}
-
-            {/* TAB B: REDEEM REWARD / DISCOUNT */}
-            {actionTab === "redeem" && (
-              <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-lg space-y-4">
-                <div>
-                  <h4 className="text-sm font-bold text-[#2B0B0D] mb-1">
-                    Redeem Reward or Instant Discount
-                  </h4>
-                  <p className="text-[11px] text-neutral-500">
-                    Deduct points from customer balance for a beverage, treat, or bill discount.
-                  </p>
-                </div>
-
-                {redeemError && (
-                  <div className="p-3 rounded-2xl bg-red-50/80 border border-red-200 text-xs text-red-700 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
-                    <span>{redeemError}</span>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
-                      Select Reward or Discount Reason
-                    </label>
-                    <CustomGlassSelect
-                      value={rewardTitle}
-                      onChange={(val) => {
-                        setRewardTitle(val);
-                        const matched = activeRewards.find((r) => r.title === val);
-                        if (matched) {
-                          setRedeemPoints(matched.pointsRequired.toString());
-                        }
-                      }}
-                      placeholder="Select Reward or Reason..."
-                      options={[
-                        ...(activeRewards.length > 0
-                          ? activeRewards.map((r) => ({
-                              value: r.title,
-                              label: r.title,
-                              badge: `${r.pointsRequired} pts`,
-                              subtitle: r.category,
-                            }))
-                          : [
-                              { value: "Specialty Flat White / Latte", label: "Specialty Flat White / Latte", badge: "80 pts" },
-                              { value: "Kyoto Cold Brew", label: "Kyoto Cold Brew", badge: "120 pts" },
-                              { value: "Fresh French Pistachio Croissant", label: "Fresh French Pistachio Croissant", badge: "90 pts" },
-                            ]),
-                        { value: "Custom Bill Discount", label: "Custom Bill Discount", subtitle: "Manual adjustment" },
-                      ]}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-600 mb-1.5">
-                      Points to Deduct
-                    </label>
-                    <input
-                      type="number"
-                      value={redeemPoints}
-                      onChange={(e) => setRedeemPoints(e.target.value)}
-                      className="glass-input w-full text-lg font-mono font-bold"
-                      required
-                    />
-                  </div>
-
-                  <div className="flex gap-2.5 pt-1">
-                    <button
-                      type="button"
-                      onClick={resetPOS}
-                      className="px-4 py-3 rounded-2xl border border-[#EBD3C8] text-neutral-600 hover:bg-[#FAF5F2] text-xs font-bold transition-colors cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleRedeemPoints}
-                      disabled={
-                        redeemLoading ||
-                        !redeemPoints ||
-                        parseInt(redeemPoints) <= 0 ||
-                        parseInt(redeemPoints) > identifiedCustomer.pointsBalance
-                      }
-                      className="flex-1 py-3.5 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-sm font-bold transition-all disabled:opacity-40 cursor-pointer shadow-sm active:scale-98 flex items-center justify-center gap-2"
-                    >
-                      {redeemLoading ? (
-                        <>
-                          <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                          <span>Deducting points...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Confirm Reward Redemption</span>
-                          <Gift className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -1104,6 +1154,13 @@ export default function CashierPage() {
                   <span className="text-neutral-500">Customer:</span>
                   <span className="font-bold text-[#2B0B0D]">{receipt.customerName}</span>
                 </div>
+
+                {receipt.rewardTitle && (
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Reward Claimed:</span>
+                    <span className="font-bold text-[#3F1215]">{receipt.rewardTitle}</span>
+                  </div>
+                )}
 
                 {receipt.billAmount && (
                   <div className="flex justify-between">

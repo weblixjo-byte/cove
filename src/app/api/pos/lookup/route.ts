@@ -37,38 +37,89 @@ export async function POST(req: Request) {
     }
 
     let customer = null;
+    let claimCode: string | null = null;
 
-    // 1. Try 6-digit PIN (strip spaces/dashes: "482 - 910" -> "482910")
+    // Check if query is QR code with :CLAIM:
+    // e.g. `${qrSecret}:CLAIM:${claimCode}`
+    if (cleaned.includes(":CLAIM:")) {
+      const parts = cleaned.split(":CLAIM:");
+      cleaned = parts[0].trim();
+      claimCode = parts[1].trim();
+    }
+
     const digitsOnly = cleaned.replace(/\D/g, "");
-    if (digitsOnly.length === 6) {
+
+    // 1. Check for 8-digit combined entry (6 PIN + 2 Claim Code)
+    if (!claimCode && digitsOnly.length === 8) {
+      const pinCandidate = digitsOnly.slice(0, 6);
+      const codeCandidate = digitsOnly.slice(6, 8);
+      const matchedCustomer = await dbService.findUserByPin(pinCandidate);
+      if (matchedCustomer) {
+        customer = matchedCustomer;
+        claimCode = codeCandidate;
+      }
+    }
+
+    // 2. Try standard 6-digit PIN
+    if (!customer && digitsOnly.length === 6) {
       customer = await dbService.findUserByPin(digitsOnly);
     }
 
-    // 2. Try QR Secret or user ID
+    // 3. Try QR Secret or user ID
     if (!customer) {
       customer = await dbService.findUserByQrSecret(cleaned);
     }
 
-    // 3. Try Email address
+    // 4. Try Email address
     if (!customer && cleaned.includes("@")) {
       customer = await dbService.findUserByEmail(cleaned);
     }
 
-    // 4. Try Phone number
-    if (!customer && digitsOnly.length >= 7) {
+    // 5. Try Phone number
+    if (!customer && digitsOnly.length >= 7 && digitsOnly.length !== 8) {
       customer = await dbService.findUserByPhone(cleaned);
     }
 
-    // 5. Try Direct user ID match
+    // 6. Try Direct user ID match
     if (!customer) {
       customer = await dbService.findUserById(cleaned);
     }
 
     if (!customer || customer.role !== "customer") {
       return NextResponse.json(
-        { error: "Customer not found. Verify the 6-digit PIN or scanned QR code." },
+        { error: "Customer not found. Verify the PIN or scanned QR code." },
         { status: 404 }
       );
+    }
+
+    // If claim code is detected, validate the reward
+    let pendingReward = null;
+    if (claimCode) {
+      const cleanClaimCode = claimCode.replace(/\D/g, "");
+      if (!/^\d{2}$/.test(cleanClaimCode)) {
+        return NextResponse.json(
+          { error: `Invalid reward claim code "${claimCode}". Must be exactly 2 digits.` },
+          { status: 400 }
+        );
+      }
+
+      const reward = await dbService.findRewardByClaimCode(cleanClaimCode, true);
+      if (!reward) {
+        return NextResponse.json(
+          { error: `Reward code #${cleanClaimCode} not found or inactive` },
+          { status: 404 }
+        );
+      }
+
+      pendingReward = {
+        _id: reward._id,
+        title: reward.title,
+        description: reward.description,
+        pointsRequired: reward.pointsRequired,
+        category: reward.category,
+        imageUrl: reward.imageUrl,
+        claimCode: reward.claimCode,
+      };
     }
 
     const config = await dbService.getConfig();
@@ -80,6 +131,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
+      mode: pendingReward ? "redeem" : "credit",
+      pendingReward,
       customer: {
         id: customer._id,
         name: customer.name,

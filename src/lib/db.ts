@@ -477,20 +477,95 @@ export const dbService = {
   },
 
   // Rewards
+  async generateUniqueClaimCode(excludeRewardId?: string): Promise<string> {
+    try {
+      const allRewards = await this.getRewards(false);
+      const takenCodes = new Set<string>();
+      for (const r of allRewards) {
+        if (excludeRewardId && r._id === excludeRewardId) continue;
+        if (r.claimCode && /^\d{2}$/.test(r.claimCode)) {
+          takenCodes.add(r.claimCode);
+        }
+      }
+
+      // Available 2-digit numeric codes: 10 to 99
+      const availableCodes: string[] = [];
+      for (let n = 10; n <= 99; n++) {
+        const str = String(n);
+        if (!takenCodes.has(str)) {
+          availableCodes.push(str);
+        }
+      }
+
+      if (availableCodes.length > 0) {
+        // Pick a random available code
+        const randomIndex = Math.floor(Math.random() * availableCodes.length);
+        return availableCodes[randomIndex];
+      }
+
+      // Fallback in theoretical exhaustion
+      return String(Math.floor(10 + Math.random() * 90));
+    } catch {
+      return String(Math.floor(10 + Math.random() * 90));
+    }
+  },
+
   async getRewards(activeOnly: boolean = true): Promise<IReward[]> {
     const { isMongoose } = await connectDB();
     if (isMongoose) {
       try {
         const filter = activeOnly ? { isActive: true } : {};
         const list = await Reward.find(filter).sort({ pointsRequired: 1 }).lean();
-        return JSON.parse(JSON.stringify(list));
+        const rewards: IReward[] = JSON.parse(JSON.stringify(list));
+
+        // Ensure every reward has a valid 2-digit claimCode (10-99)
+        const seenCodes = new Set<string>();
+        for (let i = 0; i < rewards.length; i++) {
+          const r = rewards[i];
+          const existingCode = r.claimCode;
+          const isValid = Boolean(existingCode && /^\d{2}$/.test(existingCode) && !seenCodes.has(existingCode));
+          if (!isValid) {
+            // Assign deterministic unique 2-digit code
+            let candidateNum = ((i * 7 + 11) % 90) + 10;
+            while (seenCodes.has(String(candidateNum))) {
+              candidateNum = ((candidateNum + 1) % 90) + 10;
+            }
+            const fallbackCode = String(candidateNum);
+            r.claimCode = fallbackCode;
+            try {
+              await Reward.findByIdAndUpdate(r._id, { $set: { claimCode: fallbackCode } });
+            } catch (err) {
+              console.warn("Failed to set fallback claimCode:", err);
+            }
+          }
+          const currentCode = r.claimCode;
+          if (currentCode) seenCodes.add(currentCode);
+        }
+
+        return rewards.sort((a, b) => a.pointsRequired - b.pointsRequired);
       } catch (e) {
         console.warn(e);
       }
     }
-    return memoryStore.rewards
-      .filter((r) => (!activeOnly || r.isActive))
-      .sort((a, b) => a.pointsRequired - b.pointsRequired);
+
+    const list = memoryStore.rewards
+      .filter((r) => (!activeOnly || r.isActive));
+    const seenCodes = new Set<string>();
+    for (let i = 0; i < list.length; i++) {
+      const existingCode = list[i].claimCode;
+      const isValid = Boolean(existingCode && /^\d{2}$/.test(existingCode) && !seenCodes.has(existingCode));
+      if (!isValid) {
+        let candidateNum = ((i * 7 + 11) % 90) + 10;
+        while (seenCodes.has(String(candidateNum))) {
+          candidateNum = ((candidateNum + 1) % 90) + 10;
+        }
+        list[i].claimCode = String(candidateNum);
+      }
+      const finalCode = list[i].claimCode;
+      if (finalCode) seenCodes.add(finalCode);
+    }
+
+    return list.sort((a, b) => a.pointsRequired - b.pointsRequired);
   },
 
   async findRewardById(id: string): Promise<IReward | null> {
@@ -507,7 +582,40 @@ export const dbService = {
     return found ? { ...found } : null;
   },
 
+  async findRewardByClaimCode(code: string, activeOnly: boolean = true): Promise<IReward | null> {
+    const cleanCode = code ? String(code).trim().replace(/\D/g, "") : "";
+    if (cleanCode.length !== 2) return null;
+
+    const { isMongoose } = await connectDB();
+    if (isMongoose) {
+      try {
+        const query: any = { claimCode: cleanCode };
+        if (activeOnly) query.isActive = true;
+        const r = await Reward.findOne(query).lean();
+        if (r) return JSON.parse(JSON.stringify(r));
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    // Fallback search through getRewards which also handles legacy code assignment
+    const all = await this.getRewards(activeOnly);
+    const found = all.find((r) => r.claimCode === cleanCode);
+    return found || null;
+  },
+
   async createReward(data: Partial<IReward>): Promise<IReward> {
+    let finalCode = data.claimCode ? String(data.claimCode).trim() : "";
+    if (!/^\d{2}$/.test(finalCode)) {
+      finalCode = await this.generateUniqueClaimCode();
+    } else {
+      // Check if provided code is already taken by another active reward
+      const existing = await this.findRewardByClaimCode(finalCode, true);
+      if (existing) {
+        finalCode = await this.generateUniqueClaimCode();
+      }
+    }
+
     const { isMongoose } = await connectDB();
     if (isMongoose) {
       try {
@@ -517,6 +625,7 @@ export const dbService = {
           pointsRequired: Number(data.pointsRequired) || 100,
           category: data.category || "Drinks",
           imageUrl: data.imageUrl || "",
+          claimCode: finalCode,
           stock: data.stock !== undefined ? Number(data.stock) : 999,
           isActive: data.isActive !== undefined ? Boolean(data.isActive) : true,
           redemptionCount: 0,
@@ -534,6 +643,7 @@ export const dbService = {
       pointsRequired: data.pointsRequired || 100,
       category: data.category || "Drinks",
       imageUrl: data.imageUrl || "",
+      claimCode: finalCode,
       isActive: data.isActive !== undefined ? data.isActive : true,
       stock: data.stock !== undefined ? data.stock : 999,
       redemptionCount: 0,
@@ -544,10 +654,18 @@ export const dbService = {
   },
 
   async updateReward(id: string, data: Partial<IReward>): Promise<IReward | null> {
+    const updatePayload: Partial<IReward> = { ...data };
+    if (data.claimCode !== undefined) {
+      const codeCandidate = String(data.claimCode).trim();
+      if (/^\d{2}$/.test(codeCandidate)) {
+        updatePayload.claimCode = codeCandidate;
+      }
+    }
+
     const { isMongoose } = await connectDB();
     if (isMongoose) {
       try {
-        const r = await Reward.findByIdAndUpdate(id, { $set: data }, { new: true }).lean();
+        const r = await Reward.findByIdAndUpdate(id, { $set: updatePayload }, { new: true }).lean();
         if (r) return JSON.parse(JSON.stringify(r));
       } catch (e) {
         console.warn(e);
@@ -555,7 +673,7 @@ export const dbService = {
     }
     const idx = memoryStore.rewards.findIndex((r) => r._id === id);
     if (idx !== -1) {
-      memoryStore.rewards[idx] = { ...memoryStore.rewards[idx], ...data };
+      memoryStore.rewards[idx] = { ...memoryStore.rewards[idx], ...updatePayload };
       return { ...memoryStore.rewards[idx] };
     }
     return null;
