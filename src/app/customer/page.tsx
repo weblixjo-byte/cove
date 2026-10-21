@@ -21,6 +21,7 @@ import {
   Phone,
   Smartphone,
   ArrowRight,
+  Download,
 } from "lucide-react";
 
 // Official Google Multi-Color Icon
@@ -194,6 +195,10 @@ export default function CustomerPage() {
   // 1-Click Android PWA Install State
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showAndroidBanner, setShowAndroidBanner] = useState(false);
+
+  // iPhone / iOS PWA Install State (Web Share API for Add to Home Screen)
+  const [showIosBanner, setShowIosBanner] = useState(false);
+  const [iosShareToast, setIosShareToast] = useState<string | null>(null);
 
   // Ref to track last known points for real-time cashier credit detection
   const prevPointsRef = useRef<number | null>(null);
@@ -564,13 +569,15 @@ export default function CustomerPage() {
   const isIosDevice = (): boolean => {
     if (typeof window === "undefined") return false;
     const ua = window.navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(ua);
+    const isIos = /iphone|ipad|ipod/.test(ua);
+    const isIpadOs = /macintosh/.test(ua) && typeof navigator !== "undefined" && navigator.maxTouchPoints > 1;
+    return isIos || isIpadOs;
   };
 
   const isStandalone = (): boolean => {
     if (typeof window === "undefined") return false;
     return (
-      ("standalone" in window.navigator && (window.navigator as any).standalone) ||
+      ("standalone" in window.navigator && Boolean((window.navigator as any).standalone)) ||
       window.matchMedia("(display-mode: standalone)").matches
     );
   };
@@ -588,11 +595,57 @@ export default function CustomerPage() {
     setShowAndroidBanner(true);
   };
 
-  // Auto-trigger Android install banner 1.5s after user is logged in with valid phone
+  // Check and trigger iOS install banner with show-once check
+  const checkAndTriggerIosInstall = () => {
+    if (typeof window === "undefined") return;
+    if (!isIosDevice()) return;
+    if (isStandalone()) return;
+
+    const seen = localStorage.getItem("pwa_ios_install_prompt_seen");
+    if (seen === "true") return;
+
+    setShowIosBanner(true);
+  };
+
+  const handleDismissIosBanner = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("pwa_ios_install_prompt_seen", "true");
+    }
+    setShowIosBanner(false);
+  };
+
+  // Trigger native iPhone Share Sheet for 1-tap "Add to Home Screen"
+  const handleIosDownloadApp = async () => {
+    if (typeof window === "undefined") return;
+
+    handleDismissIosBanner();
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        setIosShareToast("Select 'Add to Home Screen' (+) in the menu");
+        setTimeout(() => setIosShareToast(null), 8000);
+
+        await navigator.share({
+          title: config.storeName || "Cove Coffee House",
+          text: `${config.storeName || "Cove"} Digital Loyalty Pass`,
+          url: window.location.href,
+        });
+      } catch (err: any) {
+        if (err && err.name !== "AbortError") {
+          setShowIosInstallModal(true);
+        }
+      }
+    } else {
+      setShowIosInstallModal(true);
+    }
+  };
+
+  // Auto-trigger install banners 1.5s after user is logged in with valid phone
   useEffect(() => {
     if (customer && customer.phone) {
       const timer = setTimeout(() => {
         checkAndTriggerAndroidInstall();
+        checkAndTriggerIosInstall();
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -648,9 +701,10 @@ export default function CustomerPage() {
           localStorage.setItem(CUSTOMER_CACHE_KEY, JSON.stringify(updatedCustomer));
         }
 
-        // Trigger Android PWA banner check 1.5s after completing phone onboarding
+        // Trigger PWA install banner check 1.5s after completing phone onboarding
         setTimeout(() => {
           checkAndTriggerAndroidInstall();
+          checkAndTriggerIosInstall();
         }, 1500);
       } else {
         setPhoneError(data.error || "Failed to save phone number");
@@ -898,6 +952,19 @@ export default function CustomerPage() {
               </button>
             </div>
 
+            {isIosDevice() && !isStandalone() && (
+              <div className="mt-4 pt-3.5 border-t border-[#EBD3C8]/50">
+                <button
+                  type="button"
+                  onClick={handleIosDownloadApp}
+                  className="w-full py-2.5 px-4 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download App</span>
+                </button>
+              </div>
+            )}
+
             <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center justify-center gap-2 text-xs text-neutral-400 font-mono">
               <ShieldCheck className="w-4 h-4 text-emerald-700" />
               <span>Secure Digital Pass Authentication</span>
@@ -1032,6 +1099,18 @@ export default function CustomerPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            {isIosDevice() && !isStandalone() && (
+              <button
+                type="button"
+                onClick={handleIosDownloadApp}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                title="Download iPhone App"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download App</span>
+              </button>
+            )}
+
             <button
               onClick={handleLogout}
               className="p-2 rounded-xl text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100/50 transition-colors cursor-pointer"
@@ -1045,6 +1124,24 @@ export default function CustomerPage() {
 
       {/* Main Container */}
       <main className="max-w-md mx-auto w-full px-4 pt-4 pb-32 flex-1">
+        {/* iOS Share Instruction Toast */}
+        {iosShareToast && (
+          <div className="mb-4 bg-[#3F1215] text-[#FEECE2] rounded-2xl p-3.5 shadow-lg border border-[#3F1215] flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                <Smartphone className="w-4 h-4" />
+              </div>
+              <p className="text-xs font-semibold">{iosShareToast}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIosShareToast(null)}
+              className="p-1 rounded-lg text-[#FEECE2]/70 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
         {/* Auto-Dismissing Top Notification Toast (6s auto-dismiss, dismissible via X, preserves unread status) */}
         {showTopToast && activeToastNotification && activeTab !== "notifications" && (
           <div
@@ -1251,6 +1348,33 @@ export default function CustomerPage() {
               </div>
               <ChevronRight className="w-4 h-4 text-neutral-400" />
             </button>
+
+            {/* iPhone App Install Quick Action */}
+            {isIosDevice() && !isStandalone() && (
+              <div className="glass-panel rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xs border border-[#EBD3C8]">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#3F1215] text-[#FEECE2] flex items-center justify-center shrink-0">
+                    <Smartphone className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold text-[#2B0B0D] block truncate">
+                      Add to iPhone Home Screen
+                    </span>
+                    <span className="text-[11px] text-neutral-500 block truncate">
+                      Instant 1-tap pass at the coffee counter
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleIosDownloadApp}
+                  className="px-3.5 py-2 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs shrink-0 flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download App</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -1716,13 +1840,13 @@ export default function CustomerPage() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
             <div className="w-12 h-12 rounded-full bg-[#FAF5F2] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center mx-auto mb-3">
-              <Bell className="w-6 h-6" />
+              <Smartphone className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-[#2B0B0D] mb-1">
-              Enable Notifications on iPhone
+              Install {config.storeName} on iPhone
             </h3>
             <p className="text-xs text-neutral-500 mb-5 leading-relaxed">
-              Apple requires adding the app to your Home Screen first to receive lock screen notifications:
+              Add the app to your Home Screen in 2 simple steps:
             </p>
 
             <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-start space-y-3 mb-5 text-xs text-[#2B0B0D]">
@@ -1730,28 +1854,101 @@ export default function CustomerPage() {
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   1
                 </span>
-                <span>Tap the Share button <strong>⎋ (Share)</strong> in Safari&apos;s bottom toolbar.</span>
+                <span>
+                  Tap <strong>Download App</strong> below (or tap <strong>⎋ Share</strong> in Safari&apos;s toolbar).
+                </span>
               </div>
               <div className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   2
                 </span>
-                <span>Choose <strong>&quot;Add to Home Screen&quot;</strong>.</span>
+                <span>
+                  Scroll down the menu and choose <strong>&quot;Add to Home Screen&quot; (+)</strong>.
+                </span>
               </div>
               <div className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                   3
                 </span>
-                <span>Open <strong>Cove</strong> from your home screen and tap &quot;Enable&quot;.</span>
+                <span>
+                  Tap <strong>&quot;Add&quot;</strong> in the top right corner.
+                </span>
               </div>
             </div>
 
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={handleIosDownloadApp}
+                className="w-full py-3 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-bold hover:bg-[#2B0B0D] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download App (Open Share Menu)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowIosInstallModal(false)}
+                className="w-full py-2 text-neutral-500 text-xs font-medium hover:text-neutral-800 transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* iPHONE PWA INSTALL FLOATING BANNER */}
+      {showIosBanner && (
+        <div className="fixed bottom-24 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-40 animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="glass-banner rounded-3xl p-4 shadow-2xl border border-white/95 relative">
             <button
-              onClick={() => setShowIosInstallModal(false)}
-              className="w-full py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors cursor-pointer"
+              type="button"
+              onClick={handleDismissIosBanner}
+              className="absolute top-3 end-3 p-1 rounded-full text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
+              title="Close"
             >
-              Got it, thanks
+              <X className="w-4 h-4" />
             </button>
+
+            <div className="flex items-start gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#3F1215] flex items-center justify-center text-white shrink-0 overflow-hidden p-0.5 border border-[#3F1215]/30 shadow-md">
+                <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
+              </div>
+
+              <div className="flex-1 min-w-0 pr-3">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="font-bold text-xs sm:text-sm text-[#2B0B0D]">
+                    Install {config.storeName}
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#FAF5F2] text-[#3F1215] border border-[#EBD3C8]">
+                    iPhone
+                  </span>
+                </div>
+                <p className="text-[11px] text-neutral-500 leading-snug">
+                  Add to home screen for 1-tap checkout pass & fast counter access.
+                </p>
+
+                <div className="flex items-center gap-2 mt-3">
+                  <button
+                    type="button"
+                    onClick={handleIosDownloadApp}
+                    className="flex-1 py-2 px-3 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download App</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDismissIosBanner}
+                    className="py-2 px-3 rounded-xl bg-transparent hover:bg-black/5 text-neutral-500 text-xs font-medium transition-colors cursor-pointer"
+                  >
+                    Not now
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
