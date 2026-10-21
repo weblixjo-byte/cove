@@ -21,11 +21,6 @@ import {
   Phone,
   Smartphone,
   ArrowRight,
-  Download,
-  MoreHorizontal,
-  PlusSquare,
-  Share,
-  ExternalLink,
 } from "lucide-react";
 
 // Official Google Multi-Color Icon
@@ -199,11 +194,6 @@ export default function CustomerPage() {
   // 1-Click Android PWA Install State
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showAndroidBanner, setShowAndroidBanner] = useState(false);
-
-  // iPhone / iOS PWA Install State (Web Share API for Add to Home Screen)
-  const [showIosBanner, setShowIosBanner] = useState(false);
-  const [iosShareToast, setIosShareToast] = useState<string | null>(null);
-  const [iosPointerGuide, setIosPointerGuide] = useState<string | null>(null);
 
   // Ref to track last known points for real-time cashier credit detection
   const prevPointsRef = useRef<number | null>(null);
@@ -574,26 +564,13 @@ export default function CustomerPage() {
   const isIosDevice = (): boolean => {
     if (typeof window === "undefined") return false;
     const ua = window.navigator.userAgent.toLowerCase();
-    const isIos = /iphone|ipad|ipod/.test(ua);
-    const isIpadOs = /macintosh/.test(ua) && typeof navigator !== "undefined" && navigator.maxTouchPoints > 1;
-    return isIos || isIpadOs;
-  };
-
-  const isChromeIos = (): boolean => {
-    if (typeof window === "undefined") return false;
-    return /crios/i.test(window.navigator.userAgent);
-  };
-
-  const isInAppBrowser = (): boolean => {
-    if (typeof window === "undefined") return false;
-    const ua = window.navigator.userAgent.toLowerCase();
-    return /instagram|fbav|fban|line|micromessenger|tiktok|bytedance/i.test(ua);
+    return /iphone|ipad|ipod/.test(ua);
   };
 
   const isStandalone = (): boolean => {
     if (typeof window === "undefined") return false;
     return (
-      ("standalone" in window.navigator && Boolean((window.navigator as any).standalone)) ||
+      ("standalone" in window.navigator && (window.navigator as any).standalone) ||
       window.matchMedia("(display-mode: standalone)").matches
     );
   };
@@ -611,48 +588,11 @@ export default function CustomerPage() {
     setShowAndroidBanner(true);
   };
 
-  // Check and trigger iOS install banner with show-once check
-  const checkAndTriggerIosInstall = () => {
-    if (typeof window === "undefined") return;
-    if (!isIosDevice()) return;
-    if (isStandalone()) return;
-
-    const seen = localStorage.getItem("pwa_ios_install_prompt_seen");
-    if (seen === "true") return;
-
-    setShowIosBanner(true);
-  };
-
-  const handleDismissIosBanner = () => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pwa_ios_install_prompt_seen", "true");
-    }
-    setShowIosBanner(false);
-  };
-
-  // Open iOS install guidance drawer
-  const handleIosDownloadApp = () => {
-    handleDismissIosBanner();
-    setShowIosInstallModal(true);
-  };
-
-  const handleCloseIosModalWithPointer = () => {
-    setShowIosInstallModal(false);
-    const msg = isChromeIos()
-      ? "Tap the three dots (•••) below to Add to Home Screen"
-      : "Tap the Share icon (⎋) below to Add to Home Screen";
-    setIosPointerGuide(msg);
-    setTimeout(() => {
-      setIosPointerGuide(null);
-    }, 12000);
-  };
-
-  // Auto-trigger install banners 1.5s after user is logged in with valid phone
+  // Auto-trigger Android install banner 1.5s after user is logged in with valid phone
   useEffect(() => {
     if (customer && customer.phone) {
       const timer = setTimeout(() => {
         checkAndTriggerAndroidInstall();
-        checkAndTriggerIosInstall();
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -708,10 +648,9 @@ export default function CustomerPage() {
           localStorage.setItem(CUSTOMER_CACHE_KEY, JSON.stringify(updatedCustomer));
         }
 
-        // Trigger PWA install banner check 1.5s after completing phone onboarding
+        // Trigger Android PWA banner check 1.5s after completing phone onboarding
         setTimeout(() => {
           checkAndTriggerAndroidInstall();
-          checkAndTriggerIosInstall();
         }, 1500);
       } else {
         setPhoneError(data.error || "Failed to save phone number");
@@ -959,19 +898,6 @@ export default function CustomerPage() {
               </button>
             </div>
 
-            {isIosDevice() && !isStandalone() && (
-              <div className="mt-4 pt-3.5 border-t border-[#EBD3C8]/50">
-                <button
-                  type="button"
-                  onClick={handleIosDownloadApp}
-                  className="w-full py-2.5 px-4 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Download App</span>
-                </button>
-              </div>
-            )}
-
             <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center justify-center gap-2 text-xs text-neutral-400 font-mono">
               <ShieldCheck className="w-4 h-4 text-emerald-700" />
               <span>Secure Digital Pass Authentication</span>
@@ -1106,18 +1032,6 @@ export default function CustomerPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            {isIosDevice() && !isStandalone() && (
-              <button
-                type="button"
-                onClick={handleIosDownloadApp}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
-                title="Download iPhone App"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download App</span>
-              </button>
-            )}
-
             <button
               onClick={handleLogout}
               className="p-2 rounded-xl text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100/50 transition-colors cursor-pointer"
@@ -1131,24 +1045,6 @@ export default function CustomerPage() {
 
       {/* Main Container */}
       <main className="max-w-md mx-auto w-full px-4 pt-4 pb-32 flex-1">
-        {/* iOS Share Instruction Toast */}
-        {iosShareToast && (
-          <div className="mb-4 bg-[#3F1215] text-[#FEECE2] rounded-2xl p-3.5 shadow-lg border border-[#3F1215] flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
-                <Smartphone className="w-4 h-4" />
-              </div>
-              <p className="text-xs font-semibold">{iosShareToast}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIosShareToast(null)}
-              className="p-1 rounded-lg text-[#FEECE2]/70 hover:text-white transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
         {/* Auto-Dismissing Top Notification Toast (6s auto-dismiss, dismissible via X, preserves unread status) */}
         {showTopToast && activeToastNotification && activeTab !== "notifications" && (
           <div
@@ -1355,33 +1251,6 @@ export default function CustomerPage() {
               </div>
               <ChevronRight className="w-4 h-4 text-neutral-400" />
             </button>
-
-            {/* iPhone App Install Quick Action */}
-            {isIosDevice() && !isStandalone() && (
-              <div className="glass-panel rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xs border border-[#EBD3C8]">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-[#3F1215] text-[#FEECE2] flex items-center justify-center shrink-0">
-                    <Smartphone className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold text-[#2B0B0D] block truncate">
-                      Add to iPhone Home Screen
-                    </span>
-                    <span className="text-[11px] text-neutral-500 block truncate">
-                      Instant 1-tap pass at the coffee counter
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleIosDownloadApp}
-                  className="px-3.5 py-2 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs shrink-0 flex items-center gap-1.5 cursor-pointer active:scale-95"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download App</span>
-                </button>
-              </div>
-            )}
           </div>
         )}
 
@@ -1842,272 +1711,46 @@ export default function CustomerPage() {
         </div>
       )}
 
-      {/* MODAL: iOS Add to Home Screen Guidance (Tailored for Chrome vs Safari) */}
+      {/* MODAL: iOS Add to Home Screen Guidance */}
       {showIosInstallModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center relative animate-in fade-in zoom-in-95 duration-200">
-            <button
-              type="button"
-              onClick={() => setShowIosInstallModal(false)}
-              className="absolute top-4 end-4 p-1.5 rounded-full text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            {/* App Icon */}
-            <div className="w-14 h-14 rounded-2xl bg-[#3F1215] flex items-center justify-center text-white mx-auto mb-3 shadow-md overflow-hidden p-0.5 border border-[#3F1215]">
-              <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EBD3C8] rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <div className="w-12 h-12 rounded-full bg-[#FAF5F2] border border-[#EBD3C8] text-[#3F1215] flex items-center justify-center mx-auto mb-3">
+              <Bell className="w-6 h-6" />
             </div>
-
-            <h3 className="text-lg font-bold text-[#2B0B0D] font-serif mb-1">
-              Install {config.storeName}
+            <h3 className="text-base font-bold text-[#2B0B0D] mb-1">
+              Enable Notifications on iPhone
             </h3>
-
-            {/* Browser Detection Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF5F2] border border-[#EBD3C8] text-[11px] font-semibold text-[#3F1215] mb-4">
-              {isChromeIos() ? (
-                <>
-                  <MoreHorizontal className="w-3.5 h-3.5" />
-                  <span>Google Chrome on iPhone</span>
-                </>
-              ) : isInAppBrowser() ? (
-                <>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>In-App Browser Detected</span>
-                </>
-              ) : (
-                <>
-                  <Share className="w-3.5 h-3.5" />
-                  <span>Safari on iPhone</span>
-                </>
-              )}
-            </div>
-
-            <p className="text-xs text-neutral-600 mb-4 leading-relaxed">
-              {isChromeIos()
-                ? "Apple allows installing apps through Chrome's menu. Follow these 2 quick steps:"
-                : isInAppBrowser()
-                ? "Please open this pass in Safari or Chrome to install it on your Home Screen:"
-                : "Add this pass to your Home Screen for instant 1-tap counter access:"}
+            <p className="text-xs text-neutral-500 mb-5 leading-relaxed">
+              Apple requires adding the app to your Home Screen first to receive lock screen notifications:
             </p>
 
-            {/* Visual Step Guide */}
-            {isChromeIos() ? (
-              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-start space-y-3.5 mb-5 text-xs text-[#2B0B0D]">
-                <div className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-xl bg-[#3F1215] text-[#FEECE2] font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                    1
-                  </span>
-                  <div>
-                    <span className="font-bold block text-neutral-900">
-                      Tap the Three Dots (•••)
-                    </span>
-                    <span className="text-neutral-500 text-[11px]">
-                      Located in the bottom corner (or top bar) of Google Chrome.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-xl bg-[#3F1215] text-[#FEECE2] font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                    2
-                  </span>
-                  <div>
-                    <span className="font-bold block text-neutral-900">
-                      Tap &quot;Share...&quot; or &quot;Add to Home Screen&quot;
-                    </span>
-                    <span className="text-neutral-500 text-[11px]">
-                      In Chrome&apos;s menu, select Share, then tap <strong>Add to Home Screen (+)</strong>.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-xl bg-[#3F1215] text-[#FEECE2] font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                    3
-                  </span>
-                  <div>
-                    <span className="font-bold block text-neutral-900">
-                      Tap &quot;Add&quot; in Top Right
-                    </span>
-                    <span className="text-neutral-500 text-[11px]">
-                      The app icon will be pinned to your iPhone Home Screen permanently!
-                    </span>
-                  </div>
-                </div>
+            <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-start space-y-3 mb-5 text-xs text-[#2B0B0D]">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  1
+                </span>
+                <span>Tap the Share button <strong>⎋ (Share)</strong> in Safari&apos;s bottom toolbar.</span>
               </div>
-            ) : isInAppBrowser() ? (
-              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-start space-y-3.5 mb-5 text-xs text-[#2B0B0D]">
-                <div className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-xl bg-[#3F1215] text-[#FEECE2] font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                    1
-                  </span>
-                  <div>
-                    <span className="font-bold block text-neutral-900">
-                      Tap the (•••) or Share Menu
-                    </span>
-                    <span className="text-neutral-500 text-[11px]">
-                      Located at the top or bottom of your in-app browser.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-xl bg-[#3F1215] text-[#FEECE2] font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                    2
-                  </span>
-                  <div>
-                    <span className="font-bold block text-neutral-900">
-                      Choose &quot;Open in Safari&quot; or &quot;Open in Chrome&quot;
-                    </span>
-                    <span className="text-neutral-500 text-[11px]">
-                      Then follow the steps to Add to Home Screen.
-                    </span>
-                  </div>
-                </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  2
+                </span>
+                <span>Choose <strong>&quot;Add to Home Screen&quot;</strong>.</span>
               </div>
-            ) : (
-              <div className="bg-[#FAF5F2] border border-[#EBD3C8] rounded-2xl p-4 text-start space-y-3.5 mb-5 text-xs text-[#2B0B0D]">
-                <div className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-xl bg-[#3F1215] text-[#FEECE2] font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                    1
-                  </span>
-                  <div>
-                    <span className="font-bold block text-neutral-900">
-                      Tap the Share Button (⎋)
-                    </span>
-                    <span className="text-neutral-500 text-[11px]">
-                      Found in Safari&apos;s bottom toolbar (square with arrow up).
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-xl bg-[#3F1215] text-[#FEECE2] font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                    2
-                  </span>
-                  <div>
-                    <span className="font-bold block text-neutral-900">
-                      Select &quot;Add to Home Screen&quot;
-                    </span>
-                    <span className="text-neutral-500 text-[11px]">
-                      Scroll down the list and tap <strong>[+] Add to Home Screen</strong>.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-xl bg-[#3F1215] text-[#FEECE2] font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                    3
-                  </span>
-                  <div>
-                    <span className="font-bold block text-neutral-900">
-                      Tap &quot;Add&quot; in Top Right
-                    </span>
-                    <span className="text-neutral-500 text-[11px]">
-                      The Cove pass will be saved to your Home Screen!
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={handleCloseIosModalWithPointer}
-              className="w-full py-3 rounded-2xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-            >
-              <span>Got it, I&apos;ll Add it Now</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* iPHONE PWA INSTALL FLOATING BANNER */}
-      {showIosBanner && (
-        <div className="fixed bottom-24 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-40 animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <div className="glass-banner rounded-3xl p-4 shadow-2xl border border-white/95 relative">
-            <button
-              type="button"
-              onClick={handleDismissIosBanner}
-              className="absolute top-3 end-3 p-1 rounded-full text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-start gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#3F1215] flex items-center justify-center text-white shrink-0 overflow-hidden p-0.5 border border-[#3F1215]/30 shadow-md">
-                <img src="/logo.png" alt="Cove" className="w-full h-full object-cover rounded-xl" />
-              </div>
-
-              <div className="flex-1 min-w-0 pr-3">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="font-bold text-xs sm:text-sm text-[#2B0B0D]">
-                    Install {config.storeName}
-                  </span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#FAF5F2] text-[#3F1215] border border-[#EBD3C8]">
-                    iPhone
-                  </span>
-                </div>
-                <p className="text-[11px] text-neutral-500 leading-snug">
-                  Add to home screen for 1-tap checkout pass & fast counter access.
-                </p>
-
-                <div className="flex items-center gap-2 mt-3">
-                  <button
-                    type="button"
-                    onClick={handleIosDownloadApp}
-                    className="flex-1 py-2 px-3 rounded-xl bg-[#3F1215] hover:bg-[#2B0B0D] text-[#FEECE2] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Download App</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDismissIosBanner}
-                    className="py-2 px-3 rounded-xl bg-transparent hover:bg-black/5 text-neutral-500 text-xs font-medium transition-colors cursor-pointer"
-                  >
-                    Not now
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* FLOATING POINTER FOR iOS BROWSER TOOLBAR (POINTS DIRECTLY TO CHROME 3-DOTS OR SAFARI SHARE) */}
-      {iosPointerGuide && (
-        <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-xs z-50 animate-in slide-in-from-bottom-3 fade-in duration-300">
-          <div className="bg-[#3F1215] text-[#FEECE2] rounded-2xl p-3.5 shadow-2xl border border-white/20 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 animate-bounce">
-                {isChromeIos() ? (
-                  <MoreHorizontal className="w-4 h-4 text-[#FEECE2]" />
-                ) : (
-                  <Share className="w-4 h-4 text-[#FEECE2]" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold leading-tight text-[#FEECE2]">
-                  {isChromeIos() ? "Tap (•••) Below" : "Tap Share (⎋) Below"}
-                </p>
-                <p className="text-[11px] text-[#FEECE2]/80 leading-tight truncate mt-0.5">
-                  Select &quot;Add to Home Screen&quot;
-                </p>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#3F1215] text-[#FEECE2] font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  3
+                </span>
+                <span>Open <strong>Cove</strong> from your home screen and tap &quot;Enable&quot;.</span>
               </div>
             </div>
 
             <button
-              type="button"
-              onClick={() => setIosPointerGuide(null)}
-              className="p-1.5 rounded-lg text-[#FEECE2]/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              onClick={() => setShowIosInstallModal(false)}
+              className="w-full py-2.5 rounded-xl bg-[#3F1215] text-[#FEECE2] text-xs font-semibold hover:bg-[#2B0B0D] transition-colors cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              Got it, thanks
             </button>
           </div>
         </div>
